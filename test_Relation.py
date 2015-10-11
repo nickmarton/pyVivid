@@ -52,6 +52,7 @@ def test_set_definition():
     def test_value_params(definition):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
+            r.set_definition(definition)
 
     #non-string test
     test_type_params(None)
