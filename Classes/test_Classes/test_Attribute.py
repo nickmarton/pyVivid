@@ -1,7 +1,9 @@
 """Attribute class unit tests."""
 
+import sys
 import pytest
-from Attribute import Attribute
+
+from ..Attribute import Attribute
 
 def test_set_label():
     """Test set label function."""

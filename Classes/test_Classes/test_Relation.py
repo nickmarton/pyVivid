@@ -1,7 +1,7 @@
 """Relation class unit tests."""
 
 import pytest
-from Relation import Relation
+from ..Relation import Relation
 
 def test_init():
     """Test __init__ function."""
