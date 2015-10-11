@@ -1,3 +1,5 @@
+from assistance_functions import parse, nested_equivalence
+
 class Attribute:
     """
     Class for Attribute i.e., set containing single elements, subsets
@@ -10,20 +12,20 @@ class Attribute:
     format outlined in parse function within the kernel file.
     """
 
-    def __init__(self, l, v):
+    def __init__(self, label, value_set):
         """
         Initialize an Attribute object; parse the value set
         (v parameter) according to parse provided within the kernel.
         """
 
         #type checking before anything
-        if not isinstance(l, str):
+        if not isinstance(label, str):
             raise TypeError("l parameter must be a string")
-        if not isinstance(v, list):
+        if not isinstance(value_set, list):
             raise TypeError('v parameter must be of type list')
 
-        self._label = l
-        self._value_set = parse(v)
+        self._label = label
+        self._value_set = parse(value_set)
 
     def __eq__(self, other):
         """
@@ -41,27 +43,27 @@ class Attribute:
     
     def __ne__(self, other):
         """Determine if this Attribute is not equivalent to other Attribute."""
-        return not self.__eq__(self, other)
+        return not self.__eq__(other)
 
-    def set_label(self, l):
+    def set_label(self, label):
         """Set label to exclusively strings."""
-        if not isinstance(l, str): raise TypeError("label must be string")
-        else: self._label = l
+        if not isinstance(label, str): raise TypeError("label must be string")
+        else: self._label = label
     
     def get_label(self):
         """Get attribute label."""
         return self._label
     
-    def set_possible_values(self, v): 
+    def set_possible_values(self, value_set): 
         """
-        Set value set to v if v is a list; raise TypeError if v is not a list.
+        Set value set it's a list; raise TypeError it's not.
         Must be a list and parsable.
         """
 
-        if not isinstance(v, list): 
+        if not isinstance(value_set, list): 
             raise TypeError('Possible values must be stored in a list')
         else: 
-            self._value_set = parse(v)    
+            self._value_set = parse(value_set)    
     
     def get_possible_values(self): 
         """Return this Attribute object's value set."""
@@ -72,9 +74,14 @@ class Attribute:
         return self._label + ': ' + '{' + ''.join(
             [str(i) + ',' for i in self._value_set])[:-1] + '}'
 
+    def __repr__(self):
+        """Machine readable string repr; same as __str__."""
+        return "\"" + self.__str__() + "\""
+
 def main():
     """Main method; quick testing."""
-    a = Attribute("yo", [])
+    a = Attribute("yo", ["333", "33333", "333", 4, True, "[3, [edd, d]]"])
+    print a != a
 
 if __name__ == "__main__":
     main()
