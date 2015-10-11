@@ -1,9 +1,13 @@
+"""Attribute class unit tests."""
+
 import pytest
 from Attribute import Attribute
 
 def test_set_label():
+    """Test set label function."""
 
     def test_labels(label):
+        """Test set_label with label param."""
         with pytest.raises(TypeError) as excinfo:
             A.set_label(label)
 
@@ -16,6 +20,7 @@ def test_set_label():
     test_labels(object)
 
 def test_set_possible_values():
+    """Test set_possible_values function."""
 
     def test_labels(value_set):
         with pytest.raises(TypeError) as excinfo:
@@ -30,10 +35,12 @@ def test_set_possible_values():
     test_labels(object)
 
 def test_eq():
+    """Test __eq__ magic function."""
     A1, A2 = Attribute("label", []), Attribute("label", [])
     assert A1 == A2
 
 def test_ne():
+    """Test __ne__ magic function."""
     A1, A2 = Attribute("lbl", []), Attribute("label", [])
     A3, A4 = Attribute("label", [1]), Attribute("label", [])
     assert A1 != A2

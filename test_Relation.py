@@ -1,3 +1,5 @@
+"""Relation class unit tests."""
+
 import pytest
 from Relation import Relation
 
