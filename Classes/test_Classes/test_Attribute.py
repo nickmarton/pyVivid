@@ -1,8 +1,6 @@
 """Attribute class unit tests."""
 
-import sys
 import pytest
-
 from ..Attribute import Attribute
 
 def test_set_label():
