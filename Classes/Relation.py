@@ -1,3 +1,4 @@
+"""Relation class."""
 
 class Relation:
     """

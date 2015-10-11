@@ -1,3 +1,5 @@
+"""Attribute Class."""
+
 from assistance_functions import parse, nested_equivalence
 
 class Attribute:
