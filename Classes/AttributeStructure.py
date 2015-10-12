@@ -1,6 +1,9 @@
 """Attribute Structure class."""
 
-class AttributeStructure:
+from Attribute import Attribute
+from Relation import Relation
+
+class AttributeStructure(object):
     """
     Class for Attribute Structure composed of attributes and relations.
     
@@ -32,7 +35,7 @@ class AttributeStructure:
 
             if isinstance(op, Relation):                                                #if op is a Relation
                 if set(op.get_DR()) <= set(self.get_labels()):                          #if D(R) is within cartesian product of attribute labels
-                    self._relations[op.subscript] = op                                  #add op to object's relation dict
+                    self._relations[op._subscript] = op                                 #add op to object's relation dict
                     continue                                                            #start at top of loop to not raise exception
                 else:                                                                   #op's D(R) is invalid, raise ValueError
                     raise ValueError(
@@ -189,8 +192,10 @@ class AttributeStructure:
 def main():
     """Main method; quick testing."""
 
-    a = AttributeStructure()
-    print dir()
+    a, b, c = Attribute("a", []), Attribute("b", []), Attribute("c", [])
+    r = Relation("R1(a,b) <=> ", ["a", "b"])
+
+    a = AttributeStructure(a, b, c, r)
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,13 @@
 """Attribute Class."""
 
+from loader import load_src
+load_src("assistance_functions", "../assistance_functions.py")
 from assistance_functions import parse, nested_equivalence
 
-class Attribute:
+class Attribute(object):
     """
     Class for Attribute i.e., set containing single elements, subsets
-    or containuous ranges of integers or decimals
+    or containuous ranges of integers or decimals.
     
     attributes:
     label: name of Attribute (e.g. size), always a string
@@ -49,7 +51,8 @@ class Attribute:
 
     def set_label(self, label):
         """Set label to exclusively strings."""
-        if not isinstance(label, str): raise TypeError("label must be string")
+        if not isinstance(label, str): 
+            raise TypeError("label must be string")
         else: self._label = label
     
     def get_label(self):

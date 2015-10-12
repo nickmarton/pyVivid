@@ -1,6 +1,6 @@
 """Relation class."""
 
-class Relation:
+class Relation(object):
     """
     Class for relations in attribute structures
     definition:     string representation of definition with form

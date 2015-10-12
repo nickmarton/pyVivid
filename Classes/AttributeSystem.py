@@ -1,8 +1,10 @@
 """Attribute System class."""
 
-class AttributeSystem:
+from AttributeStructure import Attribute, Relation, AttributeStructure
+
+class AttributeSystem(object):
     '''Class for Attribute System'''
-    def __init__(self, objs, A):
+    def __init__(self, A, objs):
         if not isinstance(objs, list):                                                  #Raise TypeError if objs is not a list
             raise TypeError("objs parameter must be of type list")
         if not isinstance(A, AttributeStructure):                                              #Raise TypeError if A is not an AttributeStructure
@@ -71,3 +73,18 @@ class AttributeSystem:
             for a in self.get_attribute_structure().get_attributes():
                 if is_subset([s], a.get_possible_values()): return True
         return False
+
+
+def main():
+    """Main method for quick tests."""
+
+    a, b, c = Attribute("a", []), Attribute("b", []), Attribute("c", [])
+    r = Relation("R1(a,b) <=> ", ["a", "b"])
+
+    a = AttributeStructure(a, b, c, r)
+    o = ['o1', 'o2']
+
+    asys = AttributeSystem(a, o)
+
+if __name__ == "__main__":
+    main()
