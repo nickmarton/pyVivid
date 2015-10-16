@@ -29,7 +29,6 @@ class AttributeSystem(object):
 
     def deep_copy(self):
         """Return a deep copy of this AttributeSystem object."""
-
         import copy
 
         objects_copy = copy.copy(self._objects)
@@ -65,7 +64,7 @@ class AttributeSystem(object):
         return '({' + ''.join(
             [s_i + ', ' for s_i in self._objects]                                       #list comprehension to build string for AttributeSystem's objects
             )\
-            [:-2] + '} ; ' + str(self._attribute_structure) + ')'                               #drop trailing ", ", add attribute structure string and closing parenthesis
+            [:-2] + '} ; ' + str(self._attribute_structure) + ')'                               #drop trailing ", ",  attribute structure string and closing parenthesis
 
     def is_automorphic(self):
         'determine if Attribute System is automorphic'

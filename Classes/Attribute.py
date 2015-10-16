@@ -91,7 +91,8 @@ class Attribute(object):
 def main():
     """Main method; quick testing."""
     a = Attribute("yo", ["333", "33333", "333", 4, True, "[3, [edd, d]]"])
-    print a != a
+    b = Attribute("yerboi", [])
+    print a + b
 
 if __name__ == "__main__":
     main()

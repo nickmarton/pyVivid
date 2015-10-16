@@ -155,18 +155,18 @@ class Relation(object):
 
             definition must be a string.
         '''
-        wsf_definiton = "".join(definition.split())                                     #create whitespace free definition
+        wsf_definiton = "".join(definition.split())    #create whitespace free definition
         
-        import re                                                                       #we will handle checking validity with regular expression
+        import re                                      #we will handle checking validity with regular expression
 
-        matchObj = re.match(                                                            #we use match as it matches only the beginning of a string
+        matchObj = re.match(                           #we use match as it matches only the beginning of a string
 
-            r'R' +                                                                      #begin with 'R'                             e.g. 'R'
-            '\d+' +                                                                     #followed by any whole numbers              e.g. 'R1'
-            '\(' +                                                                      #then a '('                                 e.g. 'R1('
-            '(\w+,)*' +                                                                 #then 0 or more alphanumeric substrings     e.g. 'R1(h1,m1,h2,' or 'R1(' if only 1 argument
-            '(\w+)' +                                                                   #then an alphanumeric substring             e.g. 'R1(h1,m1,h2,m2' or 'R1(h1' if only 1 argument
-            '\)<=>',                                                                    #finished by ')<=>'                         e.g. 'R1(h1,m1,h2,m2)<=>' or 'R1(h1)<=>' if only 1 argument
+            r'R' +                                     #begin with 'R'                             e.g. 'R'
+            '\d+' +                                    #followed by any whole numbers              e.g. 'R1'
+            '\(' +                                     #then a '('                                 e.g. 'R1('
+            '(\w+,)*' +                                #then 0 or more alphanumeric substrings     e.g. 'R1(h1,m1,h2,' or 'R1(' if only 1 argument
+            '(\w+)' +                                  #then an alphanumeric substring             e.g. 'R1(h1,m1,h2,m2' or 'R1(h1' if only 1 argument
+            '\)<=>',                                   #finished by ')<=>'                         e.g. 'R1(h1,m1,h2,m2)<=>' or 'R1(h1)<=>' if only 1 argument
             wsf_definiton
             )
         
