@@ -3,6 +3,7 @@
 from loader import load_src
 load_src("assistance_functions", "../assistance_functions.py")
 from assistance_functions import parse, nested_equivalence
+from copy import deepcopy
 
 class Attribute(object):
     """
@@ -48,6 +49,10 @@ class Attribute(object):
     def __ne__(self, other):
         """Determine if this Attribute is not equivalent to other Attribute."""
         return not self.__eq__(other)
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for Attribute object."""
+        return Attribute(deepcopy(self._label), deepcopy(self._value_set))
 
     def set_label(self, label):
         """Set label to exclusively strings."""

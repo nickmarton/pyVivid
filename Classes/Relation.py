@@ -1,5 +1,7 @@
 """Relation class."""
 
+from copy import deepcopy
+
 class Relation(object):
     """
     Class for relations in attribute structures
@@ -13,26 +15,8 @@ class Relation(object):
                     positive integer.
     """
 
-    _subscripts = []
-
     def __init__(self, definition, D_of_r, subscript=0):
         """Initialize a Relation object."""
-        
-        def get_next_subscript(subscript):
-            """
-            Return either subscript provided if it's valid or lowest valid
-            subscript.
-            """
-
-            #if subscript asked for is available, return it
-            if subscript not in Relation._subscripts:
-                return subscript
-
-            new_subscript = 0
-            while new_subscript in Relation._subscripts:
-                new_subscript += 1
-
-            return new_subscript
 
         #type enforcement
         if not isinstance(definition, str):
@@ -41,9 +25,6 @@ class Relation(object):
             raise TypeError("D_of_r must be of type list")
         if not isinstance(subscript, int): 
             raise TypeError("s must be of type int")
-        
-        #ensure no negative subscripts
-        if subscript < 0: subscript = 0
 
         #enforce that definition of relation is valid; this becomes important
         #when assign_truth_value() is called as the cardinality of the
@@ -54,8 +35,6 @@ class Relation(object):
             raise ValueError(
                 "definition parameter must be of form 'R(x1,x2,...,xn) <=> ' "
                 "(with arbitrary whitespace allowed")
-
-        self._definition = definition
 
         #we have a valid definition, so grab the arguments from the definition
         #and count them
@@ -75,20 +54,15 @@ class Relation(object):
             if not isinstance(label, str):
                 raise TypeError("D_of_R must contain only strings.")
 
-        self._DR = D_of_r
-        
-        #get next valid subscript and assign it and store in subscript list
-        assigned_subscript = get_next_subscript(subscript)
-        self._subscript = assigned_subscript
-        Relation._subscripts.append(assigned_subscript)
+        self._definition = definition
+        self._DR = D_of_r        
+        self._subscript = subscript
 
     def __eq__(self, other):
         """Determine if two Relation objects are equal."""
         c_def = self._definition == other._definition
         c_DR = self._DR == other._DR
         c_subscript = self._subscript == other._subscript
-        
-        print c_def, c_DR, c_subscript
 
         if c_def and c_DR and c_subscript:
             return True
@@ -99,9 +73,12 @@ class Relation(object):
         """Determine if two Relation objects are not equal."""
         return not self.__eq__(other)
 
-    def get_definition(self): 
-        """Return definition of this Relation object."""
-        return self._definition
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for Relation object."""
+        return Relation(
+            str(self._definition), 
+            deepcopy(self._DR), 
+            int(self._subscript))
     
     def set_definition(self, definition):
         """Set definition; ensure that it conforms to required format."""
@@ -159,17 +136,12 @@ class Relation(object):
 
     def __str__(self):
         """Make human readable string of this Relation object."""
-        return 'R' + str(self.subscript) + ' is a subset of ' + \
+        return 'R' + str(self._subscript) + ' is a subset of ' + \
         self.get_DR(True) + ', defined as follows: ' + self.get_definition()
 
     def __repr__(self):
         """Return machine representation of this Relation object; just RN."""
         return 'R' + str(self._subscript)
-
-    @classmethod
-    def clear_subscripts(cls):
-        """Reset Relation.subscript"""
-        cls._subscripts = []
 
     @staticmethod
     def is_valid_definition(definition):
@@ -224,5 +196,7 @@ def main():
     r2 = Relation("R1(a) <=> ", ["a"], 0)
     print r1 == r2
 
+    print r1
+    print deepcopy(r1)
 if __name__ == "__main__":
     main()
