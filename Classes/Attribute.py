@@ -31,6 +31,7 @@ class Attribute(object):
 
         self._label = label
         self._value_set = parse(value_set)
+        self._is_Attribute = True
 
     def __eq__(self, other):
         """
@@ -49,6 +50,31 @@ class Attribute(object):
     def __ne__(self, other):
         """Determine if this Attribute is not equivalent to other Attribute."""
         return not self.__eq__(other)
+
+    def __add__(self, other):
+        """
+        Overloaded + operator. 
+        
+        Combine this Attribute and another Attribute or Relation into an
+        AttributeStructure.
+        """
+
+        from Relation import Relation
+        from AttributeStructure import AttributeStructure
+        #handle Attribute and 
+        if hasattr(other, "_is_Attribute") or hasattr(other, "_is_Relation"):
+            return AttributeStructure(self, other)
+        elif hasattr(other, "_is_AttributeStructure"):
+            other += self
+            return other
+        else:
+            raise TypeError(
+                "Only Relation, Attribute, and AttributeStructure objects may "
+                "be added to an Attribute object.")
+
+    def __iadd__(self, other):
+        """Overloaded += operator."""
+        return self.__add__(other)
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for Attribute object."""

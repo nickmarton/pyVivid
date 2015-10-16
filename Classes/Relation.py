@@ -57,6 +57,7 @@ class Relation(object):
         self._definition = definition
         self._DR = D_of_r        
         self._subscript = subscript
+        self._is_Relation = True
 
     def __eq__(self, other):
         """Determine if two Relation objects are equal."""
@@ -72,6 +73,31 @@ class Relation(object):
     def __ne__(self, other):
         """Determine if two Relation objects are not equal."""
         return not self.__eq__(other)
+
+    def __add__(self, other):
+        """
+        Overloaded + operator. 
+        
+        Combine this Attribute and another Attribute or Relation into an
+        AttributeStructure.
+        """
+
+        from Attribute import Attribute
+        from AttributeStructure import AttributeStructure
+        #handle Attribute addition case     
+        if hasattr(other, "_is_Attribute"):
+            return AttributeStructure(self, other)
+        elif hasattr(other, "_is_AttributeStructure"):
+            other += self
+            return other
+        else:
+            raise TypeError(
+                "Only Relation or Attribute objects may be added to a "
+                "Relation object.")
+
+    def __iadd__(self, other):
+        """Overload += operator."""
+        return self.__add__(other)
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for Relation object."""
@@ -137,7 +163,7 @@ class Relation(object):
     def __str__(self):
         """Make human readable string of this Relation object."""
         return 'R' + str(self._subscript) + ' is a subset of ' + \
-        self.get_DR(True) + ', defined as follows: ' + self.get_definition()
+        self.get_DR(True) + ', defined as follows: ' + self._definition
 
     def __repr__(self):
         """Return machine representation of this Relation object; just RN."""
@@ -194,9 +220,8 @@ def main():
     """Main method; quick testing."""
     r1 = Relation("R1(a) <=> ", ["a"], 0)
     r2 = Relation("R1(a) <=> ", ["a"], 0)
-    print r1 == r2
 
-    print r1
-    print deepcopy(r1)
+    print r1 + r2
+    print type(r1 + r2)
 if __name__ == "__main__":
     main()
