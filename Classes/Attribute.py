@@ -84,11 +84,8 @@ class Attribute(object):
         """Set label to exclusively strings."""
         if not isinstance(label, str): 
             raise TypeError("label must be string")
-        else: self._label = label
-    
-    def get_label(self):
-        """Get attribute label."""
-        return self._label
+        else: 
+            self._label = label
     
     def set_possible_values(self, value_set): 
         """
@@ -99,11 +96,7 @@ class Attribute(object):
         if not isinstance(value_set, list): 
             raise TypeError('Possible values must be stored in a list')
         else: 
-            self._value_set = parse(value_set)    
-    
-    def get_possible_values(self): 
-        """Return this Attribute object's value set."""
-        return self._value_set
+            self._value_set = parse(value_set)
 
     def __str__(self):
         "human-readable representation of attribute; 'label: {...}''."
