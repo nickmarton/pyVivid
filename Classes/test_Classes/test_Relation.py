@@ -3,8 +3,8 @@
 import pytest
 from ..Relation import Relation
 
-def test_init():
-    """Test __init__ function."""
+def test___init__():
+    """Test Relation object construction."""
 
     def test_type_params(definition, D_of_r, subscript):
         """Test constructor for TypeErrors with given params."""
@@ -23,24 +23,66 @@ def test_init():
     test_type_params("R1(a,b,c) <=> ", "not list", 0)
     #D(R) only strings test
     test_type_params("R1(a,b,c) <=> ", [1,2,3], 0)
+    test_type_params("R1(o) <=> ", [object], 0)
     #subscript is an int test
     test_type_params("R1(a,b,c) <=> ", ["a", "b", "c"], "not int")
+    test_type_params("R1(a,b,c) <=> ", ["a", "b", "c"], object)
     #parameter cardinality mismatch test
     test_value_params("R1(a,b,c) <=> ", ["a", "b"], 0)
+    test_value_params("R1(a,b) <=> ", ["a", "b", "c"], 0)
 
-def test_eq():
-    """Test __eq__ magic function."""
+def test___eq__():
+    """Test == operator."""
     r1 = Relation("R1(a) <=> ", ["a"], 0)
     r2 = Relation("R1(a) <=> ", ["a"], 0)
     #only the same Relation is equal to itself
     assert r1 == r1
+    assert r1 == r2
 
-def test_ne():
-    """Test __ne__ magic function."""
+def test___ne__():
+    """Test != operator."""
     r1 = Relation("R1(a) <=> ", ["a"], 0)
-    r2 = Relation("R1(a) <=> ", ["a"], 0)
-    #subscripts are forced unique test
+    #different definitions test
+    r2 = Relation("R2(a) <=> ", ["a"], 0)
+    #different D(R)'s test
+    r3 = Relation("R1(a) <=> ", ["b"], 0)
+    #different subscripts test
+    r4 = Relation("R1(a) <=> ", ["a"], 1)
+    
     assert r1 != r2
+    assert r1 != r3
+    assert r1 != r4
+
+def test___add__():
+    """Test + operator."""
+    from ..Attribute import Attribute
+    from ..AttributeStructure import AttributeStructure
+
+    a1 = Attribute("a1", [])
+    r1 = Relation("R1(a) <=> ", ["a1"], 0)
+    astr_a1 = AttributeStructure(a1)
+    astr_a1_r1 = AttributeStructure(a1, r1)
+
+    assert astr_a1_r1 == r1 + a1
+    assert astr_a1_r1 == a1 + r1
+    assert astr_a1_r1 == r1 + astr_a1
+    assert astr_a1_r1 == astr_a1 + r1
+
+def test___iadd__():
+    """."""
+    pass
+
+def test___deepcopy__():
+    """."""
+    pass
+
+def test___str__():
+    """."""
+    pass
+
+def test___repr__():
+    """."""
+    pass
 
 def test_set_definition():
     """Test set_definition function."""
@@ -60,6 +102,10 @@ def test_set_definition():
     test_type_params(None)
     #invalid definition test
     test_value_params("invalid definition")
+
+def test_get_DR():
+    """."""
+    pass
 
 def test_set_DR():
     """Test set_DR function."""
@@ -83,6 +129,10 @@ def test_set_DR():
     test_type_params([1])
     #cardinality mismatch test
     test_value_params(["a", "b"])
+
+def test_get_arity():
+    """."""
+    pass
 
 def test_is_valid_definition():
     """Test is_valid_definition function."""

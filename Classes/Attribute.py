@@ -80,6 +80,15 @@ class Attribute(object):
         """Implement copy.deepcopy for Attribute object."""
         return Attribute(deepcopy(self._label), deepcopy(self._value_set))
 
+    def __str__(self):
+        "human-readable representation of attribute; 'label: {...}'."
+        return self._label + ': ' + '{' + ''.join(
+            [str(i) + ',' for i in self._value_set])[:-1] + '}'
+
+    def __repr__(self):
+        """Machine readable string repr; same as __str__."""
+        return "\"" + self.__str__() + "\""
+
     def set_label(self, label):
         """Set label to exclusively strings."""
         if not isinstance(label, str): 
@@ -97,15 +106,6 @@ class Attribute(object):
             raise TypeError('Possible values must be stored in a list')
         else: 
             self._value_set = parse(value_set)
-
-    def __str__(self):
-        "human-readable representation of attribute; 'label: {...}''."
-        return self._label + ': ' + '{' + ''.join(
-            [str(i) + ',' for i in self._value_set])[:-1] + '}'
-
-    def __repr__(self):
-        """Machine readable string repr; same as __str__."""
-        return "\"" + self.__str__() + "\""
 
 def main():
     """Main method; quick testing."""

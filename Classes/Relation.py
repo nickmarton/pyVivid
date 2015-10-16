@@ -88,8 +88,9 @@ class Relation(object):
         if hasattr(other, "_is_Attribute"):
             return AttributeStructure(self, other)
         elif hasattr(other, "_is_AttributeStructure"):
-            other += self
-            return other
+            params = other._attributes + other._relations.keys()
+            params.append(deepcopy(self))
+            return AttributeStructure(*params)
         else:
             raise TypeError(
                 "Only Relation or Attribute objects may be added to a "
@@ -105,6 +106,15 @@ class Relation(object):
             str(self._definition), 
             deepcopy(self._DR), 
             int(self._subscript))
+
+    def __str__(self):
+        """Make human readable string of this Relation object."""
+        return 'R' + str(self._subscript) + ' is a subset of ' + \
+        self.get_DR(True) + ', defined as follows: ' + self._definition
+
+    def __repr__(self):
+        """Return machine representation of this Relation object; just RN."""
+        return 'R' + str(self._subscript)
     
     def set_definition(self, definition):
         """Set definition; ensure that it conforms to required format."""
@@ -159,15 +169,6 @@ class Relation(object):
     def get_arity(self):
         """Return arity of this Relation object."""
         return len(self._DR)
-
-    def __str__(self):
-        """Make human readable string of this Relation object."""
-        return 'R' + str(self._subscript) + ' is a subset of ' + \
-        self.get_DR(True) + ', defined as follows: ' + self._definition
-
-    def __repr__(self):
-        """Return machine representation of this Relation object; just RN."""
-        return 'R' + str(self._subscript)
 
     @staticmethod
     def is_valid_definition(definition):

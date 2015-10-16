@@ -4,7 +4,7 @@ from Attribute import Attribute
 from Relation import Relation
 from copy import deepcopy
 
-class AttributeStructure(object):
+class AttributeStructure(Attribute):
     """
     Class for Attribute Structure composed of attributes and relations.
     
@@ -27,11 +27,16 @@ class AttributeStructure(object):
 
         self._attributes = []
         self._relations = {}
+        self._is_AttributeStructure = True
+
+        #Sort provided ops so that attributes are added first
+        sorted_ops = sorted(list(ops),
+            key=lambda x: hasattr(x, "_is_Attribute"), reverse=True)
 
         #for each optional positional argument op
-        for op in ops:
+        for op in sorted_ops:
             #if op is an Attribute
-            if isinstance(op, Attribute):
+            if hasattr(op, "_is_Attribute"):
                 #if attribute is not a duplicate add attribute to objects list
                 #of attributes                                               
                 if op not in self._attributes:
@@ -39,7 +44,7 @@ class AttributeStructure(object):
                     continue
 
             #if op is a Relation
-            if isinstance(op, Relation):
+            elif hasattr(op, "_is_Relation"):
 
                 #prevent duplicate subscripts
                 if op._subscript in self._relations.keys():
@@ -98,15 +103,19 @@ class AttributeStructure(object):
         return not self.__eq__(other)
 
     def __add__(self, other):
-        """Implement + to add Attribute's or Relation's easily."""
+        """
+        Implement + to add Attribute's, Relation's, or AttributeStructure's
+        easily.
+        """
+        
         #handle adding Attribute's to this AttributeStructure
-        if isinstance(other, Attribute):
+        if hasattr(other, "_is_Attribute"):
             #Add other Attribute if it's label isn't in this AttributeStructure
             if other._label not in self.get_labels():
                 self._attributes.append(deepcopy(other))
         
         #handle adding Relation's to this AttributeStructure
-        elif isinstance(other, Relation):
+        elif hasattr(other, "_is_Relation"):
             #if other Relation has a duplicate subscript raise ValueError
             if other._subscript in self._relations.keys():
                 raise ValueError(
@@ -115,11 +124,18 @@ class AttributeStructure(object):
             #check if other Relation's D(R) is a subset of this 
             #AttributeStructure's Attribute labels
             if set(other._DR) <= set(self.get_labels()): 
-                self._relations[other.subscript] = other
+                self._relations[other._subscript] = other
             else: 
                 raise ValueError(
                     "operand must have all members of D(R) in this "
                     "AttributeStructure's attribute labels.")
+        
+        #handle adding AttributeStructure to this AttributeStructure
+        elif hasattr(other, "_is_AttributeStructure"):
+            for attribute in other._attributes:
+                self += attribute
+            for relation in other._relations.values():
+                self += relation 
         
         else:
             raise TypeError(
@@ -129,21 +145,34 @@ class AttributeStructure(object):
         return self
 
     def __sub__(self, other):
-        """Implement - to remove Attribute's or Relation's easily."""
+        """
+        Implement - to remove Attribute's or Relation's easily (including the
+        set of Attribute's and Relation's from an AttributeStructure).
+        """
+
         #Handle removal of Attribute
-        if isinstance(other, Attribute):
+        if hasattr(other, "_is_Attribute"):
             for i, attribute in enumerate(self._attributes):
                 if attribute._label == other._label:
                     del self._attributes[i]
                     break
             else: 
                 raise ValueError("No attribute with label " + str(label))
+        
         #Handle removal of Relation
-        elif isinstance(other, Relation):
+        elif hasattr(other, "_is_Relation"):
             if not subscript in self._relations.keys(): 
                 raise KeyError("No relation with subscript " + str(subscript))
             else:
                 self._relations.pop(subscript, None)
+        
+        #handle adding AttributeStructure to this AttributeStructure
+        elif hasattr(other, "_is_AttributeStructure"):
+            for attribute in other._attributes:
+                self -= attribute
+            for relation in other._relations.values():
+                self -= relation 
+        
         else:
             raise TypeError(
                 "Only Relation or Attribute objects can be removed to an " 
@@ -152,11 +181,19 @@ class AttributeStructure(object):
         return self
 
     def __iadd__(self, other):
-        """Implement += to add Attribute's or Relation's easily."""
+        """
+        Implement += to add Attribute's, Relation's, or AttributeStructure's
+        easily.
+        """
+
         return self.__add__(other)
 
     def __isub__(self, other):
-        """Implement -= to remove Attribute's or Relation's easily."""
+        """
+        Implement -= to remove Attribute's or Relation's easily (including the
+        set of Attribute's and Relation's from an AttributeStructure).
+        """
+
         return self.__sub__(other)
 
     def deep_copy(self):
@@ -182,7 +219,7 @@ class AttributeStructure(object):
             raise TypeError('a must be a list')
         else:
             for attr in attributes:
-                if not isinstance(attr, Attribute):
+                if not hasattr(attr, "_is_Attribute"):
                     raise TypeError('each entry of a must be an attribute')
             self._attributes = attributes
     
@@ -197,14 +234,14 @@ class AttributeStructure(object):
             raise TypeError('r must be a dictionary')
         else:
             for s, R in relations:
-                if not isinstance(s, int) or not isinstance(R, Relation):
+                if not isinstance(s, int) or not hasattr(R, "_is_Relation"):
                     raise TypeError(
                         "dictionary must be of form subscript:Relation")
             self._relations = relations
 
     def get_labels(self):
         """Return labels of Attributes within this AttributeStructure."""
-        return [a.get_label() for a in self._attributes]
+        return [a._label for a in self._attributes]
 
     def get_attribute(self, label):
         """Get attribute by label; returns None if not found in attributes."""
@@ -242,9 +279,9 @@ def main():
     r = Relation("R1(a,b) <=> ", ["a", "b"])
 
     astr = AttributeStructure(a)
-    astr += b
-    astr -= a
-    print astr + c
+    #astr += b
+    #astr -= a
+    #print astr + c
 
 
 if __name__ == "__main__":
