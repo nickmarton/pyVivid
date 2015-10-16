@@ -27,22 +27,31 @@ class AttributeStructure(object):
         self._attributes = []
         self._relations = {}
 
-        for op in ops:                                                                  #for each optional positional argument op
-            if isinstance(op, Attribute):                                               #if op is an Attribute
-                if op not in self._attributes:                                          #if attribute is not a duplicate
-                    self._attributes.append(op)                                         #add attribute to objects list of attributes
-                    continue                                                            #start at top of loop to not raise exception
+        #for each optional positional argument op
+        for op in ops:
+            #if op is an Attribute
+            if isinstance(op, Attribute):
+                #if attribute is not a duplicate                                               
+                if op not in self._attributes:
+                    self._attributes.append(op)#add attribute to objects list of attributes
+                    continue#start at top of loop to not raise exception
 
-            if isinstance(op, Relation):                                                #if op is a Relation
-                if set(op.get_DR()) <= set(self.get_labels()):                          #if D(R) is within cartesian product of attribute labels
-                    self._relations[op._subscript] = op                                 #add op to object's relation dict
-                    continue                                                            #start at top of loop to not raise exception
-                else:                                                                   #op's D(R) is invalid, raise ValueError
+            #if op is a Relation
+            if isinstance(op, Relation):
+                #if D(R) is within cartesian product of attribute labels
+                if set(op.get_DR()) <= set(self.get_labels()):
+                    #add op to object's relation dict
+                    self._relations[op._subscript] = op
+                    #start at top of loop to not raise exception
+                    continue
+                #op's D(R) is invalid, raise ValueError
+                else:
                     raise ValueError(
                         "D(R) must be a subset of cartesian product "
                         "of some combination of attributes")
 
-            raise TypeError(                                                            #op is not Attribute or Relation, raise TypeError
+            #op is not Attribute or Relation, raise TypeError
+            raise TypeError(
                 "all optional positional arguments must be of type "
                 "Attribute or Relation")
 
@@ -52,39 +61,48 @@ class AttributeStructure(object):
         AttributeStructure objects are equal.
         """
         
-        if len(self._attributes) != len(other._attributes):                             #Attribute sets different length, not equal
+        #Attribute sets different length, not equal
+        if len(self._attributes) != len(other._attributes):
             return False
         else:
             for i in range(len(self._attributes)):
+                #Attributes not equal
                 if self._attributes[i] != other._attributes[i]: 
-                    return False            #Attributes not equal
+                    return False            
         
         s_keys, o_keys = self._relations.keys(), other._relations.keys()
+        #Different amount of relations, not equal 
         if len(s_keys) != len(o_keys): 
-            return False                                 #Different amount of relations, not equal 
+            return False                                 
         for s_key in s_keys:
             for o_key in o_keys:
                 if self._relations[s_key] == other._relations[o_key]: 
                     break
+            #No match for a relation found, not equal
             else: 
-                return False                                                          #No match for a relation found, not equal
-
-        return True                                                                     #Relations and Attributes are equal, structures are equal
+                return False
+        #Relations and Attributes are equal, structures are equal
+        return True
     
     def __ne__(self, other):
-        if len(self._attributes) != len(other._attributes): return True             #Attribute sets different length, not equal
+        #Attribute sets different length, not equal
+        if len(self._attributes) != len(other._attributes): return True
         else:
             for i in range(len(self._attributes)):
-                if self._attributes[i] != other._attributes[i]: return True         #Attributes not equal
+                #Attributes not equal
+                if self._attributes[i] != other._attributes[i]: return True
         
         s_keys, o_keys = self._relations.keys(), other._relations.keys()
-        if len(s_keys) != len(o_keys): return True                                      #Different amount of relations, not equal 
+        #Different amount of relations, not equal 
+        if len(s_keys) != len(o_keys): return True
         for s_key in s_keys:
             for o_key in o_keys:
                 if self._relations[s_key] == other._relations[o_key]: break
-            else: return True                                                           #No match for a relation found, not equal
+            #No match for a relation found, not equal
+            else: return True
 
-        return False                                                                    #Relations and Attributes are equal, structures are equal
+        #Relations and Attributes are equal, structures are equal
+        return False
 
     def deep_copy(self):
         """Return a deep copy of this AttributeStructure object."""
