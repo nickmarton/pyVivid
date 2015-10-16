@@ -3,7 +3,7 @@
 import pytest
 from ..Attribute import Attribute
 
-def test__init__():
+def test___init__():
     """Test Attribute constructor."""
     def test_constructor(label, value_set):
         """Test an individual Attribute construction."""
@@ -23,20 +23,20 @@ def test__init__():
     test_constructor("", set([]))
     test_constructor("", object)
 
-def test__eq__():
-    """Test __eq__ magic function."""
+def test___eq__():
+    """Test == operator."""
     A1, A2 = Attribute("label", []), Attribute("label", [])
     assert A1 == A2
 
-def test__ne__():
-    """Test __ne__ magic function."""
+def test___ne__():
+    """Test != operator."""
     A1, A2 = Attribute("lbl", []), Attribute("label", [])
     A3, A4 = Attribute("label", [1]), Attribute("label", [])
     assert A1 != A2
     assert A3 != A4
 
-def test__add__():
-    """Test + magic function."""
+def test___add__():
+    """Test + operator."""
     from ..Relation import Relation
     from ..AttributeStructure import AttributeStructure
     
@@ -56,11 +56,8 @@ def test__add__():
     #add Attribute and Relation
     assert astr_a1_r1 == a1 + r1
 
-def test__iadd__():
-    """
-    Test += magic function. This function is implemented by call to __add__ so
-    just test __add__ again.
-    """
+def test___iadd__():
+    """Test += operator."""
     from ..Relation import Relation
     from ..AttributeStructure import AttributeStructure
     
@@ -76,7 +73,7 @@ def test__iadd__():
     astr += a2
     assert astr == astr_a1_a2
 
-def test__deepcopy__():
+def test___deepcopy__():
     """Test copy.deepcopy functionality of Attribute object."""
     from copy import deepcopy
     a = Attribute("label", ["v1", "v2"])
@@ -84,6 +81,16 @@ def test__deepcopy__():
 
     assert a == a_copy
     assert a is not a_copy
+
+def test___str__():
+    """Test str()."""
+    a = Attribute("label", ["1", '(1,(4,5,6),2,3)'])
+    assert a.__str__() == "label: {1,[[4, 5, 6], 1, 2, 3]}"
+
+def test___repr__():
+    """ Test repr()."""
+    a = Attribute("label", ["1", '(1,(4,5,6),2,3)'])
+    assert a.__repr__() == "\"label: {1,[[4, 5, 6], 1, 2, 3]}\""
 
 def test_set_label():
     """Test set label function."""
