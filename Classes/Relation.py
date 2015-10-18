@@ -54,6 +54,14 @@ class Relation(object):
             if not isinstance(label, str):
                 raise TypeError("D_of_R must contain only strings.")
 
+        param_index = definition.find("(")
+        definition_subscript = definition[1:param_index]
+
+        if int(definition_subscript) != subscript:
+            raise ValueError(
+                "Subscript in definition must match subscript provided "
+                "as argument")
+
         self._definition = definition
         self._DR = D_of_r        
         self._subscript = subscript
@@ -88,7 +96,7 @@ class Relation(object):
         if hasattr(other, "_is_Attribute"):
             return AttributeStructure(self, other)
         elif hasattr(other, "_is_AttributeStructure"):
-            params = other._attributes + other._relations.keys()
+            params = other._attributes + other._relations.values()
             params.append(deepcopy(self))
             return AttributeStructure(*params)
         else:
@@ -134,7 +142,7 @@ class Relation(object):
         If string is set to True, return string representation of D(R).
         """
         
-        if string: return ''.join([l + ' x ' for l in self._DR])[:-3]
+        if string: return ''.join([l + ' X ' for l in self._DR])[:-3]
         else: 
             return self._DR
     

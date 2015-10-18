@@ -75,10 +75,6 @@ class Attribute(object):
                 "Only Relation, Attribute, and AttributeStructure objects may "
                 "be added to an Attribute object.")
 
-    def __iadd__(self, other):
-        """Overloaded += operator."""
-        return self.__add__(other)
-
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for Attribute object."""
         return Attribute(deepcopy(self._label), deepcopy(self._value_set))

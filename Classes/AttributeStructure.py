@@ -117,11 +117,13 @@ class AttributeStructure(Attribute):
         easily.
         """
         
+        new_astr = deepcopy(self)
+
         #handle adding Attribute's to this AttributeStructure
         if hasattr(other, "_is_Attribute"):
             #Add other Attribute if it's label isn't in this AttributeStructure
             if other._label not in self.get_labels():
-                self._attributes.append(deepcopy(other))
+                new_astr._attributes.append(deepcopy(other))
         
         #handle adding Relation's to this AttributeStructure
         elif hasattr(other, "_is_Relation"):
@@ -133,7 +135,7 @@ class AttributeStructure(Attribute):
             #check if other Relation's D(R) is a subset of this 
             #AttributeStructure's Attribute labels
             if set(other._DR) <= set(self.get_labels()): 
-                self._relations[other._subscript] = other
+                new_astr._relations[other._subscript] = deepcopy(other)
             else: 
                 raise ValueError(
                     "operand must have all members of D(R) in this "
@@ -142,16 +144,16 @@ class AttributeStructure(Attribute):
         #handle adding AttributeStructure to this AttributeStructure
         elif hasattr(other, "_is_AttributeStructure"):
             for attribute in other._attributes:
-                self += attribute
+                new_astr += deepcopy(attribute)
             for relation in other._relations.values():
-                self += relation 
+                new_astr += deepcopy(relation) 
         
         else:
             raise TypeError(
                 "Only Relation or Attribute objects can be added to an " 
                 "AttributeStructure.")
 
-        return self
+        return new_astr
 
     def __sub__(self, other):
         """
@@ -205,7 +207,7 @@ class AttributeStructure(Attribute):
 
         return self.__sub__(other)
 
-    def deep_copy(self):
+    def __deepcopy__(self, memo):
         """Return a deep copy of this AttributeStructure object."""
 
         import copy

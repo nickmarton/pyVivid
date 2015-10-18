@@ -42,7 +42,7 @@ def test___add__():
     
     a1 = Attribute("a1", [])
     a2 = Attribute("a2", [])
-    r1 = Relation("R1(a) <=> ", ["a1"], 0)
+    r1 = Relation("R1(a) <=> ", ["a1"], 1)
     astr = AttributeStructure()
     astr_a1 = AttributeStructure(a1)
     astr_a1_a2 = AttributeStructure(a1, a2)
@@ -50,8 +50,8 @@ def test___add__():
     astr_a1_a2_r1 = AttributeStructure(a1, a2, r1)
 
     #add AttributeStructure and Attribute
-    assert astr == astr + a1
-    assert astr == a1 + astr
+    assert astr_a1 == astr + a1
+    assert astr_a1 == a1 + astr
     #add Attribute and Attribute
     assert astr_a1_a2 == a1 + a2
     assert astr_a1_a2 == a2 + a1
@@ -72,16 +72,19 @@ def test___iadd__():
     from ..AttributeStructure import AttributeStructure
     
     a1 = Attribute("a1", [])
-    a2 = Attribute("a2", [])
+    r1 = Relation("R1(a) <=> ", ["a1"], 1)
     astr = AttributeStructure()
     astr_a1 = AttributeStructure(a1)
-    astr_a1_a2 = AttributeStructure(a1, a2)
+    astr_a1_r1 = AttributeStructure(a1, r1)
 
-    #add AttributeStructure and Attributes
-    astr += a1
-    assert astr == astr_a1
-    astr += a2
-    assert astr == astr_a1_a2
+    #add AttributeStructure and Relation
+    astr_a1 += r1
+    assert astr_a1_r1 == astr_a1
+    #add Relation to Attribute implicitly converting a1 to AttributeStructure
+    a1 += r1
+    assert a1 == astr_a1
+    assert not hasattr(a1, "_is_Attribute")
+    assert hasattr(a1, "_is_AttributeStructure")
 
 def test___deepcopy__():
     """Test copy.deepcopy functionality of Attribute object."""
