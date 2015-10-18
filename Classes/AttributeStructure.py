@@ -215,7 +215,8 @@ class AttributeStructure(Attribute):
         attributes_copy = copy.deepcopy(self._attributes)
         relations_copy = copy.deepcopy(self._relations).values()
 
-        ops_copy = [attribute for attribute in attributes_copy] + [relation for relation in relations_copy]
+        ops_copy = [attribute for attribute in attributes_copy] +\
+                    [relation for relation in relations_copy]
 
         return AttributeStructure(*ops_copy)
     
@@ -279,14 +280,18 @@ class AttributeStructure(Attribute):
     def __str__(self):
         """Human-readable representation of this AttributeStructure."""
         #Build sorted list of subscripts each separated by a comma
-        r_string = ''.join(['R' + str(i) + ',' for i in sorted([i for i in self._relations.keys()])])[:-1] + ')'
+        r_string = ''.join(
+            ['R' + str(i) + ',' for i in sorted(
+                [i for i in self._relations.keys()])])[:-1] + ')'
         #Add attributes string (e.g. size: {(0,...,651)}, objs: {True,False}, )
-        return '(' + ''.join([str(attr) + ', ' for attr in self._attributes])[:-2] + ' ; ' + r_string
+        return_str = '('
+        return_str += ''.join(
+            [str(attr) + ', ' for attr in self._attributes])[:-2]
+        return_str +=' ; ' + r_string
+        return return_str
 
     def __repr__(self):
         """Machine representation of this AttributeStructure."""
-        self._relations[1] = None
-        self._relations[3] = None
         r_string = ",".join(['R' + str(i) for i in sorted(self._relations.keys())])
         a_str = ",".join(sorted([str(attr) for attr in self._attributes]))
         return r_string + ";" + a_str
@@ -295,9 +300,10 @@ def main():
     """Main method; quick testing."""
 
     a, b, c = Attribute("a", []), Attribute("b", []), Attribute("c", [])
-    r = Relation("R1(a,b) <=> ", ["a", "b"])
+    r = Relation("R1(a,b) <=> ", ["a", "b"],1)
 
-    astr = AttributeStructure(a)
+    astr = AttributeStructure(a, b, r)
+    print str(astr)
     #astr += b
     #astr -= a
     #print astr + c

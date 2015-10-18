@@ -3,14 +3,54 @@
 import pytest
 from ..AttributeStructure import AttributeStructure
 
-def test_init():
+def test___init__():
     """."""
-
-    def test_type_params(definition, D_of_r, subscript):
-        """Test constructor for TypeErrors with given params."""
-        with pytest.raises(TypeError) as excinfo:
-            pass
-    def test_value_params(definition, D_of_r, subscript):
-        """Test constructor for TypeErrors with given params."""
-        with pytest.raises(ValueError) as excinfo:
-            pass
+    pass
+def test___eq__():
+    """."""
+    pass
+def test___ne__():
+    """."""
+    pass
+def test___add__():
+    """."""
+    pass
+def test___sub__():
+    """."""
+    pass
+def test___iadd__():
+    """."""
+    pass
+def test___isub__():
+    """."""
+    pass
+def test___deepcopy__():
+    """."""
+    pass
+def test_set_attributes():
+    """."""
+    pass
+def test_set_relations():
+    """."""
+    pass
+def test_get_labels():
+    """."""
+    pass
+def test_get_attribute():
+    """."""
+    pass
+def test_get_relation():
+    """."""
+    pass
+def test_get_subscripts():
+    """."""
+    pass
+def test_get_cardinality():
+    """."""
+    pass
+def test___str__():
+    """."""
+    pass
+def test___repr__():
+    """."""
+    pass
