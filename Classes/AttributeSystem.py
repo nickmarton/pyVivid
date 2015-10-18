@@ -1,9 +1,11 @@
 """Attribute System class."""
 
 from AttributeStructure import Attribute, Relation, AttributeStructure
+from functools import total_ordering
 
+@total_ordering
 class AttributeSystem(object):
-    '''Class for Attribute System'''
+    """Class for Attribute System."""
     def __init__(self, A, objects):
         """Construct AttributeSystem object."""
         #Enforce objects as list of strings
@@ -36,9 +38,134 @@ class AttributeSystem(object):
         else:
             return False
     
+    def __le__(self, other):
+        """Implement <= operator for AttributeSystem; overloaded for subset."""
+        c_astr = self._attribute_structure <= other._attribute_structure
+        c_objs = set(self._objects) <= set(other._objects)
+        if c_astr and c_objs:
+            return True
+        else:
+            return False
+
     def __ne__(self, other):
         """Implement != for AttributeSystem's."""
         return not self.__eq__(other)
+
+    def __add__(self, other):
+        """Implement + for AttributeSystem's."""
+        from copy import deepcopy
+        self_copy = deepcopy(self)
+
+        #Handle adding an Attribute
+        if hasattr(other, "_is_Attribute"):
+            self_copy._attribute_structure += other
+        #Handle adding a Relation
+        elif hasattr(other, "_is_Relation"):
+            self_copy._attribute_structure += other
+        #Handle adding an AttributeStructure
+        elif hasattr(other, "_is_AttributeStructure"):
+            self_copy._attribute_structure += other
+        #Handle adding an AttributeSystem
+        elif hasattr(other, "_is_AttributeSystem"):
+            #try to add other.AttributeStructure
+            self_copy._attribute_structure += other._attribute_structure
+            #try to add objects; raise ValueError if there are duplicates
+            if not set(self_copy._objects) & set(other._objects):
+                self_copy._objects = self_copy._objects + other._objects
+            else:
+                raise ValueError(
+                    "AttributeSystem cannot add duplicate objects from "
+                    "other AttributeSystem")
+        #Handle removing a list of objects or an object string
+        else:
+            if isinstance(other, list):
+                #if all members of list are of type string
+                if all([isinstance(other[i], str) for i in range(len(other))]):
+                    #if there are no duplicate objects trying to be added
+                    if not set(self_copy._objects) & set(other):
+                        for obj in other:
+                            self_copy._objects.append(other)
+                    else:
+                        raise ValueError("Duplciate objects not permitted")
+                else:
+                    ValueError(str(other) + " must contain only strings")
+            elif isinstance(other, string):
+                if other not in self_copy._objects:
+                    self_copy._objects.append(other)
+                else:
+                    raise ValueError("Duplicate objects not permitted")
+            else:
+                raise TypeError("")
+
+        return self_copy
+
+    def __sub__(self, other):
+        """Implement - for AttributeSystem's."""
+        from copy import deepcopy
+        self_copy = deepcopy(self)
+
+        #Handle removing an Attribute
+        if hasattr(other, "_is_Attribute"):
+            self_copy._attribute_structure -= other
+        #Handle removing a Relation
+        elif hasattr(other, "_is_Relation"):
+            self_copy._attribute_structure -= other
+        #Handle removing an AttributeStructure
+        elif hasattr(other, "_is_AttributeStructure"):
+            self_copy._attribute_structure -= other
+        #Handle removing an AttributeSystem
+        elif hasattr(other, "_is_AttributeSystem"):
+            #try to add other.AttributeStructure
+            self_copy._attribute_structure -= other._attribute_structure
+            #try to add objects; raise ValueError if there are duplicates
+            if set(other._objects) <= set(self_copy._objects):
+                remainig_objs = set(self_copy._objects) - set(other._objects)
+                self_copy._objects = list(remainig_objs)
+            else:
+                raise ValueError(
+                    "AttributeSystem cannot remove objects present in "
+                    "other AttributeSystem if they do not exist in this "
+                    "AttributeSystem")
+        #Handle removing a list of objects or an object string
+        else:
+            if isinstance(other, list):
+                #if all members of list are of type string
+                if all([isinstance(other[i], str) for i in range(len(other))]):
+                    #if there are no duplicate objects trying to be added
+                    if set(objects) <= set(self_copy._objects):
+                        remainig_objs = set(self_copy._objects) - set(objects)
+                        self_copy._objects = list(remainig_objs)
+                    else:
+                        raise ValueError(
+                            "Cannot remove objects not in AttributeSystem")
+                else:
+                    ValueError(str(other) + " must contain only strings")
+            elif isinstance(other, string):
+                if other in self_copy._objects:
+                    self_copy._objects.remove(other)
+                else:
+                    raise ValueError(
+                        "Cannot remove object not in this AttributeSystem")
+            else:
+                raise TypeError("")
+
+        return self_copy
+
+    def __iadd__(self, other):
+        """Implement += operator for AttributeSystem."""
+        return self.__add__(other)
+
+    def __isub__(self, other):
+        """."""
+        pass
+
+    def __getitem__(self, obj):
+        """."""
+        pass
+
+    def __contains__(self, key):
+        """."""
+        pass
 
     def __deepcopy__(self):
         """Return a deep copy of this AttributeSystem object."""

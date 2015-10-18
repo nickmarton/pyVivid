@@ -143,6 +143,11 @@ def test___add__():
     assert astr_a_b_R1_R2 is not R1
     assert astr_a_b_R1_R2 is not R2
 
+    #Duplicates raise ValueError test
+    with pytest.raises(ValueError) as excinfo:
+        astr_a + a
+        astr_a_R1 + R1
+
 def test___sub__():
     """Test - operator for AttributeStructure."""
     def test_ValueError(astr, sub):

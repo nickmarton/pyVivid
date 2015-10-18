@@ -139,6 +139,9 @@ class AttributeStructure(Attribute):
             #Add other Attribute if it's label isn't in this AttributeStructure
             if other._label not in self.get_labels():
                 new_astr._attributes.append(deepcopy(other))
+            else:
+                raise ValueError(
+                    "Duplicate Attribute objects not permitted")
         
         #handle adding Relation's to this AttributeStructure
         elif hasattr(other, "_is_Relation"):
