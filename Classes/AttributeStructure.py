@@ -163,31 +163,34 @@ class AttributeStructure(Attribute):
         set of Attribute's and Relation's from an AttributeStructure).
         """
 
+        #create copy before removing anything to not modify original
+        copy = deepcopy(self)
+
         #Handle removal of Attribute
         if hasattr(other, "_is_Attribute"):
-            for i, attribute in enumerate(self._attributes):
+            for i, attribute in enumerate(copy._attributes):
                 if attribute._label == other._label:
-                    del self._attributes[i]
+                    del copy._attributes[i]
                     break
             else: 
                 raise ValueError("No attribute with label " + str(other._label))
         
         #Handle removal of Relation
         elif hasattr(other, "_is_Relation"):
-            if not other._subscript in self._relations.keys(): 
+            if not other._subscript in copy._relations.keys(): 
                 raise KeyError("No relation with subscript " + str(other._subscript))
             else:
-                self._relations.pop(subscript, None)
+                copy._relations.pop(other._subscript, None)
         
         #handle adding AttributeStructure to this AttributeStructure
         elif hasattr(other, "_is_AttributeStructure"):
             
             #Determine if all attributes in other are in this AttributeStructure 
-            attributes = set(self._attributes)
+            attributes = set(copy._attributes)
             other_attributes = set(other._attributes)
             c_attribute = other_attributes <= attributes
             #Determine if all relations in other are in this AttributeStructure
-            c_relation = other._relations <= self._relations
+            c_relation = other._relations <= copy._relations
 
             if not c_attribute:
                 raise ValueError(
@@ -197,16 +200,25 @@ class AttributeStructure(Attribute):
                     "Relation in right operand must be contained in left")
 
             for attribute in other._attributes:
-                self -= attribute
+                copy -= attribute
             for relation in other._relations.values():
-                self -= relation 
+                copy -= relation 
         
         else:
             raise TypeError(
                 "Only Relation or Attribute objects can be removed to an " 
                 "AttributeStructure.")
 
-        return self
+        #extract what remains after successful removal and try to reconstruct
+        ops = copy._attributes + copy._relations.values()
+        try: 
+            return AttributeStructure(*ops)
+        #catch case where AttributeStructure now has Relation(s) with some D(R)
+        #that is no longer a subset of remaining Attribute's 
+        except ValueError:
+            raise ValueError(
+                "All remaining Relation D(R)'s after subtraction must be a "
+                "subset of remaining Attribute's.")
 
     def __iadd__(self, other):
         """

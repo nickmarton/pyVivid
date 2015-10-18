@@ -134,27 +134,30 @@ def test___sub__():
     astr_a_R1 = AttributeStructure(a, R1)
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
-    #test invalid subtraction error catching
+    #Test invalid subtraction error catching
     test_ValueError(astr_empty, a)
     test_KeyError(astr_empty, R1)
     test_TypeError(astr_empty, None)
     test_TypeError(astr_empty, "")
     test_TypeError(astr_empty, object)
-    test_TypeError(R1, astr_a)
-    test_TypeError(a, astr_a)
     test_ValueError(astr_empty, astr_a)
-    test_TypeError(R1, astr_a_R1)
-    test_TypeError(a, astr_a_R1)
     test_ValueError(astr_empty, astr_a_R1)
     
     astr_a_copy = AttributeStructure(a)
     test_ValueError(astr_a, astr_a_R1)
     assert astr_a_copy == astr_a
 
-    #test attribute removal
+    #Test attribute removal
     assert astr_empty == astr_a - a
-    assert astr_empty is not astr_a    
-    assert astr_empty is not a    
+    assert astr_a == astr_a_R1 - R1
+    assert astr_empty == astr_a_R1 - R1 - a
+    #tTest invalid remaining Relation's D(R)s
+    with pytest.raises(ValueError) as excinfo:
+        astr_a_R1 - a
+    
+    #Test chained subtraction
+    assert astr_empty == astr_a_b_R1_R2 - R1 - R2 - a - b
+
 
 def test___iadd__():
     """."""
