@@ -5,23 +5,23 @@ from ..Attribute import Attribute
 
 def test___init__():
     """Test Attribute constructor."""
-    def test_constructor(label, value_set):
+    def test_TypeError(label, value_set):
         """Test an individual Attribute construction."""
         with pytest.raises(TypeError) as excinfo:
             Attribute(label, value_set)
 
     #test label errors
-    test_constructor(1, [])
-    test_constructor(1.0, [])
-    test_constructor([], [])
-    test_constructor(set([]), [])
-    test_constructor(object, [])
+    test_TypeError(1, [])
+    test_TypeError(1.0, [])
+    test_TypeError([], [])
+    test_TypeError(set([]), [])
+    test_TypeError(object, [])
     #test value_set errors
-    test_constructor("", 1)
-    test_constructor("", 1.0)
-    test_constructor("", "")
-    test_constructor("", set([]))
-    test_constructor("", object)
+    test_TypeError("", 1)
+    test_TypeError("", 1.0)
+    test_TypeError("", "")
+    test_TypeError("", set([]))
+    test_TypeError("", object)
 
 def test___eq__():
     """Test == operator."""
@@ -107,29 +107,29 @@ def test___repr__():
 
 def test_set_label():
     """Test set label function."""
-    def test_labels(label):
+    def test_TypeError(label):
         """Test set_label with label param."""
         with pytest.raises(TypeError) as excinfo:
             A.set_label(label)
 
     A = Attribute("", [])
 
-    test_labels(1)
-    test_labels(1.0)
-    test_labels([])
-    test_labels(set([]))
-    test_labels(object)
+    test_TypeError(1)
+    test_TypeError(1.0)
+    test_TypeError([])
+    test_TypeError(set([]))
+    test_TypeError(object)
 
 def test_set_possible_values():
     """Test set_possible_values function."""
-    def test_value_set(value_set):
+    def test_TypeError(value_set):
         with pytest.raises(TypeError) as excinfo:
             A.set_possible_values(value_set)
 
     A = Attribute("", [])
     
-    test_value_set(1)
-    test_value_set(1.0)
-    test_value_set("")
-    test_value_set(set([]))
-    test_value_set(object)
+    test_TypeError(1)
+    test_TypeError(1.0)
+    test_TypeError("")
+    test_TypeError(set([]))
+    test_TypeError(object)

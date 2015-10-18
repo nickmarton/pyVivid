@@ -6,32 +6,32 @@ from ..Relation import Relation
 def test___init__():
     """Test Relation object construction."""
 
-    def test_type_params(definition, D_of_r, subscript):
+    def test_TypeError(definition, D_of_r, subscript):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             Relation(definition, D_of_r, subscript)
 
-    def test_value_params(definition, D_of_r, subscript):
+    def test_ValueError(definition, D_of_r, subscript):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
             Relation(definition, D_of_r, subscript)
 
     #ignore valid definition errors as handled in test_is_valid_definition
     #definition is a string test
-    test_type_params([], [], 0)
+    test_TypeError([], [], 0)
     #D(R) is a list test
-    test_type_params("R1(a,b,c) <=> ", "not list", 1)
+    test_TypeError("R1(a,b,c) <=> ", "not list", 1)
     #D(R) only strings test
-    test_type_params("R1(a,b,c) <=> ", [1,2,3], 1)
-    test_type_params("R1(o) <=> ", [object], 1)
+    test_TypeError("R1(a,b,c) <=> ", [1,2,3], 1)
+    test_TypeError("R1(o) <=> ", [object], 1)
     #subscript is an int test
-    test_type_params("R1(a,b,c) <=> ", ["a", "b", "c"], "not int")
-    test_type_params("R1(a,b,c) <=> ", ["a", "b", "c"], object)
+    test_TypeError("R1(a,b,c) <=> ", ["a", "b", "c"], "not int")
+    test_TypeError("R1(a,b,c) <=> ", ["a", "b", "c"], object)
     #parameter cardinality mismatch test
-    test_value_params("R1(a,b,c) <=> ", ["a", "b"], 1)
-    test_value_params("R1(a,b) <=> ", ["a", "b", "c"], 1)
+    test_ValueError("R1(a,b,c) <=> ", ["a", "b"], 1)
+    test_ValueError("R1(a,b) <=> ", ["a", "b", "c"], 1)
     #definition subscript, argument subscript mismatch test
-    test_value_params("R1(a,b) <=> ", ["a", "b", "c"], 2)
+    test_ValueError("R1(a,b) <=> ", ["a", "b", "c"], 2)
 
 def test___eq__():
     """Test == operator."""
@@ -132,20 +132,20 @@ def test_set_definition():
     """Test set_definition function."""
     r = Relation("R1(a) <=> ", ["a"], 1)
 
-    def test_type_params(definition):
+    def test_TypeError(definition):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             r.set_definition(definition)
 
-    def test_value_params(definition):
+    def test_ValueError(definition):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
             r.set_definition(definition)
 
     #non-string test
-    test_type_params(None)
+    test_TypeError(None)
     #invalid definition test
-    test_value_params("invalid definition")
+    test_ValueError("invalid definition")
 
 def test_get_DR():
     """Test get_DR function."""
@@ -157,24 +157,24 @@ def test_set_DR():
     """Test set_DR function."""
     r = Relation("R1(a) <=> ", ["a"], 1)
 
-    def test_type_params(DR):
+    def test_TypeError(DR):
         """Test TypeErrors in set_DR function."""
         with pytest.raises(TypeError) as excinfo:
             r.set_DR(DR)
 
-    def test_value_params(DR):
+    def test_ValueError(DR):
         """Test TypeErrors in set_DR function."""
         with pytest.raises(ValueError) as excinfo:
             r.set_DR(DR)
 
     #not a list test
-    test_type_params(1)
+    test_TypeError(1)
     #empty list test
-    test_type_params([])
+    test_TypeError([])
     #list with non string elements test
-    test_type_params([1])
+    test_TypeError([1])
     #cardinality mismatch test
-    test_value_params(["a", "b"])
+    test_ValueError(["a", "b"])
 
 def test_get_arity():
     """Test get_arity function."""

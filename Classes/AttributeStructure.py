@@ -244,41 +244,10 @@ class AttributeStructure(Attribute):
         attributes_copy = copy.deepcopy(self._attributes)
         relations_copy = copy.deepcopy(self._relations).values()
 
-        ops_copy = [attribute for attribute in attributes_copy] +\
+        ops_copy = [attribute for attribute in attributes_copy] + \
                     [relation for relation in relations_copy]
 
         return AttributeStructure(*ops_copy)
-    
-    def set_attributes(self, attributes):
-        """
-        Set attributes to list of attributes. 
-        
-        raise TypeError if a is not a list of attributes.
-        """
-        
-        if not isinstance(attributes, list):
-            raise TypeError('a must be a list')
-        else:
-            for attr in attributes:
-                if not hasattr(attr, "_is_Attribute"):
-                    raise TypeError('each entry of a must be an attribute')
-            self._attributes = attributes
-    
-    def set_relations(self, relations): 
-        """
-        Set relations to dictionary of subscript:Relation pairs.
-
-        raise TypeError if a is not a list of attributes.
-        """
-        
-        if not isinstance(relations, dict):
-            raise TypeError('r must be a dictionary')
-        else:
-            for s, R in relations:
-                if not isinstance(s, int) or not hasattr(R, "_is_Relation"):
-                    raise TypeError(
-                        "dictionary must be of form subscript:Relation")
-            self._relations = relations
 
     def get_labels(self):
         """Return labels of Attributes within this AttributeStructure."""
