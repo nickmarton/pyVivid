@@ -265,11 +265,12 @@ class AttributeStructure(Attribute):
         
         #Handle index attempt with Relation object
         if hasattr(obj, "_is_Relation"):
-            for subscript, relation in self._relations:
+            for subscript, relation in self._relations.iteritems():
                 if obj == relation:
                     return relation
             raise KeyError("No Attribute " + str(obj) + " found.")
 
+        #Handle index attempt with string
         if isinstance(obj, str):
             for attribute in self._attributes:
                 if attribute._label == obj:
@@ -289,8 +290,42 @@ class AttributeStructure(Attribute):
                 " an index.")
 
     def __contains__(self, key):
-        """."""
-        pass
+        """
+        Implement "in" for AttributeStructure.
+        
+        Return an Attribute or Relation in this AttributeStructure.
+        """
+
+        #Check if Attribute is within this AttributeStructure
+        if hasattr(key, "_is_Attribute"):
+            for attribute in self._attributes:
+                if attribute == key:
+                    return True
+            return False
+        
+        #Check if Relation is within this AttributeStructure
+        if hasattr(key, "_is_Relation"):
+            for subscript, relation in self._relations.iteritems():
+                if key == relation:
+                    return True
+            return False
+
+        #Check if string is a label or subscript within this AttributeStructure
+        if isinstance(key, str):
+            for attribute in self._attributes:
+                if attribute._label == key:
+                    return True
+            import re
+            if re.match(r'^R\d+$', key):
+                subscript = int(key[1:])
+                if subscript in self._relations.keys():
+                    return True
+            
+            return False
+        
+        raise TypeError(
+            "Type mismatch; only Attribute's, Relation's and "
+            "label(Rsubscript) strings can be tested for membership.")
 
     def __deepcopy__(self, memo):
         """Return a deep copy of this AttributeStructure object."""
@@ -308,20 +343,6 @@ class AttributeStructure(Attribute):
     def get_labels(self):
         """Return labels of Attributes within this AttributeStructure."""
         return [a._label for a in self._attributes]
-
-    def get_attribute(self, label):
-        """Get attribute by label; returns None if not found in attributes."""
-        for attr in self._attributes:
-            if attr._label == label:
-                return attr
-        return None
-    
-    def get_relation(self, subscript): 
-        """get relation by subscript; returns None if not found in relations."""
-        if subscript in self._relations: 
-            return self._relations[subscript]
-        else: 
-            raise KeyError("No relation with subscript " + str(subscript))
 
     def get_subscripts(self): 
         """Return this AttributeStructure's Relation subscripts."""
@@ -346,9 +367,7 @@ class AttributeStructure(Attribute):
 
     def __repr__(self):
         """Machine representation of this AttributeStructure."""
-        r_string = ",".join(['R' + str(i) for i in sorted(self._relations.keys())])
-        a_str = ",".join(sorted([str(attr) for attr in self._attributes]))
-        return r_string + ";" + a_str
+        return str(self)
 
 def main():
     """Main method; quick testing."""
@@ -357,7 +376,7 @@ def main():
     r = Relation("R1(a,b) <=> ", ["a", "b"],1)
 
     astr = AttributeStructure(a, b, r)
-    print str(astr)
+    print astr[b]
     #astr += b
     #astr -= a
     #print astr + c
