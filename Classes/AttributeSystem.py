@@ -2,6 +2,7 @@
 
 from AttributeStructure import Attribute, Relation, AttributeStructure
 from functools import total_ordering
+from copy import deepcopy
 
 @total_ordering
 class AttributeSystem(object):
@@ -13,7 +14,7 @@ class AttributeSystem(object):
             raise TypeError("objects parameter must be of type list")
         for obj in objects:
             if not isinstance(obj, str):
-                raise TypeError(str(objects) + " must contain only strings")
+                raise ValueError(str(objects) + " must contain only strings")
         
         #Enforce AttributeStructure type
         if not hasattr(A, "_is_AttributeStructure"):
@@ -53,7 +54,6 @@ class AttributeSystem(object):
 
     def __add__(self, other):
         """Implement + for AttributeSystem's."""
-        from copy import deepcopy
         self_copy = deepcopy(self)
 
         #Handle adding an Attribute
@@ -104,7 +104,6 @@ class AttributeSystem(object):
 
     def __sub__(self, other):
         """Implement - for AttributeSystem's."""
-        from copy import deepcopy
         self_copy = deepcopy(self)
 
         #Handle removing an Attribute
@@ -211,9 +210,8 @@ class AttributeSystem(object):
 
     def __deepcopy__(self):
         """Return a deep copy of this AttributeSystem object."""
-        import copy
-        objects_copy = copy.deepcopy(self._objects)
-        attribute_structure_copy = copy.deepcopy(self._attribute_structure)
+        objects_copy = deepcopy(self._objects)
+        attribute_structure_copy = deepcopy(self._attribute_structure)
         return AttributeSystem(objects_copy, attribute_structure_copy)
 
     def get_power(self):
