@@ -89,13 +89,16 @@ class AttributeSystem(object):
                         raise ValueError("Duplciate objects not permitted")
                 else:
                     ValueError(str(other) + " must contain only strings")
-            elif isinstance(other, string):
+            elif isinstance(other, str):
                 if other not in self_copy._objects:
                     self_copy._objects.append(other)
                 else:
                     raise ValueError("Duplicate objects not permitted")
             else:
-                raise TypeError("")
+                raise TypeError(
+                    "Only strings, lists, Attributes, Relations, "
+                    "AttributeStructures, and AttributeSystems may be removed "
+                    "from an AttributeSystem")
 
         return self_copy
 
@@ -140,14 +143,17 @@ class AttributeSystem(object):
                             "Cannot remove objects not in AttributeSystem")
                 else:
                     ValueError(str(other) + " must contain only strings")
-            elif isinstance(other, string):
+            elif isinstance(other, str):
                 if other in self_copy._objects:
                     self_copy._objects.remove(other)
                 else:
                     raise ValueError(
                         "Cannot remove object not in this AttributeSystem")
             else:
-                raise TypeError("")
+                raise TypeError(
+                    "Only strings, lists, Attributes, Relations, "
+                    "AttributeStructures, and AttributeSystems may be removed "
+                    "from an AttributeSystem")
 
         return self_copy
 
@@ -156,16 +162,52 @@ class AttributeSystem(object):
         return self.__add__(other)
 
     def __isub__(self, other):
-        """."""
-        pass
+        """Implement -= for AttributeSystem."""
+        return self.__sub__(other)
 
     def __getitem__(self, obj):
-        """."""
-        pass
+        """Implement indexing for AttributeSystem."""
+        #Handle removing an Attribute
+        if hasattr(other, "_is_Attribute"):
+            return self._attribute_structure[other]
+        #Handle removing a Relation
+        elif hasattr(other, "_is_Relation"):
+            return self._attribute_structure[other]
+        #Handle removing a list of objects or an object string
+        else:
+            if isinstance(other, str):
+                try:
+                    return self._attribute_structure[other]
+                except:
+                    if other in self._objects:
+                        return self._objects.index(other)
+            else:
+                raise TypeError(
+                    "Only strings, Attributes, and Relations may index "
+                    "an AttributeSystem")
 
     def __contains__(self, key):
-        """."""
-        pass
+        """Implement in for AttributeSystem."""
+        #Handle removing an Attribute
+        if hasattr(key, "_is_Attribute"):
+            return key in self._attribute_structure
+        #Handle removing a Relation
+        elif hasattr(key, "_is_Relation"):
+            return key in self._attribute_structure
+        elif hasattr(key, "_is_AttributeStructure"):
+            return key == self._attribute_structure
+        #Handle removing a list of objects or an object string
+        else:
+            if isinstance(key, str):
+                try:
+                    return key in self._attribute_structure
+                except:
+                    if key in self._objects:
+                        return True
+            else:
+                raise TypeError(
+                    "Only strings, Attributes, and Relations may be checked for membership in "
+                    "an AttributeSystem")        
 
     def __deepcopy__(self):
         """Return a deep copy of this AttributeSystem object."""
