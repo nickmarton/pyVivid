@@ -25,7 +25,6 @@ class AttributeStructure(Attribute):
         arguments provided are not of type Attribute or Relation.
         """
 
-        print ops
         self._attributes = []
         self._relations = {}
         self._is_AttributeStructure = True

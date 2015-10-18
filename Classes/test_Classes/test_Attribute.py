@@ -58,6 +58,13 @@ def test___add__():
     #add Attribute and Relation
     assert astr_a1_r1 == a1 + r1
     assert astr_a1_r1 == r1 + a1
+    assert astr_a1_a2_r1 == a1 + a2 + r1
+    assert astr_a1_a2_r1 == a2 + a1 + r1
+    assert astr_a1_a2_r1 == r1 + a1 + a2
+    #Test for when + fails, i.e. when Relation is added before attributes with
+    #its D(R) labels.
+    with pytest.raises(ValueError) as excinfo:
+        r1 + a2 + a1
 
 def test___iadd__():
     """Test += operator."""
