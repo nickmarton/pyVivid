@@ -4,86 +4,83 @@ from AttributeStructure import Attribute, Relation, AttributeStructure
 
 class AttributeSystem(object):
     '''Class for Attribute System'''
-    def __init__(self, A, objs):
-        if not isinstance(objs, list):                                                  #Raise TypeError if objs is not a list
-            raise TypeError("objs parameter must be of type list")
-        if not isinstance(A, AttributeStructure):                                              #Raise TypeError if A is not an AttributeStructure
+    def __init__(self, A, objects):
+        """Construct AttributeSystem object."""
+        #Enforce objects as list of strings
+        if not isinstance(objects, list):
+            raise TypeError("objects parameter must be of type list")
+        for obj in objects:
+            if not isinstance(obj, str):
+                raise TypeError(str(objects) + " must contain only strings")
+        
+        #Enforce AttributeStructure type
+        if not hasattr(A, "_is_AttributeStructure"):
             raise TypeError("A parameter must be of type AttributeStructure")
         
-        if len(objs) != len(set(objs)):
+        #enforce no duplicate objects
+        if len(objects) != len(set(objects)):
             raise ValueError(
                 "dupicate objects not allowed in AttributeSystem")
 
-        self._objects = objs
+        #sort objects before setting them
+        self._objects = sorted(objects)
         self._attribute_structure = A
+        self._is_AttributeSystem = True
 
     def __eq__(self, other):
-        if self._attribute_structure == other._attribute_structure and \
-        self._objects == other._objects: return True
-        else: return False
+        """Implement == for AttributeSystem's."""
+        c_astr = self._attribute_structure == other._attribute_structure
+        c_objs = self._objects == other._objects
+        if c_astr and c_objs:
+            return True
+        else:
+            return False
     
     def __ne__(self, other):
-        if self._attribute_structure != other._attribute_structure or \
-        self._objects != other._objects: return True
-        else: return False
+        """Implement != for AttributeSystem's."""
+        return not self.__eq__(other)
 
-    def deep_copy(self):
+    def __deepcopy__(self):
         """Return a deep copy of this AttributeSystem object."""
         import copy
-
-        objects_copy = copy.copy(self._objects)
-        attribute_structure_copy = self._attribute_structure.deep_copy()
-
+        objects_copy = copy.deepcopy(self._objects)
+        attribute_structure_copy = copy.deepcopy(self._attribute_structure)
         return AttributeSystem(objects_copy, attribute_structure_copy)
 
-    def get_objects(self): return self._objects
-    
-    def set_objects(self, objs): 
-        """Set objects of attribute system; raise TypeError if objs is not a list."""
-        if not isinstance(objs, list): 
-            raise TypeError('objs must be of type list')                                #Enforce objects as list
-        
-        if len(objs) != len(set(objs)):
-            raise ValueError(
-                "dupicate objects not allowed in AttributeSystem")
-
-        self._objects = objs
-
-    def get_attribute_structure(self): return self._attribute_structure
-    
-    def set_attribute_structure(self, A): 
-        'Set attribute structure of attribute system; raise TypeError if A is not an Attribute Structure'
-        if not isinstance(A, AttributeStructure):                                          #Enforce attribute structure as instance of AttributeStructure class
-            raise TypeError('A must be of type AttributeStructure')
-        else: self._attribute_structure = A
-
-    def get_power(self):                                                                #Get power of system; n * |A|
+    def get_power(self):
+        """Get power of this AttributeSystem, i.e., n * |A|."""
         return len(self._objects) * self._attribute_structure.get_cardinality()
 
     def __str__(self):
-        return '({' + ''.join(
-            [s_i + ', ' for s_i in self._objects]                                       #list comprehension to build string for AttributeSystem's objects
-            )\
-            [:-2] + '} ; ' + str(self._attribute_structure) + ')'                               #drop trailing ", ",  attribute structure string and closing parenthesis
+        """Return human-readable string representation of AttributeSystem."""
+        asys_str = '({' + ''.join([s_i + ', ' for s_i in self._objects])[:-2]
+        asys_str += '} ; ' + str(self._attribute_structure) + ')'
+        return asys_str
+
+    def __repr__(self):
+        """Machine representation of this AttributeSystem; same as str()."""
+        return self.__str__()
 
     def is_automorphic(self):
-        'determine if Attribute System is automorphic'
-        for s in self._objects:                                                     #suffices to check if any object is a subset of value set of any attribute
-            for a in self.get_attribute_structure().get_attributes():
-                if is_subset([s], a.get_possible_values()): return True
+        """Determine if Attribute System is automorphic."""
+        #Check if any object is a subset of value set of any attribute
+        for s in self._objects:
+            for a in self._attribute_structure._attributes:
+                if is_subset([s], a._value_set):
+                    return True
         return False
-
 
 def main():
     """Main method for quick tests."""
 
     a, b, c = Attribute("a", []), Attribute("b", []), Attribute("c", [])
-    r = Relation("R1(a,b) <=> ", ["a", "b"])
+    r = Relation("R1(a,b) <=> ", ["a", "b"], 1)
 
     a = AttributeStructure(a, b, c, r)
-    o = ['o1', 'o2']
+    o = ['o3', 'o1', 'o5', 'o2', 'o4']
 
     asys = AttributeSystem(a, o)
+    print str(asys)
 
 if __name__ == "__main__":
     main()
