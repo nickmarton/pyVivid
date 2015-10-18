@@ -3,7 +3,9 @@
 from Attribute import Attribute
 from Relation import Relation
 from copy import deepcopy
+from functools import total_ordering
 
+@total_ordering
 class AttributeStructure(Attribute):
     """
     Class for Attribute Structure composed of attributes and relations.
@@ -109,6 +111,17 @@ class AttributeStructure(Attribute):
         #Relations and Attributes are equal, structures are equal
         return True
     
+    def __le__(self, other):
+        """
+        Implement <= operator. 
+
+        Determine if this AttributeStructure is a subset of other.
+        """
+        c_attribute = set(self._attributes) <= set(other._attributes)
+        c_relation = self._relations <= other._relations
+
+        return c_attribute and c_relation
+
     def __ne__(self, other):
         """Determine if two AttributeStructure's are not equal."""
         return not self.__eq__(other)
@@ -235,6 +248,49 @@ class AttributeStructure(Attribute):
         """
 
         return self.__sub__(other)
+
+    def __getitem__(self, obj):
+        """
+        Implement AttributeStructure[{Attribute,Relation}].
+        
+        Return an Attribute or Relation in this AttributeStructure.
+        """
+
+        #Handle index attempt with Attribute object
+        if hasattr(obj, "_is_Attribute"):
+            for attribute in self._attributes:
+                if attribute == obj:
+                    return attribute
+            raise KeyError("No Attribute " + str(obj) + " found.")
+        
+        #Handle index attempt with Relation object
+        if hasattr(obj, "_is_Relation"):
+            for subscript, relation in self._relations:
+                if obj == relation:
+                    return relation
+            raise KeyError("No Attribute " + str(obj) + " found.")
+
+        if isinstance(obj, str):
+            for attribute in self._attributes:
+                if attribute._label == obj:
+                    return attribute
+            import re
+            if re.match(r'^R\d+$', obj):
+                subscript = int(obj[1:])
+                try:
+                    return self._relations[subscript]
+                except:
+                    pass
+            raise ValueError(
+                "No Attribute(Relation) found with label(Rsubscript): " + obj)
+        else:
+            raise TypeError(
+                "Only Attribute's, Relation's, and strings can be used as"
+                " an index.")
+
+    def __contains__(self, key):
+        """."""
+        pass
 
     def __deepcopy__(self, memo):
         """Return a deep copy of this AttributeStructure object."""

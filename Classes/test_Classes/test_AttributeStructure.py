@@ -58,6 +58,41 @@ def test___eq__():
     #Test empty equality
     assert astr4 ==astr5
 
+def test___le__():
+    """Test total ordering."""
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    R1 = Relation("R1(a) <=> ", ["a"], 1)
+    R2 = Relation("R2(a) <=> ", ["b"], 2)
+    astr_empty = AttributeStructure()
+    astr_a = AttributeStructure(a)
+    astr_a_R1 = AttributeStructure(a, R1)
+    astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
+
+    #Test subsets and strict subsets
+    assert not astr_empty < astr_empty
+    assert astr_empty <= astr_empty
+    assert astr_empty < astr_a_b_R1_R2
+    assert astr_empty <= astr_a_b_R1_R2
+    assert astr_a < astr_a_b_R1_R2
+    assert astr_a <= astr_a_b_R1_R2
+    assert astr_a_R1 < astr_a_b_R1_R2
+    assert astr_a_R1 <= astr_a_b_R1_R2
+    assert not astr_a_b_R1_R2 < astr_a_b_R1_R2
+    assert astr_a_b_R1_R2 <= astr_a_b_R1_R2
+
+    #Test supersets and strict supersets
+    assert not astr_empty > astr_empty
+    assert astr_empty >= astr_empty
+    assert astr_a_b_R1_R2 > astr_empty
+    assert astr_a_b_R1_R2 >= astr_empty
+    assert astr_a_b_R1_R2 > astr_a
+    assert astr_a_b_R1_R2 >= astr_a
+    assert astr_a_b_R1_R2 > astr_a_R1
+    assert astr_a_b_R1_R2 >= astr_a_R1
+    assert not astr_a_b_R1_R2 > astr_a_b_R1_R2
+    assert astr_a_b_R1_R2 >= astr_a_b_R1_R2
+
 def test___ne__():
     """!= operator for AttributeStructure."""
     a1 = Attribute("a1", [])
@@ -228,6 +263,14 @@ def test___isub__():
     assert astr_a == astr_a_b_R1_R2
     astr_a_b_R1_R2 -= a
     assert astr_empty == astr_a_b_R1_R2
+
+def test___getitem__():
+    """."""
+    pass
+
+def test___contains__():
+    """."""
+    pass
 
 def test___deepcopy__():
     """Test copy.deepcopy for AttributeStructure object."""
