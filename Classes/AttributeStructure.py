@@ -25,13 +25,28 @@ class AttributeStructure(Attribute):
         arguments provided are not of type Attribute or Relation.
         """
 
+        print ops
         self._attributes = []
         self._relations = {}
         self._is_AttributeStructure = True
 
+        a_ops, r_ops = [], []
+        for op in ops:
+            if hasattr(op, "_is_Attribute"):
+                a_ops.append(op)
+            elif hasattr(op, "_is_Relation"):
+                r_ops.append(op)
+            else:
+                #op is not Attribute or Relation, raise TypeError
+                raise TypeError(
+                "all optional positional arguments must be of type "
+                "Attribute or Relation")
+
         #Sort provided ops so that attributes are added first
-        sorted_ops = sorted(list(ops),
-            key=lambda x: hasattr(x, "_is_Attribute"), reverse=True)
+        sorted_a_ops = sorted(a_ops, key=lambda x: x._label)
+        sorted_r_ops = sorted(r_ops, key=lambda x: x._subscript)
+
+        sorted_ops = sorted_a_ops + sorted_r_ops
 
         #for each optional positional argument op
         for op in sorted_ops:
@@ -64,17 +79,12 @@ class AttributeStructure(Attribute):
                         "D(R) must be a subset of cartesian product "
                         "of some combination of attributes")
 
-            #op is not Attribute or Relation, raise TypeError
-            raise TypeError(
-                "all optional positional arguments must be of type "
-                "Attribute or Relation")
-
     def __eq__(self, other):
         """
         Return a boolean for whether self and other 
         AttributeStructure objects are equal.
         """
-        
+
         #Attribute sets different length, not equal
         if len(self._attributes) != len(other._attributes):
             return False
@@ -271,6 +281,14 @@ class AttributeStructure(Attribute):
         r_string = ''.join(['R' + str(i) + ',' for i in sorted([i for i in self._relations.keys()])])[:-1] + ')'
         #Add attributes string (e.g. size: {(0,...,651)}, objs: {True,False}, )
         return '(' + ''.join([str(attr) + ', ' for attr in self._attributes])[:-2] + ' ; ' + r_string
+
+    def __repr__(self):
+        """Machine representation of this AttributeStructure."""
+        self._relations[1] = None
+        self._relations[3] = None
+        r_string = ",".join(['R' + str(i) for i in sorted(self._relations.keys())])
+        a_str = ",".join(sorted([str(attr) for attr in self._attributes]))
+        return r_string + ";" + a_str
 
 def main():
     """Main method; quick testing."""

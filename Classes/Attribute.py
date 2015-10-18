@@ -62,11 +62,14 @@ class Attribute(object):
         from Relation import Relation
         from AttributeStructure import AttributeStructure
         #handle Attribute and 
-        if hasattr(other, "_is_Attribute") or hasattr(other, "_is_Relation"):
+        if hasattr(other, "_is_Attribute"):
+            return AttributeStructure(self, other)
+        elif hasattr(other, "_is_Relation"):
             return AttributeStructure(self, other)
         elif hasattr(other, "_is_AttributeStructure"):
-            other += self
-            return other
+            params = other._attributes + other._relations.values()
+            params.append(deepcopy(self))
+            return AttributeStructure(*params)
         else:
             raise TypeError(
                 "Only Relation, Attribute, and AttributeStructure objects may "

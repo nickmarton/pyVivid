@@ -51,10 +51,13 @@ def test___add__():
 
     #add AttributeStructure and Attribute
     assert astr == astr + a1
+    assert astr == a1 + astr
     #add Attribute and Attribute
     assert astr_a1_a2 == a1 + a2
+    assert astr_a1_a2 == a2 + a1
     #add Attribute and Relation
     assert astr_a1_r1 == a1 + r1
+    assert astr_a1_r1 == r1 + a1
 
 def test___iadd__():
     """Test += operator."""
