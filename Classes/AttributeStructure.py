@@ -55,7 +55,9 @@ class AttributeStructure(Attribute):
                 #of attributes                                               
                 if op not in self._attributes:
                     self._attributes.append(op)
-                    continue
+                else:
+                    raise ValueError(
+                        "Duplicate labels are not permitted")
 
             #if op is a Relation
             elif hasattr(op, "_is_Relation"):
@@ -168,17 +170,32 @@ class AttributeStructure(Attribute):
                     del self._attributes[i]
                     break
             else: 
-                raise ValueError("No attribute with label " + str(label))
+                raise ValueError("No attribute with label " + str(other._label))
         
         #Handle removal of Relation
         elif hasattr(other, "_is_Relation"):
-            if not subscript in self._relations.keys(): 
-                raise KeyError("No relation with subscript " + str(subscript))
+            if not other._subscript in self._relations.keys(): 
+                raise KeyError("No relation with subscript " + str(other._subscript))
             else:
                 self._relations.pop(subscript, None)
         
         #handle adding AttributeStructure to this AttributeStructure
         elif hasattr(other, "_is_AttributeStructure"):
+            
+            #Determine if all attributes in other are in this AttributeStructure 
+            attributes = set(self._attributes)
+            other_attributes = set(other._attributes)
+            c_attribute = other_attributes <= attributes
+            #Determine if all relations in other are in this AttributeStructure
+            c_relation = other._relations <= self._relations
+
+            if not c_attribute:
+                raise ValueError(
+                    "Attributes in right operand must be contained in left.")
+            if not c_relation:
+                raise ValueError(
+                    "Relation in right operand must be contained in left")
+
             for attribute in other._attributes:
                 self -= attribute
             for relation in other._relations.values():
