@@ -2,14 +2,14 @@
 
 from copy import deepcopy
 from functools import total_ordering
-from Attribute import Attribute
+from Interval import Interval
 
 @total_ordering
 class ValueSet(object):
     """."""
 
     _base_types = [int, float, long, str]
-    _object_types = []
+    _object_types = ["_is_Interval"]
 
     @classmethod
     def add_object_type(cls, object_identifier):
@@ -672,8 +672,7 @@ def parse(set1):
 
 def main():
     """."""
-    ValueSet.add_object_type("_is_Attribute")
-    v = ValueSet([1, 1.0, 1L, '', Attribute("label", [])])
+    v = ValueSet([1, 1.0, 1L, '', Interval(1, 4)])
 
 if __name__ == "__main__":
     main()
