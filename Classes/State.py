@@ -1,3 +1,5 @@
+"""State object."""
+
 from assistance_functions import *
 
 from AttributeSystem import AttributeSystem
@@ -10,33 +12,29 @@ class State(object):
         
     attribute_system:       copy of Attriute system from which the state came;
                             stored as an AttributeSystem.
-    ascriptions: dictionary of attribute-object pair keys with 
-    corresponding ascription value sets as values
+    ascriptions:            dictionary of attribute-object pair keys with
+                            Attribute value sets as values.
     """
 
-    def __init__(self, asys, ascriptions=None):
+    def __init__(self, attribute_system, **ascriptions):
         """Return an initialized State object."""
 
-        if not isinstance(asys, AttributeSystem):
+        if not hasattr(attribute_system, "_is_AttributeSystem"):
             raise TypeError(
                 "asys parameter must be of type AttributeSystem")
 
-        self._attribute_system = asys
+        self._attribute_system = deepcopy(attribute_system)
         self._ascriptions = {}
         self._is_state = True
         
-        for A_i in self._attribute_system._attribute_structure._attributes:
-            l_i, v_i = A_i.get_label(), A_i.get_possible_values()
-            for s_i in self._attribute_system.get_objects():
-                self._ascriptions[(l_i, s_i)] = v_i
+        #Initialize the state as empty
+        for Ai in self._attribute_system._attribute_structure._attributes:
+            for s_i in self._attribute_system._objects:
+                self._ascriptions[(Ai._label, s_i)] = []
 
-        if ascriptions:
-            if not isinstance(ascriptions, dict):
-                raise TypeError(
-                    "ascriptions parameter must be of type dict.")
-
-            for label, value_set in ascriptions.items():
-                self.set_ascription(label, value_set)
+        #Set any ascriptions provided to constructor
+        for ao_pair, valueset in ascriptions.iteritems():
+            self.set_ascription(label, valueset)
 
     def __eq__(self, other):
         """
@@ -76,68 +74,55 @@ class State(object):
                     return True
         return False
 
-    def deep_copy(self):
-        """Provide a deep_copy of this State object."""
+    def __deepcopy__(self):
+        """Implement copy.deepcopy for State object."""
         import copy
 
-        attribute_system_copy = self._attribute_system.deep_copy()
-        ascriptions_copy = copy.copy(self._ascriptions)
+        attribute_system_copy = copy.deepcopy(self._attribute_system)
+        ascriptions_copy = copy.deepcopy(self._ascriptions)
 
         return State(attribute_system_copy, ascriptions_copy)
-    
-    def get_ascriptions(self): 
-        """Return the ascriptions of this State."""
-
-        return self._ascriptions
     
     def get_ascription_keys(self):
         """get the label, object pairs of ascriptions of this State."""
 
         return self._ascriptions.keys()
 
-    def set_ascription(self, key, v):
+    def set_ascription(self, ao_pair, new_value_set):
         """
-        Set an ascription key (label,obj) value set to v;
+        Set an ascription ao_pair (label,obj) value set to v.
 
-        raise TypeError if v parameter is not a list
-        raise KeyError if key parameter not in ascriptions, 
-        raise ValueError if v parameter is not subset of valueset.
+        Raise TypeError if v parameter is not a list
+        Raise ValueError if v parameter is not subset of valueset.
+        Raise KeyError if ao_pair parameter not in ascriptions, 
         """
         
-        if not isinstance(v, list):                                                     #if v parameter is not of type list
-            raise TypeError(                                                            #explicitly raise TypeError
-                'v parameter must be of type list') 
+        #Enforce new_value_set as a list
+        if not isinstance(new_value_set, list):
+            raise TypeError(
+                str(new_value_set) + "must be of type list") 
         
-        if key in self._ascriptions:                                                    #if key parameter is a valid key in this State's ascriptions
-            
-            possible_values = self.get_attribute_system()\
-                                .get_attribute_structure()\
-                                    .get_attribute(key[0])\
-                                        .get_possible_values()                          #get possible values Attribute with label provided in key can take on
-            
+        if ao_pair in self._ascriptions:
+            label, obj = ao_pair
+            #Get value_set of Attribute with provided label in ao_pair
+            attribute = self._attribute_system._attribute_structure[label]
+            possible_values = attribute._value_set
 
-            if is_subset(parse(v), possible_values):                                    #if the value set is a subset of the value set currently in the ascription
-                self._ascriptions[key] = copy.copy(parse(v))                            #replace the old value set with v parameter 
-            else:                                                                       #v parameter is not a subset of current value set
-                raise ValueError(                                                       #explicitly raise ValueError
-                    'v parameter is not a subset of ' + str(
-                        self._ascriptions[key]))
-        else:                                                                           #key parameter is not a valid ascription key
-            raise KeyError(                                                             #explicitly raise KeyError
-                str(key) + ' not in ascriptions')
+            #If new value_set provided is a subset of the possible value_set of
+            #the Attribute
+            if is_subset(parse(new_value_set), possible_values):
+                self._ascriptions[ao_pair] = copy.deepcopy(parse(new_value_set))
+            else:
+                raise ValueError(
+                    str(new_value_set) + ' is not a subset of ' + 
+                    str(self._ascriptions[ao_pair]))
+        else:
+            raise KeyError(
+                str(ao_pair) + ' not in ascriptions')
     
-    def get_ascription(self, key):
-        """
-        Return the value set of the ascription with key parameter;
-
-        raise KeyError if key parameter is not a valid ascription key.
-        """
-
-        if key in self._ascriptions:                                                    #if key parameter is a valid ascription key
-            return self._ascriptions[key]
-        else:                                                                           #otherwise,
-            raise KeyError(                                                             #explicitly raise KeyError
-                str(key) + ' is not a valid ascription key')
+    def __getitem__():
+        """."""
+        pass
 
     def is_valuation(self, key):
         """

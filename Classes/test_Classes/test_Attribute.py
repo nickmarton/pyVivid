@@ -105,31 +105,16 @@ def test___repr__():
     a = Attribute("label", ["1", '(1,(4,5,6),2,3)'])
     assert a.__repr__() == "\"label: {1,[[4, 5, 6], 1, 2, 3]}\""
 
-def test_set_label():
-    """Test set label function."""
-    def test_TypeError(label):
-        """Test set_label with label param."""
-        with pytest.raises(TypeError) as excinfo:
-            A.set_label(label)
-
+def test___key():
+    """Test Attribute hash key."""
     A = Attribute("", [])
+    A2 = Attribute("label", [1, 'string', True])
+    assert A._key() == ("", '[]')
+    assert A2._key() == ("label", "[1, 'string', True]")
 
-    test_TypeError(1)
-    test_TypeError(1.0)
-    test_TypeError([])
-    test_TypeError(set([]))
-    test_TypeError(object)
-
-def test_set_possible_values():
-    """Test set_possible_values function."""
-    def test_TypeError(value_set):
-        with pytest.raises(TypeError) as excinfo:
-            A.set_possible_values(value_set)
-
-    A = Attribute("", [])
-    
-    test_TypeError(1)
-    test_TypeError(1.0)
-    test_TypeError("")
-    test_TypeError(set([]))
-    test_TypeError(object)
+def test___hash__():
+    """test hash function for Attribute."""
+    A = Attribute("label", [1, "string", True])
+    B = Attribute("", [])
+    assert hash(B._key()) == -7159864980619513463
+    assert hash(A._key()) == 3112214484200701409

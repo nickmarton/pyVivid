@@ -96,31 +96,13 @@ class Attribute(object):
         """Machine readable string repr; same as __str__."""
         return "\"" + self.__str__() + "\""
 
-    def __key(self):
+    def _key(self):
         """Private key function for hashing."""
         return (self._label, str(self._value_set))
 
     def __hash__(self):
         """Hash implementation for set comparison of Attributes."""
-        return hash(self.__key())
-
-    def set_label(self, label):
-        """Set label to exclusively strings."""
-        if not isinstance(label, str): 
-            raise TypeError("label must be string")
-        else: 
-            self._label = label
-    
-    def set_possible_values(self, value_set): 
-        """
-        Set value set it's a list; raise TypeError it's not.
-        Must be a list and parsable.
-        """
-
-        if not isinstance(value_set, list): 
-            raise TypeError('Possible values must be stored in a list')
-        else: 
-            self._value_set = parse(value_set)
+        return hash(self._key())
 
 def main():
     """Main method; quick testing."""
