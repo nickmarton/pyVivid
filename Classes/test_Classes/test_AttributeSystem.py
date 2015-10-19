@@ -1,4 +1,4 @@
-"""Attribute System unit tests."""
+"""AttributeSystem unit tests."""
 
 import pytest
 from ..AttributeSystem import AttributeSystem
@@ -355,10 +355,10 @@ def test___getitem__():
 
     ia = asys_a_b_R1_R2_o[a]
     assert ia == a
-    assert ia is a
+    assert ia is asys_a_b_R1_R2_o._attribute_structure["a"]
     iR1 = asys_a_b_R1_R2_o[R1]
     assert iR1 == R1
-    assert iR1 is R1
+    assert iR1 is asys_a_b_R1_R2_o._attribute_structure["R1"]
     #Test object retrieval with string. Note, strings may not index
     #AttributeStructure members within this AttributeSystem, only objects.
     #To index objects in AttributeStructure in AttributeSystem, use index
@@ -368,12 +368,14 @@ def test___getitem__():
     assert iobj is objs[0]
 
     #Test retrieval by string for AttributeStructure members
+    #AttributeStructure is cloned so the retrieved objects is not the same
+    #as the one's used to contruct original instance
     ias = asys_a_b_R1_R2_o._attribute_structure['a']
     assert ias == a
-    assert ias is a
+    assert ias is not a
     iR1s = asys_a_b_R1_R2_o._attribute_structure['R1']
     assert iR1s == R1
-    assert iR1s is R1
+    assert iR1s is not R1
 
 def test___contains__():
     """Test "in" operator for AttributeSystem."""

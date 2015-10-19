@@ -30,7 +30,7 @@ class AttributeSystem(object):
 
         #sort objects before setting them
         self._objects = sorted(objects)
-        self._attribute_structure = A
+        self._attribute_structure = deepcopy(A)
         self._is_AttributeSystem = True
 
     def __eq__(self, other):
@@ -58,23 +58,24 @@ class AttributeSystem(object):
     def __add__(self, other):
         """Implement + for AttributeSystem's."""
         self_copy = deepcopy(self)
+        other_copy = deepcopy(other)
 
         #Handle adding an Attribute
-        if hasattr(other, "_is_Attribute"):
-            self_copy._attribute_structure += other
+        if hasattr(other_copy, "_is_Attribute"):
+            self_copy._attribute_structure += other_copy
         #Handle adding a Relation
-        elif hasattr(other, "_is_Relation"):
-            self_copy._attribute_structure += other
+        elif hasattr(other_copy, "_is_Relation"):
+            self_copy._attribute_structure += other_copy
         #Handle adding an AttributeStructure
-        elif hasattr(other, "_is_AttributeStructure"):
-            self_copy._attribute_structure += other
+        elif hasattr(other_copy, "_is_AttributeStructure"):
+            self_copy._attribute_structure += other_copy
         #Handle adding an AttributeSystem
-        elif hasattr(other, "_is_AttributeSystem"):
-            #try to add other.AttributeStructure
-            self_copy._attribute_structure += other._attribute_structure
+        elif hasattr(other_copy, "_is_AttributeSystem"):
+            #try to add other_copy.AttributeStructure
+            self_copy._attribute_structure += other_copy._attribute_structure
             #try to add objects; raise ValueError if there are duplicates
-            if not set(self_copy._objects) & set(other._objects):
-                self_copy._objects = self_copy._objects + other._objects
+            if not set(self_copy._objects) & set(other_copy._objects):
+                self_copy._objects = self_copy._objects + other_copy._objects
             else:
                 raise ValueError(
                     "AttributeSystem cannot add duplicate objects from "
@@ -91,24 +92,25 @@ class AttributeSystem(object):
     def __sub__(self, other):
         """Implement - for AttributeSystem's."""
         self_copy = deepcopy(self)
+        other_copy = deepcopy(other)
 
         #Handle removing an Attribute
-        if hasattr(other, "_is_Attribute"):
-            self_copy._attribute_structure -= other
+        if hasattr(other_copy, "_is_Attribute"):
+            self_copy._attribute_structure -= other_copy
         #Handle removing a Relation
-        elif hasattr(other, "_is_Relation"):
-            self_copy._attribute_structure -= other
+        elif hasattr(other_copy, "_is_Relation"):
+            self_copy._attribute_structure -= other_copy
         #Handle removing an AttributeStructure
-        elif hasattr(other, "_is_AttributeStructure"):
-            self_copy._attribute_structure -= other
+        elif hasattr(other_copy, "_is_AttributeStructure"):
+            self_copy._attribute_structure -= other_copy
         #Handle removing an AttributeSystem
-        elif hasattr(other, "_is_AttributeSystem"):
-            #try to add other.AttributeStructure
-            self_copy._attribute_structure -= other._attribute_structure
+        elif hasattr(other_copy, "_is_AttributeSystem"):
+            #try to add other_copy.AttributeStructure
+            self_copy._attribute_structure -= other_copy._attribute_structure
             #try to add objects; raise ValueError if there are duplicates
-            if set(other._objects) <= set(self_copy._objects):
-                remainig_objs = set(self_copy._objects) - set(other._objects)
-                self_copy._objects = list(remainig_objs)
+            if set(other_copy._objects) <= set(self_copy._objects):
+                left_objs = set(self_copy._objects) - set(other_copy._objects)
+                self_copy._objects = list(left_objs)
             else:
                 raise ValueError(
                     "AttributeSystem cannot remove objects present in "
@@ -166,8 +168,8 @@ class AttributeSystem(object):
                     return True
             else:
                 raise TypeError(
-                    "Only strings, Attributes, and Relations may be checked for membership in "
-                    "an AttributeSystem")        
+                    "Only strings, Attributes, and Relations may be checked "
+                    "for membership in an AttributeSystem")        
 
     def __deepcopy__(self, memo):
         """Return a deep copy of this AttributeSystem object."""
@@ -208,7 +210,8 @@ def main():
     o = ['o3', 'o1', 'o5', 'o2', 'o4']
 
     asys = AttributeSystem(a, o)
-    print str(asys)
+    print asys <= asys
+    print asys < asys
 
 if __name__ == "__main__":
     main()

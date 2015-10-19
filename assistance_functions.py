@@ -924,8 +924,10 @@ def is_subset(set1, set2):
 
     def split_points(lis):
         """Return list of Point objects split off from lis parameter."""
-
-        return [item for item in lis if isinstance(item, Point)]                        #return list of all list elements
+        try:
+            return [item for item in lis if isinstance(item, Point)]
+        except NameError:
+            return []
 
     def split_subgroups(lis):
         """Return list of subgroups split off from lis parameter."""
@@ -935,9 +937,11 @@ def is_subset(set1, set2):
     def split_singles(lis):
         """Return list of singles split off from lis parameter."""
 
-        return [
-        item for item in lis if type(item) != tuple and type(item) != list and not isinstance(item, Point)             #return list of all low-high tuples
-        ]
+        try:
+            #return list of all low-high tuples
+            return [item for item in lis if type(item) != tuple and type(item) != list and not isinstance(item, Point)]
+        except NameError:
+            return [item for item in lis if type(item) != tuple and type(item) != list]
 
     def split_tuples(lis):
         """Return list of tuples split off from lis parameter."""
@@ -949,6 +953,9 @@ def is_subset(set1, set2):
         Return boolean for whether or 
         not points1 is a subset of points2.
         """
+
+        if not points1 and not points2:
+            return True
 
         generic_dimensions1 = []
         generic_dimensions2 = []

@@ -13,7 +13,7 @@ class AttributeStructure(Attribute):
     attributes: list of attributes; always maintained as a list
     relations: dictionary of relations.
     """
-    
+
     def __init__(self, *ops):
         """
         Initialize an AttributeStructure object.
@@ -43,7 +43,7 @@ class AttributeStructure(Attribute):
                 "all optional positional arguments must be of type "
                 "Attribute or Relation")
 
-        #Sort provided ops so that attributes are added first
+        #Sort provided (copy of) ops so that attributes are added first
         sorted_a_ops = sorted(a_ops, key=lambda x: x._label)
         sorted_r_ops = sorted(r_ops, key=lambda x: x._subscript)
 
@@ -387,12 +387,11 @@ def main():
     a, b, c = Attribute("a", []), Attribute("b", []), Attribute("c", [])
     r = Relation("R1(a,b) <=> ", ["a", "b"],1)
 
-    astr = AttributeStructure(a, b, r)
-    print astr[b]
-    #astr += b
+    astr = AttributeStructure()
+    print astr + a + b + r
+
     #astr -= a
     #print astr + c
-
 
 if __name__ == "__main__":
     main()
