@@ -1,9 +1,9 @@
 """Attribute Structure unit tests."""
 
 import pytest
-from ..Attribute import Attribute
-from ..Relation import Relation
-from ..AttributeStructure import AttributeStructure
+from vivid.Classes.Attribute import Attribute
+from vivid.Classes.Relation import Relation
+from vivid.Classes.AttributeStructure import AttributeStructure
 
 def test___init__():
     """Test AttributeStructure construction."""

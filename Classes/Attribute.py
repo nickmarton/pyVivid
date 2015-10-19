@@ -1,9 +1,7 @@
 """Attribute Class."""
 
-from loader import load_src
-load_src("assistance_functions", "../assistance_functions.py")
-from assistance_functions import parse, nested_equivalence, is_subset
 from copy import deepcopy
+from ValueSet import ValueSet
 
 class Attribute(object):
     """
@@ -14,24 +12,25 @@ class Attribute(object):
     label: name of Attribute (e.g. size), always a string
     value_set: set of values that the attribute can take on 
     (e.g {small,large}) taken as a list and parsed into the standard
-    format outlined in parse function within the kernel file.
+    format defined by ValueSet class.
     """
 
     def __init__(self, label, value_set):
-        """
-        Initialize an Attribute object; parse the value set
-        (v parameter) according to parse provided within the kernel.
-        """
-
+        """Initialize an Attribute object."""
         #type checking before anything
         if not isinstance(label, str):
             raise TypeError("l parameter must be a string")
-        if not isinstance(value_set, list):
-            raise TypeError('v parameter must be of type list')
-
+        
         self._label = label
-        self._value_set = parse(value_set)
         self._is_Attribute = True
+
+        if hasattr(value_set, "_is_ValueSet"):
+            self._value_set = deepcopy(value_set)
+            return
+        if isinstance(value_set, list):
+            self._value_set = ValueSet(value_set)
+        else:
+            raise TypeError('v parameter must be of type ValueSet or list')
 
     def __eq__(self, other):
         """
@@ -40,7 +39,7 @@ class Attribute(object):
         """
         
         label_condition = self._label == other._label
-        value_condition = nested_equivalence(self._value_set, other._value_set)
+        value_condition = self._value_set == other._value_set
         
         if label_condition and value_condition:
             return True

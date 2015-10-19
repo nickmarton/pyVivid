@@ -1,9 +1,9 @@
 """AttributeSystem unit tests."""
 
 import pytest
-from ..AttributeSystem import AttributeSystem
-from ..AttributeSystem import AttributeStructure
-from ..AttributeSystem import Attribute, Relation
+from vivid.Classes.AttributeSystem import AttributeSystem
+from vivid.Classes.AttributeSystem import AttributeStructure
+from vivid.Classes.AttributeSystem import Attribute, Relation
 
 def test___init__():
     """."""

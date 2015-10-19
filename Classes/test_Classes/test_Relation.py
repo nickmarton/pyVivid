@@ -1,7 +1,7 @@
 """Relation class unit tests."""
 
 import pytest
-from ..Relation import Relation
+from vivid.Classes.Relation import Relation
 
 def test___init__():
     """Test Relation object construction."""

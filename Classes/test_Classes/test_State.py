@@ -1,10 +1,10 @@
 """State unit tests."""
 
 import pytest
-from ..State import State
-from ..State import AttributeSystem
-from ..State import AttributeStructure
-from ..State import Attribute, Relation
+from vivid.Classes.State import State
+from vivid.Classes.State import AttributeSystem
+from vivid.Classes.State import AttributeStructure
+from vivid.Classes.State import Attribute, Relation
 
 def test___init__():
     """Test State constructor."""

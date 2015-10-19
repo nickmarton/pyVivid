@@ -97,15 +97,18 @@ def test___deepcopy__():
 
 def test___str__():
     """Test str()."""
-    a = Attribute("label", ["1", '(1,(4,5,6),2,3)'])
-    assert a.__str__() == "label: {1,[[4, 5, 6], 1, 2, 3]}"
+    from ..Interval import Interval
+    a = Attribute("label", ["1", Interval(40,50), True, 4.0, 6L])
+    assert a.__str__() == "label: {4.0,6,1,True,I(40, 50)}"
 
 def test___repr__():
     """ Test repr()."""
-    a = Attribute("label", ["1", '(1,(4,5,6),2,3)'])
-    assert a.__repr__() == "\"label: {1,[[4, 5, 6], 1, 2, 3]}\""
+    from ..Interval import Interval
+    a = Attribute("label", ["1", Interval(40,50), True, 4.0, 6L])
+    print a.__repr__()
+    assert a.__repr__() == "\"label: {4.0,6,1,True,I(40, 50)}\""
 
-def test___key():
+def test__key():
     """Test Attribute hash key."""
     A = Attribute("", [])
     A2 = Attribute("label", [1, 'string', True])

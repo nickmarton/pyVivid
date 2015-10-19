@@ -193,10 +193,11 @@ class AttributeSystem(object):
 
     def is_automorphic(self):
         """Determine if Attribute System is automorphic."""
+        from ValueSet import ValueSet
         #Check if any object is a subset of value set of any attribute
         for s in self._objects:
             for a in self._attribute_structure._attributes:
-                if is_subset([s], a._value_set):
+                if ValueSet([s]) <= a._value_set:
                     return True
         return False
 
