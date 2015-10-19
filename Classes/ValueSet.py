@@ -66,7 +66,8 @@ class ValueSet(object):
 
             #for each value provided
             for value in values:
-                #if it's a base type, simply add to it's corresponding list.
+                #if it's a base type, simply add to it's corresponding list
+                #while rejecting duplicates.
                 if type(value) in ValueSet._base_types:
                     if value not in type_lists[type(value)]:
                         type_lists[type(value)].append(value)
@@ -94,6 +95,40 @@ class ValueSet(object):
 
             return type_lists
 
+        def _filter_numerics(type_lists):
+            """Filter out numeric values subsumed by some Interval."""
+            #filter out the ints, floats, and longs, subsumed by some Interval.
+            bad_ints, bad_floats, bad_longs = [], [], []
+            for i in type_lists[int]:
+                for interval in type_lists["_is_Interval"]:
+                    if interval._type == int:
+                        if i in interval:
+                            if i not in bad_ints:
+                                bad_ints.append(i)
+
+            for f in type_lists[float]:
+                for interval in type_lists["_is_Interval"]:
+                    if interval._type == float:
+                        if f in interval:
+                            if f not in bad_floats:
+                                bad_floats.append(f)
+
+            for l in type_lists[long]:
+                for interval in type_lists["_is_Interval"]:
+                    if interval._type == long:
+                        if l in interval:
+                            if l not in bad_longs:
+                                bad_longs.append(l)
+
+            for bi in bad_ints:
+                type_lists[int].remove(bi)
+
+            for bf in bad_floats:
+                type_lists[float].remove(bf)
+
+            for bl in bad_longs:
+                type_lists[long].remove(bl)
+
         #only accept sets and lists for valueset parameter
         if not isinstance(values, list) and not isinstance(values, set):
             raise TypeError("values paramter must be a list or set")
@@ -107,10 +142,19 @@ class ValueSet(object):
 
         type_lists = _split_by_types(values)
 
-        for k,v in type_lists.iteritems():
-            print str(k) + ": \t" + str(v)
+        #If intervals are within this valueset
+        if type_lists["_is_Interval"]:
+            type_lists["_is_Interval"] = Interval.collapse_intervals(
+                                            type_lists["_is_Interval"])
+            _filter_numerics(type_lists)
 
         output_set = []
+        #reconstruct list, sorting when possible
+        for base_type in ValueSet._base_types:
+            output_set += sorted(type_lists[base_type])
+        for object_type in ValueSet._object_types:
+            output_set += type_lists[object_type]
+
         return output_set
 
 
@@ -672,7 +716,13 @@ def parse(set1):
 
 def main():
     """."""
-    v = ValueSet([1, 1.0, 1L, '', Interval(1, 4)])
+    v = ValueSet(
+        [Interval(0, 2), Interval(1, 4), 
+        Interval(10, 20), Interval(9, 24),
+        Interval(30, 35), Interval(31, 34), 
+        Interval(60, 144), Interval(77, 150),
+        Interval(9, 25), Interval(25, 30), "f", -1])
+    print v._values
 
 if __name__ == "__main__":
     main()

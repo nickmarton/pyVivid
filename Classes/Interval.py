@@ -49,14 +49,15 @@ class Interval(object):
         """
 
         c_inf = self._infimum < other._infimum
-        c_sup = other._infimum < self._supremum < other._supremum
+        c_sup = other._infimum <= self._supremum < other._supremum
         return c_inf and c_sup
 
     def __eq__(self, other):
         """Implement == for Interval objects."""
+        c_type = self._type == other._type
         c_inf = self._infimum == other._infimum
         c_sup = self._supremum == other._supremum
-        return c_inf and c_sup
+        return c_type and c_inf and c_sup
 
     def __ge__(self, other):
         """
@@ -67,7 +68,7 @@ class Interval(object):
         Interval's infimum, other Interval supremum is less than this Interval's supremum
         """
         c_inf = other._infimum < self._infimum
-        c_sup = self._infimum < other._supremum < self._supremum
+        c_sup = self._infimum <= other._supremum < self._supremum
         return c_inf and c_sup
 
     def __gt__(self, other):
@@ -83,6 +84,22 @@ class Interval(object):
     def __ne__(self, other):
         """Implement != for Interval objects."""
         return self.__eq__(other)
+
+    def __add__(self, other):
+        """Implement + operator for intervals."""
+        if self <= other:
+            return Interval(self._infimum, other._supremum)
+        elif other <= self:
+            return Interval(other._infimum, self._supremum)
+        elif other == self:
+            return deepcopy(self)
+        else:
+            raise ValueError(
+                "Cannot add two non-overlapping Intervals")
+
+    def __iadd__(self, other):
+        """Implement += operator for Interval."""
+        return self.__add__(other)
 
     def __contains__(self, key):
         """
@@ -141,3 +158,45 @@ class Interval(object):
     def __repr__(self):
         """Machine representation of this Interval object."""
         return self.__str__()
+
+    @staticmethod
+    def collapse_intervals(intervals):
+        """Collapse overlapping intervals."""
+        #Ensure no bad input; only Intervals.
+        if any([not hasattr(i, "_is_Interval") for i in intervals]):
+            raise TypeError(
+                "Only Intervals objects can be collapsed.")
+
+        def can_collapse(lis):
+            """Try to collapse some 2 Interval's returning True on success."""
+            for i, interval_i in enumerate(lis):
+                for j, interval_j in enumerate(lis):
+                    #ignore when we're looking at the same Interval
+                    if i == j:
+                        continue
+                    #if Interval i is subsumed by Interval j, get rid of it
+                    if interval_i in interval_j:
+                        lis.remove(interval_i)
+                        return True
+                    #if Intervals overlap, add them and remove old Intervals
+                    elif interval_i <= interval_j:
+                        lis.append(interval_i + interval_j)
+                        lis.remove(interval_i)
+                        lis.remove(interval_j)
+                        return True
+
+            return False
+
+        #split intervals by type
+        int_intervals = [i for i in intervals if i._type == int]
+        float_intervals = [i for i in intervals if i._type == float]
+        long_intervals = [i for i in intervals if i._type == long]
+
+        #collapse Intervals for as long as posible
+        while can_collapse(int_intervals): pass
+        while can_collapse(float_intervals): pass
+        while can_collapse(long_intervals): pass
+
+        #recombine and send back
+        output = int_intervals + float_intervals + long_intervals
+        return output
