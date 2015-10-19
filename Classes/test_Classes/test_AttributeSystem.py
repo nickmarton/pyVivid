@@ -377,7 +377,27 @@ def test___getitem__():
 
 def test___contains__():
     """Test "in" operator for AttributeSystem."""
-    pass
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    R1 = Relation("R1(a) <=> ", ["a"], 1)
+    R2 = Relation("R2(a) <=> ", ["b"], 2)
+    
+    astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
+    objs = ['a', 'b', 'c']
+
+    asys_a_b_R1_R2 = AttributeSystem(astr_a_b_R1_R2, [])
+    asys_a_b_R1_R2_o = AttributeSystem(astr_a_b_R1_R2, objs)
+
+    assert a in asys_a_b_R1_R2_o
+    assert R1 in asys_a_b_R1_R2_o
+    assert astr_a_b_R1_R2 in asys_a_b_R1_R2
+    assert astr_a_b_R1_R2 in asys_a_b_R1_R2_o
+    with pytest.raises(TypeError) as excinfo:
+        asys_a_b_R1_R2 in asys_a_b_R1_R2_o
+    #Test strings only checked against objects
+    assert 'a' not in asys_a_b_R1_R2
+    assert 'a' in asys_a_b_R1_R2._attribute_structure
+    assert 'a' in asys_a_b_R1_R2_o
 
 def test___deepcopy__():
     """Test copy.deepcopy for AttributeSystem."""

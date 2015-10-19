@@ -162,11 +162,8 @@ class AttributeSystem(object):
         #Handle removing a list of objects or an object string
         else:
             if isinstance(key, str):
-                try:
-                    return key in self._attribute_structure
-                except:
-                    if key in self._objects:
-                        return True
+                if key in self._objects:
+                    return True
             else:
                 raise TypeError(
                     "Only strings, Attributes, and Relations may be checked for membership in "
