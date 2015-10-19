@@ -131,7 +131,8 @@ class AttributeStructure(Attribute):
         Implement + to add Attribute's, Relation's, or AttributeStructure's
         easily.
         """
-        
+
+        from AttributeSystem import AttributeSystem
         new_astr = deepcopy(self)
 
         #handle adding Attribute's to this AttributeStructure
@@ -166,6 +167,13 @@ class AttributeStructure(Attribute):
             for relation in other._relations.values():
                 new_astr += deepcopy(relation) 
         
+        #handle adding AttributeSystem to this AttributeSystem
+        elif hasattr(other, "_is_AttributeSystem"):
+            astr = deepcopy(other._attribute_structure)
+            objs = deepcopy(other._objects)
+
+            new_astr = astr + deepcopy(self)
+            return AttributeSystem(new_astr, objs)
         else:
             raise TypeError(
                 "Only Relation or Attribute objects can be added to an " 
@@ -182,7 +190,7 @@ class AttributeStructure(Attribute):
         #create copy before removing anything to not modify original
         copy = deepcopy(self)
 
-        #Handle removal of Attribute
+        #Handle removal of Attribute from this AttributeStructure
         if hasattr(other, "_is_Attribute"):
             for i, attribute in enumerate(copy._attributes):
                 if attribute._label == other._label:
@@ -191,16 +199,17 @@ class AttributeStructure(Attribute):
             else: 
                 raise ValueError("No attribute with label " + str(other._label))
         
-        #Handle removal of Relation
+        #Handle removal of Relation from this AttributeStructure
         elif hasattr(other, "_is_Relation"):
             if not other._subscript in copy._relations.keys(): 
-                raise KeyError("No relation with subscript " + str(other._subscript))
+                raise KeyError(
+                    "No relation with subscript " + str(other._subscript))
             else:
                 copy._relations.pop(other._subscript, None)
         
-        #handle adding AttributeStructure to this AttributeStructure
+        #handle removal of AttributeStructure from this AttributeStructure
         elif hasattr(other, "_is_AttributeStructure"):
-            
+
             #Determine if all attributes in other are in this AttributeStructure 
             attributes = set(copy._attributes)
             other_attributes = set(other._attributes)
@@ -215,11 +224,11 @@ class AttributeStructure(Attribute):
                 raise ValueError(
                     "Relation in right operand must be contained in left")
 
+            #remove Relations first for safety, then Attributes
+            for relation in other._relations.values():
+                copy -= relation
             for attribute in other._attributes:
                 copy -= attribute
-            for relation in other._relations.values():
-                copy -= relation 
-        
         else:
             raise TypeError(
                 "Only Relation or Attribute objects can be removed to an " 

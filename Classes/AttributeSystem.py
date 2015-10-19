@@ -1,8 +1,11 @@
 """Attribute System class."""
 
-from AttributeStructure import Attribute, Relation, AttributeStructure
-from functools import total_ordering
 from copy import deepcopy
+from functools import total_ordering
+from AttributeStructure import Attribute, Relation, AttributeStructure
+from loader import load_src
+load_src("assistance_functions", "../assistance_functions.py")
+from assistance_functions import is_subset
 
 @total_ordering
 class AttributeSystem(object):
@@ -78,27 +81,10 @@ class AttributeSystem(object):
                     "other AttributeSystem")
         #Handle removing a list of objects or an object string
         else:
-            if isinstance(other, list):
-                #if all members of list are of type string
-                if all([isinstance(other[i], str) for i in range(len(other))]):
-                    #if there are no duplicate objects trying to be added
-                    if not set(self_copy._objects) & set(other):
-                        for obj in other:
-                            self_copy._objects.append(other)
-                    else:
-                        raise ValueError("Duplciate objects not permitted")
-                else:
-                    ValueError(str(other) + " must contain only strings")
-            elif isinstance(other, str):
-                if other not in self_copy._objects:
-                    self_copy._objects.append(other)
-                else:
-                    raise ValueError("Duplicate objects not permitted")
-            else:
-                raise TypeError(
-                    "Only strings, lists, Attributes, Relations, "
-                    "AttributeStructures, and AttributeSystems may be removed "
-                    "from an AttributeSystem")
+            raise TypeError(
+                "Only strings, lists, Attributes, Relations, "
+                "AttributeStructures, and AttributeSystems may be removed "
+                "from an AttributeSystem")
 
         return self_copy
 
@@ -130,29 +116,10 @@ class AttributeSystem(object):
                     "AttributeSystem")
         #Handle removing a list of objects or an object string
         else:
-            if isinstance(other, list):
-                #if all members of list are of type string
-                if all([isinstance(other[i], str) for i in range(len(other))]):
-                    #if there are no duplicate objects trying to be added
-                    if set(objects) <= set(self_copy._objects):
-                        remainig_objs = set(self_copy._objects) - set(objects)
-                        self_copy._objects = list(remainig_objs)
-                    else:
-                        raise ValueError(
-                            "Cannot remove objects not in AttributeSystem")
-                else:
-                    ValueError(str(other) + " must contain only strings")
-            elif isinstance(other, str):
-                if other in self_copy._objects:
-                    self_copy._objects.remove(other)
-                else:
-                    raise ValueError(
-                        "Cannot remove object not in this AttributeSystem")
-            else:
-                raise TypeError(
-                    "Only strings, lists, Attributes, Relations, "
-                    "AttributeStructures, and AttributeSystems may be removed "
-                    "from an AttributeSystem")
+            raise TypeError(
+                "Only strings, lists, Attributes, Relations, "
+                "AttributeStructures, and AttributeSystems may be removed "
+                "from an AttributeSystem")
 
         return self_copy
 
@@ -208,11 +175,11 @@ class AttributeSystem(object):
                     "Only strings, Attributes, and Relations may be checked for membership in "
                     "an AttributeSystem")        
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo):
         """Return a deep copy of this AttributeSystem object."""
         objects_copy = deepcopy(self._objects)
         attribute_structure_copy = deepcopy(self._attribute_structure)
-        return AttributeSystem(objects_copy, attribute_structure_copy)
+        return AttributeSystem(attribute_structure_copy, objects_copy)
 
     def get_power(self):
         """Get power of this AttributeSystem, i.e., n * |A|."""

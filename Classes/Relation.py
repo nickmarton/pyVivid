@@ -92,13 +92,20 @@ class Relation(object):
 
         from Attribute import Attribute
         from AttributeStructure import AttributeStructure
-        #handle Attribute addition case     
+        from AttributeSystem import AttributeSystem
+        #handle Relation and Attribute addition     
         if hasattr(other, "_is_Attribute"):
             return AttributeStructure(self, other)
+        #handle Relation and AttributeStructure addition     
         elif hasattr(other, "_is_AttributeStructure"):
             params = other._attributes + other._relations.values()
             params.append(deepcopy(self))
             return AttributeStructure(*params)
+        #handle Relation and AttributeSystem addition
+        elif hasattr(other, "_is_AttributeSystem"):
+            astr = deepcopy(other._attribute_structure)
+            astr += deepcopy(self)
+            return AttributeSystem(astr, deepcopy(other._objects))
         else:
             raise TypeError(
                 "Only Relation or Attribute objects may be added to a "

@@ -2,7 +2,7 @@
 
 from loader import load_src
 load_src("assistance_functions", "../assistance_functions.py")
-from assistance_functions import parse, nested_equivalence
+from assistance_functions import parse, nested_equivalence, is_subset
 from copy import deepcopy
 
 class Attribute(object):
@@ -61,15 +61,23 @@ class Attribute(object):
 
         from Relation import Relation
         from AttributeStructure import AttributeStructure
-        #handle Attribute and 
+        from AttributeSystem import AttributeSystem
+        #handle Attribute and Attribute addition
         if hasattr(other, "_is_Attribute"):
             return AttributeStructure(self, other)
+        #handle Attribute and Relation addition
         elif hasattr(other, "_is_Relation"):
             return AttributeStructure(self, other)
+        #handle Attribute and AttributeStructure addition
         elif hasattr(other, "_is_AttributeStructure"):
             params = other._attributes + other._relations.values()
             params.append(deepcopy(self))
             return AttributeStructure(*params)
+        #handle Attribute and AttributeSystem addition
+        elif hasattr(other, "_is_AttributeSystem"):
+            astr = deepcopy(other._attribute_structure)
+            astr += deepcopy(self)
+            return AttributeSystem(astr, deepcopy(other._objects))
         else:
             raise TypeError(
                 "Only Relation, Attribute, and AttributeStructure objects may "
@@ -87,6 +95,14 @@ class Attribute(object):
     def __repr__(self):
         """Machine readable string repr; same as __str__."""
         return "\"" + self.__str__() + "\""
+
+    def __key(self):
+        """Private key function for hashing."""
+        return (self._label, str(self._value_set))
+
+    def __hash__(self):
+        """Hash implementation for set comparison of Attributes."""
+        return hash(self.__key())
 
     def set_label(self, label):
         """Set label to exclusively strings."""
