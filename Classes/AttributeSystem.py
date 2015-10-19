@@ -134,23 +134,20 @@ class AttributeSystem(object):
     def __getitem__(self, obj):
         """Implement indexing for AttributeSystem."""
         #Handle removing an Attribute
-        if hasattr(other, "_is_Attribute"):
-            return self._attribute_structure[other]
+        if hasattr(obj, "_is_Attribute"):
+            return self._attribute_structure[obj]
         #Handle removing a Relation
-        elif hasattr(other, "_is_Relation"):
-            return self._attribute_structure[other]
+        elif hasattr(obj, "_is_Relation"):
+            return self._attribute_structure[obj]
         #Handle removing a list of objects or an object string
         else:
-            if isinstance(other, str):
-                try:
-                    return self._attribute_structure[other]
-                except:
-                    if other in self._objects:
-                        return self._objects.index(other)
+            if isinstance(obj, str):
+                if obj in self._objects:
+                    return self._objects[self._objects.index(obj)]
             else:
                 raise TypeError(
-                    "Only strings, Attributes, and Relations may index "
-                    "an AttributeSystem")
+                    "Only strings (refering to objects), Attributes, and "
+                    "Relations may index an AttributeSystem")
 
     def __contains__(self, key):
         """Implement in for AttributeSystem."""

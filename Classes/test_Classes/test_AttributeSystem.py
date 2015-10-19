@@ -270,19 +270,113 @@ def test___sub__():
     assert asys == asys_a_b_R1_R2 - R1 - R2 - astr_a - b
 
 def test___iadd__():
-    """."""
-    pass
+    """Test += operator for AttributeSystem."""
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    R1 = Relation("R1(a) <=> ", ["a"], 1)
+    R2 = Relation("R2(a) <=> ", ["b"], 2)
+    
+    astr_empty = AttributeStructure()
+    astr_a = AttributeStructure(a)
+    astr_a_b = AttributeStructure(a, b)
+    astr_a_R1 = AttributeStructure(a, R1)
+    astr_a_b_R1 = AttributeStructure(a, b, R1)
+    astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
+
+    objs = ['a', 'b', 'c']
+    
+    asys = AttributeSystem(astr_empty, [])
+    asys_a = AttributeSystem(astr_a, [])
+    asys_a_b = AttributeSystem(astr_a_b, [])
+    asys_a_R1 = AttributeSystem(astr_a_R1, [])
+    asys_a_b_R1 = AttributeSystem(astr_a_b_R1, [])
+    asys_a_b_R1_R2 = AttributeSystem(astr_a_b_R1_R2, [])
+
+    asys += a
+    assert asys == asys_a
+    assert asys is not asys_a
+    asys += b
+    assert asys == asys_a_b
+    assert asys is not asys_a_b
+    asys += R1
+    assert asys == asys_a_b_R1
+    assert asys is not asys_a_b_R1
+    asys += R2
+    assert asys == asys_a_b_R1_R2
+    assert asys is not asys_a_b_R1_R2
 
 def test___isub__():
-    """."""
-    pass
+    """Test -= operator for AttributeSystem."""
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    R1 = Relation("R1(a) <=> ", ["a"], 1)
+    R2 = Relation("R2(a) <=> ", ["b"], 2)
+    
+    astr_empty = AttributeStructure()
+    astr_a = AttributeStructure(a)
+    astr_a_b = AttributeStructure(a, b)
+    astr_a_R1 = AttributeStructure(a, R1)
+    astr_a_b_R1 = AttributeStructure(a, b, R1)
+    astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
+
+    objs = ['a', 'b', 'c']
+    
+    asys = AttributeSystem(astr_empty, [])
+    asys_a = AttributeSystem(astr_a, [])
+    asys_a_b = AttributeSystem(astr_a_b, [])
+    asys_a_R1 = AttributeSystem(astr_a_R1, [])
+    asys_a_b_R1 = AttributeSystem(astr_a_b_R1, [])
+    asys_a_b_R1_R2 = AttributeSystem(astr_a_b_R1_R2, [])
+
+    asys_a_b_R1_R2 -= R2
+    assert asys_a_b_R1_R2 == asys_a_b_R1
+    assert asys_a_b_R1_R2 is not asys_a_b_R1
+    asys_a_b_R1_R2 -= R1
+    assert asys_a_b_R1_R2 == asys_a_b
+    assert asys_a_b_R1_R2 is not asys_a_b
+    asys_a_b_R1_R2 -= b
+    assert asys_a_b_R1_R2 == asys_a
+    assert asys_a_b_R1_R2 is not asys_a
+    asys_a_b_R1_R2 -= a
+    assert asys_a_b_R1_R2 == asys
+    assert asys_a_b_R1_R2 is not asys
 
 def test___getitem__():
-    """."""
-    pass
+    """Test indexing of AttributeSystem."""
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    R1 = Relation("R1(a) <=> ", ["a"], 1)
+    R2 = Relation("R2(a) <=> ", ["b"], 2)
+
+    astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
+    objs = ['a', 'b', 'c']
+    
+    asys_a_b_R1_R2_o = AttributeSystem(astr_a_b_R1_R2, objs)
+
+    ia = asys_a_b_R1_R2_o[a]
+    assert ia == a
+    assert ia is a
+    iR1 = asys_a_b_R1_R2_o[R1]
+    assert iR1 == R1
+    assert iR1 is R1
+    #Test object retrieval with string. Note, strings may not index
+    #AttributeStructure members within this AttributeSystem, only objects.
+    #To index objects in AttributeStructure in AttributeSystem, use index
+    #with asys.astr[index]
+    iobj = asys_a_b_R1_R2_o['a']
+    assert iobj == objs[0]
+    assert iobj is objs[0]
+
+    #Test retrieval by string for AttributeStructure members
+    ias = asys_a_b_R1_R2_o._attribute_structure['a']
+    assert ias == a
+    assert ias is a
+    iR1s = asys_a_b_R1_R2_o._attribute_structure['R1']
+    assert iR1s == R1
+    assert iR1s is R1
 
 def test___contains__():
-    """."""
+    """Test "in" operator for AttributeSystem."""
     pass
 
 def test___deepcopy__():
