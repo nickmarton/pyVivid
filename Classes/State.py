@@ -85,7 +85,6 @@ class State(object):
     
     def get_ascription_keys(self):
         """get the label, object pairs of ascriptions of this State."""
-
         return self._ascriptions.keys()
 
     def set_ascription(self, ao_pair, new_value_set):

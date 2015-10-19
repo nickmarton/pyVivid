@@ -55,8 +55,9 @@ class Attribute(object):
         """
         Overloaded + operator. 
         
-        Combine this Attribute and another Attribute or Relation into an
-        AttributeStructure.
+        Combine this Attribute and another Attribute, Relation,
+        AttributeStructure into an AttributeStructure or combine it with an
+        AttributeSystem.
         """
 
         from Relation import Relation
@@ -98,6 +99,7 @@ class Attribute(object):
 
     def _key(self):
         """Private key function for hashing."""
+        #Tuple key; not a permanent solution
         return (self._label, str(self._value_set))
 
     def __hash__(self):
