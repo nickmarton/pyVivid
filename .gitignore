@@ -9,6 +9,7 @@
 *.pyo
 *.pyc
 __pycache__
+.cache
 
 # Packages #
 ############
