@@ -26,6 +26,7 @@ def test___ne__():
 def test___sub__():
     """."""
     pass
+
 def test___getitem__():
     """."""
     pass
@@ -42,11 +43,11 @@ def test___iter__():
     """."""
     pass
 
-def test___deepcopy__():
+def test___nonzero__():
     """."""
     pass
 
-def test___nonzero__():
+def test___deepcopy__():
     """."""
     pass
 
@@ -55,6 +56,10 @@ def test___str__():
     pass
 
 def test___repr__():
+    """."""
+    pass
+
+def test__split_by_types():
     """."""
     pass
 

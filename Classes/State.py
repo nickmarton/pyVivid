@@ -26,7 +26,7 @@ class State(object):
 
         self._attribute_system = deepcopy(attribute_system)
         self._ascriptions = {}
-        self._is_state = True
+        self._is_State = True
         
         #Initialize the state as empty
         for Ai in self._attribute_system._attribute_structure._attributes:
@@ -59,7 +59,45 @@ class State(object):
                 return False
 
         return True
-    
+
+    def __lt__(self, other):
+        """
+        Implement < operator for State object. 
+        Overloaded for proper extension.
+        """
+        
+        #if this State is an extension of other State and other State is not
+        #an extension of this State, this State properly extends other State
+        self_extends_other = self <= other
+        other_extends_self = other <= self
+
+        if self_extends_other and not other_extends_self:
+            return True
+        else:
+            return False
+
+    def __le__(self, other):
+        """Implement <= operator for State; overloaded for is_extension."""
+        if not hasattr(other, "_is_State"):
+            raise TypeError(
+                'other parameter must be a State object')
+
+        #if State's are from different AttributeSystems, raise ValueError
+        if self._attribute_system != other._attribute_system:
+            raise ValueError(
+                "other State must be of same AttributeSystem as this State")
+
+        ao_pairs = self._ascriptions.keys()
+
+        #for each attribute-object pair
+        for ao_pair in ao_pairs:
+            #if the ValueSet of the ao-pair in this State is not a subset of
+            #the corresponding ValueSet of the ao-pair in other State
+            if not self._ascriptions[ao_pair] <= other._ascriptions[ao_pair]:
+                return False
+
+        return True
+
     def __ne__(self, other):
         """Implement != for State object."""
         
@@ -171,52 +209,6 @@ class State(object):
             if not self.is_valuation(label):
                 return False
         return True
-
-    def is_extension(self, other):
-        """
-        Return a boolean for whether or not this State object is an 
-        extension of other State object.
-
-        raise TypeError if other parameter is not of Type State
-        """
-
-        if not isinstance(other, State):                                                #if other parameter is not a state
-            raise TypeError(                                                            #explicitly raise a ValueError
-                'other parameter must be of Type state')
-
-        self_keys = self.get_ascription_keys()                                          #get a copy of this State's ascription keys
-        other_keys = other.get_ascription_keys()                                        #get a copy of other State's ascription keys
-
-        if self_keys == other_keys:                                                     #if the ascription keys for this State and the other State are the same
-            for i in range(len(self_keys)):                                             #for each ascription key
-                self_key = self_keys[i]                                                 
-                other_key = other_keys[i]                                               #get copy of keys
-                
-                self_value_set = self.get_ascription(self_key)                          #get value set of the ascription in this State
-                other_value_set = other.get_ascription(other_key)                       #get value set of the ascription in other State
-
-                if not is_subset(self_value_set, other_value_set):                      #if this value set is not a subset of other value set
-                    return False                                                        #not an extension, return False
-        else: 
-            return False                                                                #ascription keys aren't the same, not an extension of s
-        
-        return True                                                                     #every ascription in this State is a subset of the ascription in other State, it is an extension
-
-    def is_proper_extension(self, other):
-        """
-        Return a boolean for whether or not this State object is a
-        proper extension of other State object.
-
-        raise TypeError if other parameter is not of Type State
-        """
-
-        so_extension = self.is_extension(other)                                         #determine if this State is an extension of other State
-        os_extension = other.is_extension(self)                                         #determine if other State is an extension of this State
-
-        if so_extension and not os_extension:                                           #if this State is an extension of other State but other State is not an extension of this State
-            return True                                                                 #it is a proper extension, return True
-        else:                                                                           #otherwise, return False
-            return False
 
     def get_worlds(self):
         """
@@ -499,6 +491,7 @@ def main():
 
     asys = AttributeSystem(a, o)
     s = State(asys)
+    s2 = State(asys)
     s.set_ascription(('a', 'o3'), [1])
     s.set_ascription(('a', 'o1'), ['A'])
     #print s['a']
