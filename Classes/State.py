@@ -47,7 +47,7 @@ class State(object):
         """
 
         #if AttributeSystems aren't the same, then States can't be
-        if self._attribute_system != other_get_attribute_system:
+        if self._attribute_system != other._attribute_system:
             return False
 
         #if Attribute-object pairs are not the same, unequal
@@ -248,6 +248,20 @@ class State(object):
             worlds.append(world)
 
         return worlds
+
+    def is_disjoint(self, other):
+        """Determine if this State is disjoint from other."""
+        #get all possible worlds for both States
+        self_worlds = self.get_worlds()
+        other_worlds = other.get_worlds()
+
+        #iterate over both sets of worlds and compare
+        for self_world in self_worlds:
+            for other_world in other_worlds:
+                if self_world == other_world:
+                    return True
+
+        return False
 
     def is_alternate_extension(self, s_prime, *states):
         """
@@ -469,11 +483,7 @@ def main():
     #print s['a']
     #print s.is_valuation('a')
 
-    ws = s.get_worlds()
-    for w in ws:
-        print w
-        print
-    print len(ws)
+    print s.is_disjoint(s2)
 
 if __name__ == "__main__":
     main()
