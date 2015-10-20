@@ -151,6 +151,34 @@ class Interval(object):
         """Hash so sets can use Interval's."""
         return hash(self._key())
 
+    def discretize(jump=None):
+        """Return all values within range of this interval."""
+        def frange(x, y, jump):
+                """Get value in an inclusive range with step size of jump."""
+                while x <= y:
+                    yield x
+                    x += jump   
+
+        #if jump is provided, check if it's compatible with this Interval
+        if jump:
+            if type(jump) != int and type(jump) != float and type(jump) != long:
+                raise TypeError(
+                    "jump must be of type int, float, or long.")
+            
+            if type(jump) != self._type:
+                raise TypeError(
+                    "jump must be same type as Interval values.")
+        #otherwise, set default jumps
+        else:
+            if self._type == int:
+                jump = 1
+            elif self._type == float:
+                jump = 1.0
+            else:
+                jump = 1L
+
+        return [frange(self._infimum, self._supremum, jump)]
+
     def __str__(self):
         """Human readable string for Interval object."""
         return "I(" + str(self._infimum) + ", " + str(self._supremum) + ")"

@@ -59,10 +59,19 @@ def test___hash__():
     """."""
     pass
 
+def test_discretize():
+    """."""
+    pass
+
 def test___str__():
     """."""
     pass
 
 def test___repr__():
+    """."""
+    pass
+
+
+def test_collapse_intervals():
     """."""
     pass
