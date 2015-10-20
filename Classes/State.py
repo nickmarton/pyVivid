@@ -459,13 +459,18 @@ class State(object):
         return alternate_extensions
 
     def __str__(self):
-        s = ''
-        for delta_i in sorted(self._ascriptions.keys(), key=lambda tup: tup[1]): 
-            #s += delta_i[0] + '(' + delta_i[1] + '): ' + str(self._ascriptions[delta_i]) + '\n'                #used for debugging; shows in list for and not notation
-            s += delta_i[0] + '(' + delta_i[1] + '): {' + str(self._ascriptions[delta_i])[1:-1] + '}' + '\n'
-        return s[:-1]
+        """Implement str() for State object."""
+        labels = self._attribute_system._attribute_structure.get_labels()
+        objects = self._attribute_system._objects
+
+        state_str = ''
+        for label in labels:
+            for obj in objects:
+                state_str += label + "(" + obj + "): {"
+                state_str += str(self._ascriptions[(label, obj)]) + "}\n"
 
     def __repr__(self):
+        """Implement repr() for State object."""
         return self.__str__()
 
 def main():
@@ -483,7 +488,7 @@ def main():
     #print s['a']
     #print s.is_valuation('a')
 
-    print s.is_disjoint(s2)
+    print s
 
 if __name__ == "__main__":
     main()
