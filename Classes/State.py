@@ -1,7 +1,8 @@
 """State object."""
 
-from assistance_functions import *
-
+#from assistance_functions import *
+from copy import deepcopy
+from ValueSet import ValueSet
 from AttributeSystem import AttributeSystem
 from AttributeSystem import AttributeStructure
 from AttributeSystem import Attribute, Relation 
@@ -30,7 +31,7 @@ class State(object):
         #Initialize the state as empty
         for Ai in self._attribute_system._attribute_structure._attributes:
             for s_i in self._attribute_system._objects:
-                self._ascriptions[(Ai._label, s_i)] = []
+                self._ascriptions[(Ai._label, s_i)] = deepcopy(Ai._value_set)
 
         #Set any ascriptions provided to constructor
         for ao_pair, valueset in ascriptions.iteritems():
@@ -84,15 +85,20 @@ class State(object):
         
         new_values = None
         #Enforce new_value_set as a list, set, or ValueSet
-        if isinstance(new_value_set, list) or isinstance(new_value_set, set):
+        if isinstance(new_valueset, list) or isinstance(new_valueset, set):
             new_values = ValueSet(new_valueset)
         elif hasattr(new_value_set, "_is_ValueSet"):
-            new_values = deepcopy(new_value_set)
+            new_values = deepcopy(new_valueset)
         else:
             raise TypeError(
                 "Ascription values must be of type list, set, or ValueSet")
         
-        if ao_pair in self._ascriptions:
+        #ensure non-empty Ascriptions
+        if not new_values:
+            raise ValueError("Ascriptions must be non-empty.")
+
+        #
+        if ao_pair in self._ascriptions.keys():
             label, obj = ao_pair
             #Get ValueSet of Attribute with provided label in ao_pair
             attribute = self._attribute_system._attribute_structure[label]
@@ -110,41 +116,61 @@ class State(object):
             raise KeyError(
                 str(ao_pair) + ' not in ascriptions')
     
-    def __getitem__():
-        """."""
-        pass
+    def __getitem__(self, key):
+        """Implement indexing for State."""
+        #if key is a string (i.e., label), return copy of list of ValueSets
+        if type(key) == str:
+            #get labels of all ascriptions
+            labels = self._attribute_system._attribute_structure.get_labels()
+            if key not in labels:
+                raise KeyError(
+                    key + " is not a valid Attribute label.")
+            #extract objects
+            objects = self._attribute_system._objects
+            #get ascription ValueSets li(sj) with li = key 
+            ascription_i = [self._ascriptions[(key, obj)] for obj in objects]
+            return ascription_i
+        #if key is an attribute-object pair return that li(sj)
+        elif type(key) == tuple:
+            if len(key) != 2:
+                raise TypeError(
+                    "key must be string or 2-tuple (attribute-object pair)")
+            try:
+                return self._ascriptions[key]
+            except KeyError:
+                raise KeyError(
+                    str(key) + " not a valid key.")
+        else:
+            raise TypeError(
+                "Only Attribute label strings and attribute-object "
+                "2-tuples are valid keys")
 
-    def is_valuation(self, key):
+    def is_valuation(self, label):
         """
-        Determine if value set of ascription key matching key parameter
-        is a valuation; 
+        Determine if value set of ascription li is a valuation.
 
         raise KeyError of key parameter is not a valid ascription key.
         """
-        
-        if not key in self.get_ascriptions():                                           #if key parameter is not a valid ascription key
-            raise KeyError(                                                             #explicitly raise KeyError
-                key + " is not a valid key")
-        else:                                                                           #key parameter is a valid ascription key
-            value_set = self._ascriptions[key]                                          #get a copy of value set at that ascription key
-        
 
-        length_condition = len(value_set) == 1                                          #determine if there's only one element in value set                             
-        if length_condition:
-            if isinstance(value_set[0], tuple):                                         #if sole element is a low-high tuple
-                return False                                                            #ascription is not a valuation
-            else:                                                                       #otherwise, ascription is a valuation
-                return True
-        else:                                                                           #more than 1 element in value set so ascription is not a valuation
-            return False
+        #get list of li(sj) ValueSets with label provided 
+        valuesets = self[label]
+        #try to look up the valueset of given ao_pair
+        for valueset in valuesets:
+            if len(valueset) == 1:
+                #if the only element in ValueSet is an Interval, ValueSet is
+                #not a valuation
+                if hasattr(valueset[0], "_is_Interval"):
+                    return False
+            else:
+                return False
+        return True
 
     def is_world(self):
         """Returns True if this State is a world; false otherwise."""
-
-        for key in self.get_ascription_keys():                                          #for every ascription key
-            if not self.is_valuation(key):                                              #if the value set of a particular ascription is not a valuation
-                return False                                                            #this State is not a world, return False
-        return True                                                                     #all ascriptions are valuations, this State is a world
+        for label in self._attribute_system._attribute_structure.get_labels():
+            if not self.is_valuation(label):
+                return False
+        return True
 
     def is_extension(self, other):
         """
@@ -463,3 +489,21 @@ class State(object):
             s += delta_i[0] + '(' + delta_i[1] + '): {' + str(self._ascriptions[delta_i])[1:-1] + '}' + '\n'
         return s[:-1]
 
+def main():
+    """."""
+    a, b, c = Attribute("a", ["A", 1]), Attribute("b", ["B", 2]), Attribute("c", ["C", 3])
+    r = Relation("R1(a,b) <=> ", ["a", "b"], 1)
+
+    a = AttributeStructure(a, b, c, r)
+    o = ['o3', 'o1']
+
+    asys = AttributeSystem(a, o)
+    s = State(asys)
+    s.set_ascription(('a', 'o3'), [1])
+    s.set_ascription(('a', 'o1'), ['A'])
+    #print s['a']
+    #print s.is_valuation('a')
+
+
+if __name__ == "__main__":
+    main()

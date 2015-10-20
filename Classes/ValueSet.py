@@ -92,6 +92,11 @@ class ValueSet(object):
 
         return ValueSet(output_set)
 
+    def __getitem__(self, key):
+        if type(key) != int:
+            raise TypeError("indicies must be of type int")
+        return self._values[key]
+
     def __contains__(self, key):
         """Implement "in" operator for ValueSet."""
         if key in self._values:
@@ -99,10 +104,21 @@ class ValueSet(object):
         else:
             return False
 
+    def __len__(self):
+        """Implement len() for ValueSet."""
+        return len(self._values)
+
     def __iter__(self):
         """Implement iterator for ValueSet."""
         for value in self._values:
             yield value
+
+    def __nonzero__(self):
+        """Define boolean behavior."""
+        if self._values:
+            return True
+        else:
+            return False
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for ValueSet object."""
@@ -110,7 +126,7 @@ class ValueSet(object):
 
     def __str__(self):
         """Human readable representation of ValueSet object."""
-        return str(self._values)
+        return "V(" + ', '.join([str(i) for i in self._values]) + ")"
 
     def __repr__(self):
         """Machine representation of ValueSet object."""

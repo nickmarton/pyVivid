@@ -26,8 +26,15 @@ def test___ne__():
 def test___sub__():
     """."""
     pass
+def test___getitem__():
+    """."""
+    pass
 
 def test___contains__():
+    """."""
+    pass
+
+def test___len__():
     """."""
     pass
 
@@ -36,6 +43,10 @@ def test___iter__():
     pass
 
 def test___deepcopy__():
+    """."""
+    pass
+
+def test___nonzero__():
     """."""
     pass
 
