@@ -216,63 +216,33 @@ class State(object):
         NamedState object.
         """
 
-        def break_down_tuples(lis):
-            """
-            Replace low-high tuples in lis parameter with all elements
-            in their range.
-            """
-
-            def frange(x, y, jump):
-                """
-                Declare a generator that generates values in an 
-                inclusive range with a float step size.
-                """
-
-                while x <= y:                                                           #while low is less than high
-                    yield x                                                             #yield x at current step
-                    x += jump                                                           #increment x by step size
-
-            tuples = []
-            for i, item in reversed(list(enumerate(lis))):                              #for every item in lis parameter starting from the back
-                if isinstance(item, tuple):                                             #if the item is a low-high tuple
-                    tuples.append(item)                                                 #save the tuple and delete it in lis
-                    del lis[i]
-
-            for tup in tuples:                                                          #for every low-high tuple formerly in lis
-                low = tup[0]
-                high = tup[1]
-
-                if isinstance(low, float) or isinstance(high, float):                   #if we need to use floats
-                    lis.extend(list(frange(low, high, get_float_df())))
-                else:                                                                   #otherwise, we're using ints
-                    lis.extend(list(range(low, high + 1)))
-
-            return lis
-
         from itertools import product
 
-        #get all ascriptions of this NamedState.
-        ascriptions = copy.copy(
-            [item for item in self.get_ascriptions().items()])
-
-        value_sets = []
+        #get a copy of the ascriptions
+        ascription_list = [item for item in self._ascriptions.items()]
+        new_valuesets = []
         labels = []
-
-        #break down low-high tuples to get discrete version of all
-        #possible values in each ascriptions value set.
-        for (label, value_set) in ascriptions:
-            tupleless_value_set = break_down_tuples(copy.copy(value_set))
-            value_sets.append(tupleless_value_set)
+        #for each ascription
+        for (label, valueset) in ascription_list:
+            #discretize any Intervals within the valueset 
+            new_valueset = []
+            for value in valueset:
+                if hasattr(value, "_is_Interval"):
+                    new_valueset.extend(value.discrete())
+                else:
+                    new_valueset.append(value)
+            #set ascription to discretized version
+            new_valuesets.append(new_valueset)
             labels.append(label)
 
-        combos = list(product(*value_sets))
+        combos = list(product(*new_valuesets))
 
         worlds = []
 
         #create each possible world from this NamedState and 
         #return them in a list.
         for values in combos:
-            world = State(self.get_attribute_system())
+            world = State(self._attribute_system)
             for i, label in enumerate(labels):
                 world.set_ascription(label, [values[i]])
             worlds.append(world)
@@ -481,22 +451,29 @@ class State(object):
             s += delta_i[0] + '(' + delta_i[1] + '): {' + str(self._ascriptions[delta_i])[1:-1] + '}' + '\n'
         return s[:-1]
 
+    def __repr__(self):
+        return self.__str__()
+
 def main():
     """."""
-    a, b, c = Attribute("a", ["A", 1]), Attribute("b", ["B", 2]), Attribute("c", ["C", 3])
+    a, b = Attribute("a", ["A", 1]), Attribute("b", ["B", 2])
     r = Relation("R1(a,b) <=> ", ["a", "b"], 1)
 
-    a = AttributeStructure(a, b, c, r)
-    o = ['o3', 'o1']
+    a = AttributeStructure(a, b, r)
+    o = ['o1', 'o2']
 
     asys = AttributeSystem(a, o)
     s = State(asys)
     s2 = State(asys)
-    s.set_ascription(('a', 'o3'), [1])
     s.set_ascription(('a', 'o1'), ['A'])
     #print s['a']
     #print s.is_valuation('a')
 
+    ws = s.get_worlds()
+    for w in ws:
+        print w
+        print
+    print len(ws)
 
 if __name__ == "__main__":
     main()
