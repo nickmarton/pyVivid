@@ -27,6 +27,10 @@ def test___sub__():
     """."""
     pass
 
+def test___contains__():
+    """."""
+    pass
+
 def test___iter__():
     """."""
     pass

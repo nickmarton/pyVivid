@@ -34,7 +34,10 @@ class State(object):
 
         #Set any ascriptions provided to constructor
         for ao_pair, valueset in ascriptions.iteritems():
-            self.set_ascription(label, valueset)
+            self.set_ascription(ao_pair, valueset)
+
+        #break references by copying ascriptions
+        self._ascriptions = deepcopy(self._ascriptions)
 
     def __eq__(self, other):
         """
@@ -42,52 +45,35 @@ class State(object):
         State objects are equal.
         """
 
-        if self.get_attribute_system() != other.get_attribute_system():                 #if AttributeSystems aren't the same, then States can't be
+        #if AttributeSystems aren't the same, then States can't be
+        if self._attribute_system != other_get_attribute_system:
             return False
-        
-        for k, v in self.get_ascriptions().iteritems():                                 #for each key value pair in ascriptions
-            if k not in other.get_ascriptions():                                        #if label object pair isn't a key in other
+
+        #if Attribute-object pairs are not the same, unequal
+        if set(self._ascriptions.keys()) != set(other._ascriptions.keys()):
+            return False
+        #ValueSet is unordered, simple equality works for testing
+        for ao_pair in self._ascriptions.keys():
+            if self._ascriptions[ao_pair] != other._ascriptions[ao_pair]:
                 return False
-            else:
-                pq_cond = is_subset(v, other.get_ascriptions()[k])
-                qp_cond = is_subset(other.get_ascriptions()[k], v)
-                if not pq_cond or not qp_cond:                                     #if label object pair is a key but value sets are different
-                    return False
+
         return True
     
     def __ne__(self, other):
-        """
-        Return a boolean for whether or not self and other 
-        State objects are equal.
-        """
+        """Implement != for State object."""
         
-        if self.get_attribute_system() != other.get_attribute_system():                 #if AttributeSystems aren't the same, then States can't be
-            return True
-        
-        for k, v in self.get_ascriptions().iteritems():                                 #for each key value pair in ascriptions
-            if k not in other.get_ascriptions():                                        #if label object pair isn't a key in other
-                return True
-            else:
-                pq_cond = is_subset(v, other.get_ascriptions()[k])
-                qp_cond = is_subset(other.get_ascriptions()[k], v)
-                if not pq_cond or not qp_cond:                                     #if label object pair is a key but value sets are different
-                    return True
-        return False
+        return not self.__eq__(other)
 
     def __deepcopy__(self):
-        """Implement copy.deepcopy for State object."""
-        import copy
+        """
+        Implement copy.deepcopy for State object. 
+        
+        Constructor copies implicitly so just return new object.
+        """
+        
+        return State(self._attribute_system, self._ascriptions)
 
-        attribute_system_copy = copy.deepcopy(self._attribute_system)
-        ascriptions_copy = copy.deepcopy(self._ascriptions)
-
-        return State(attribute_system_copy, ascriptions_copy)
-    
-    def get_ascription_keys(self):
-        """get the label, object pairs of ascriptions of this State."""
-        return self._ascriptions.keys()
-
-    def set_ascription(self, ao_pair, new_value_set):
+    def set_ascription(self, ao_pair, new_valueset):
         """
         Set an ascription ao_pair (label,obj) value set to v.
 
@@ -96,25 +82,30 @@ class State(object):
         Raise KeyError if ao_pair parameter not in ascriptions, 
         """
         
-        #Enforce new_value_set as a list
-        if not isinstance(new_value_set, list):
+        new_values = None
+        #Enforce new_value_set as a list, set, or ValueSet
+        if isinstance(new_value_set, list) or isinstance(new_value_set, set):
+            new_values = ValueSet(new_valueset)
+        elif hasattr(new_value_set, "_is_ValueSet"):
+            new_values = deepcopy(new_value_set)
+        else:
             raise TypeError(
-                str(new_value_set) + "must be of type list") 
+                "Ascription values must be of type list, set, or ValueSet")
         
         if ao_pair in self._ascriptions:
             label, obj = ao_pair
-            #Get value_set of Attribute with provided label in ao_pair
+            #Get ValueSet of Attribute with provided label in ao_pair
             attribute = self._attribute_system._attribute_structure[label]
             possible_values = attribute._value_set
 
             #If new value_set provided is a subset of the possible value_set of
             #the Attribute
-            if is_subset(parse(new_value_set), possible_values):
-                self._ascriptions[ao_pair] = copy.deepcopy(parse(new_value_set))
+            if new_values <= possible_values:
+                self._ascriptions[ao_pair] = new_values
             else:
                 raise ValueError(
-                    str(new_value_set) + ' is not a subset of ' + 
-                    str(self._ascriptions[ao_pair]))
+                    str(new_values) + ' is not a subset of ' + 
+                    str(possible_values))
         else:
             raise KeyError(
                 str(ao_pair) + ' not in ascriptions')

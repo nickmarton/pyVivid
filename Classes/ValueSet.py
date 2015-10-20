@@ -47,7 +47,7 @@ class ValueSet(object):
         return union == intersection
 
     def __le__(self, other):
-        """Implement <= for ValueSet object."""
+        """Implement <= for ValueSet object; overloaded for subset."""
         if len(self._values) > len(other._values):
             return False
 
@@ -91,6 +91,13 @@ class ValueSet(object):
             output_set += std_type_lists[object_type]
 
         return ValueSet(output_set)
+
+    def __contains__(self, key):
+        """Implement "in" operator for ValueSet."""
+        if key in self._values:
+            return True
+        else:
+            return False
 
     def __iter__(self):
         """Implement iterator for ValueSet."""
