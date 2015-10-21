@@ -24,7 +24,9 @@ def test___init__():
 def test___eq__():
     """Test == operator."""
     VS1, VS2 = ValueSet([]), ValueSet([])
+    VS3, VS4 = ValueSet([1]), ValueSet([1])
     assert VS1 == VS2
+    assert VS3 == VS4
 
 def test___ne__():
     """Test != operator."""
@@ -41,8 +43,8 @@ def test___le__():
     assert VS1 <= VS2
     assert VS3 <= VS4
     assert VS3 >= VS4
-    assert VS1 > VS2
-    assert VS1 >= VS2
+    assert VS5 > VS6
+    assert VS5 >= VS6
 
 def test___sub__():
     """Test - operator."""
