@@ -8,23 +8,44 @@ def test_add_object_type():
     pass
 
 def test___init__():
-    """."""
-    pass
+    """Test ValueSet Constructor"""
+    def test_TypeError(valueset):
+        """Test an individual ValueSet construction."""
+        with pytest.raises(TypeError) as excinfo:
+            ValueSet(valueset)
+
+    #test value_set errors
+    test_TypeError(1)
+    test_TypeError(1.0)
+    test_TypeError("")
+    test_TypeError(set([]))
+    test_TypeError(object)
 
 def test___eq__():
-    """."""
-    pass
-
-def test___le__():
-    """."""
-    pass
+    """Test == operator."""
+    VS1, VS2 = ValueSet([]), ValueSet([])
+    assert VS1 == VS2
 
 def test___ne__():
-    """."""
-    pass
+    """Test != operator."""
+    VS1, VS2 = ValueSet([]), ValueSet([1])
+    assert VS1 != VS2
+
+def test___le__():
+    """Test <= operator."""
+    VS1, VS2 = ValueSet([]), ValueSet([1])
+    VS3, VS4 = ValueSet([1]), ValueSet([1])
+    VS5, VS6 = ValueSet([1]), ValueSet([])
+
+    assert VS1 < VS2
+    assert VS1 <= VS2
+    assert VS3 <= VS4
+    assert VS3 >= VS4
+    assert VS1 > VS2
+    assert VS1 >= VS2
 
 def test___sub__():
-    """."""
+    """Test - operator."""
     pass
 
 def test___getitem__():
