@@ -175,7 +175,7 @@ class Interval(object):
         """Hash so sets can use Interval's."""
         return hash(self._key())
 
-    def discretize(jump=None):
+    def discretize(self, jump=None):
         """Return all values within range of this interval."""
         def frange(x, y, jump):
                 """Get value in an inclusive range with step size of jump."""
@@ -201,7 +201,7 @@ class Interval(object):
             else:
                 jump = 1L
 
-        return [frange(self._infimum, self._supremum, jump)]
+        return [i for i in frange(self._infimum, self._supremum, jump)]
 
     def __str__(self):
         """Human readable string for Interval object."""
@@ -232,7 +232,7 @@ class Interval(object):
                         return True
                     #if Intervals overlap, add them and remove old Intervals
                     elif interval_i <= interval_j:
-                        lis.append(interval_i + interval_j)
+                        lis.append(interval_i | interval_j)
                         lis.remove(interval_i)
                         lis.remove(interval_j)
                         return True

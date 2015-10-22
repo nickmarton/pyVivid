@@ -274,8 +274,19 @@ def test___hash__():
     assert hash(Interval(0L, 1L)) == 3713080549409410656
 
 def test_discretize():
-    """."""
-    pass
+    """Test Interval - discrete list conversion."""
+    i = Interval(0, 10)
+    assert i.discretize() == [v for v in range(i[0], i[1]+1)]
+    assert i.discretize(2) == [0, 2, 4, 6, 8, 10]
+    assert i.discretize(3) == [0, 3, 6, 9]
+
+    i = Interval(0.0, 2.0)
+    assert i.discretize() == [0.0, 1.0, 2.0]
+    assert i.discretize(.5) == [0.0, 0.50, 1.0, 1.5, 2.0]
+
+    i = Interval(0L, 2L)
+    assert i.discretize() == [0L, 1L, 2L]
+    assert i.discretize(2L) == [0L, 2L]
 
 def test___str__():
     """Test str() of Interval object."""
@@ -290,5 +301,17 @@ def test___repr__():
     assert repr(Interval(0L, 1L)) == "I(0, 1)"
 
 def test_collapse_intervals():
-    """."""
-    pass
+    """Test Interval collapsing."""
+    intervals = [
+        Interval(-10, 0), Interval(-1, 10), Interval(-4, 5), Interval(9, 13),
+        Interval(11, 15), Interval(-4, 5), Interval(-100, -99),
+        Interval(-10.0, 0.0), Interval(-1.0, 10.0), Interval(-4.0, 5.0),
+        Interval(9.0, 13.0), Interval(11.0, 15.0), Interval(-4.0, 5.0),
+        Interval(-100.0, -99.0), Interval(-10L, 0L), Interval(-1L, 10L),
+        Interval(-4L, 5L), Interval(9L, 13L), Interval(11L, 15L),
+        Interval(-4L, 5L), Interval(-100L, -99L)]
+
+    out = [Interval(-100, -99), Interval(-10, 15), Interval(-100.0, -99.0),
+            Interval(-10.0, 15.0), Interval(-100L, -99L), Interval(-10L, 15L)]
+    
+    assert Interval.collapse_intervals(intervals) == out
