@@ -85,21 +85,45 @@ class Interval(object):
         """Implement != for Interval objects."""
         return not self.__eq__(other)
 
-    def __add__(self, other):
-        """Implement + operator for intervals."""
+    def __or__(self, other):
+        """Implement | operator for intervals (union)."""
         if self <= other:
-            return Interval(self._infimum, other._supremum)
+            return Interval(
+                min(self._infimum, other._infimum),
+                max(self._supremum, other._supremum))
         elif other <= self:
-            return Interval(other._infimum, self._supremum)
+            return Interval(
+                min(self._infimum, other._infimum),
+                max(self._supremum, other._supremum))
+        elif other in self:
+            return deepcopy(self)
+        elif self in other:
+            return deepcopy(other)
         elif other == self:
             return deepcopy(self)
         else:
             raise ValueError(
                 "Cannot add two non-overlapping Intervals")
 
-    def __iadd__(self, other):
-        """Implement += operator for Interval."""
-        return self.__add__(other)
+    def __and__(self, other):
+        """Implement & operator for intervals (intersection)."""
+        if self <= other:
+            return Interval(
+                max(self._infimum, other._infimum),
+                min(self._supremum, other._supremum))
+        elif other <= self:
+            return Interval(
+                max(self._infimum, other._infimum),
+                min(self._supremum, other._supremum))
+        elif other in self:
+            return deepcopy(other)
+        elif self in other:
+            return deepcopy(self)
+        elif other == self:
+            return deepcopy(self)
+        else:
+            raise ValueError(
+                "Cannot add two non-overlapping Intervals")
 
     def __contains__(self, key):
         """

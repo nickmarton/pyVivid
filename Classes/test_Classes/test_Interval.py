@@ -145,46 +145,149 @@ def test___ne__():
     assert Interval(0L, 1L) != Interval(0, 1)
     assert Interval(0L, 1L) != Interval(0.0, 1.0)
 
-def test___add__():
-    """."""
-    pass
+def test___or__():
+    """Test | operator for Interval."""
+    def test_ValueError(i1, i2):
+        """Test ValueError catching."""
+        with pytest.raises(ValueError) as excinfo:
+            i1 | i2
 
-def test___iadd__():
-    """."""
-    pass
+    i1, i2 = Interval(-200, 1000), Interval(50, 100)
+    assert i1 | i2 == Interval(-200, 1000)
+    i1, i2 = Interval(0, 10), Interval(50, 100)
+    test_ValueError(i1, i2)
+    i1, i2 = Interval(0, 55), Interval(50, 100)
+    assert i1 | i2 == Interval(0, 100)
+    i1, i2 = Interval(70, 80), Interval(50, 100)
+    assert i1 | i2 == Interval(50, 100)
+    i1, i2 = Interval(75, 125), Interval(50, 100)
+    assert i1 | i2 == Interval(50, 125)
+    i1, i2 = Interval(105, 125), Interval(50, 100)
+    test_ValueError(i1, i2)
+
+def test___and__():
+    """Test & operator for Interval."""
+    def test_ValueError(i1, i2):
+        """Test ValueError catching."""
+        with pytest.raises(ValueError) as excinfo:
+            i1 & i2
+
+    i1, i2 = Interval(-200, 1000), Interval(50, 100)
+    assert i1 & i2 == Interval(50, 100)
+    i1, i2 = Interval(0, 10), Interval(50, 100)
+    test_ValueError(i1, i2)
+    i1, i2 = Interval(0, 55), Interval(50, 100)
+    assert i1 & i2 == Interval(50, 55)
+    i1, i2 = Interval(70, 80), Interval(50, 100)
+    assert i1 & i2 == Interval(70, 80)
+    i1, i2 = Interval(75, 125), Interval(50, 100)
+    assert i1 & i2 == Interval(75, 100)
+    i1, i2 = Interval(105, 125), Interval(50, 100)
+    test_ValueError(i1, i2)
 
 def test___contains__():
-    """."""
-    pass
+    """Test in operator for Interval."""
+    def test_TypeError(interval, key):
+        """Test TypeError catching."""
+        with pytest.raises(TypeError) as excinfo:
+            key in interval
+    #test standard greater than or equal to
+    assert Interval(3, 8) not in Interval(0, 5)
+    assert Interval(3.0, 8.0) not in Interval(0.0, 5.0)
+    assert Interval(3L, 8L) not in Interval(0L, 5L)
+    #test [i s](i' s')
+    assert Interval(-5, -3) not in Interval(0, 5)
+    assert Interval(-5.0, -3.0) not in Interval(0.0, 5.0)
+    assert Interval(-5L, -3L) not in Interval(0L, 5L)
+    #test (i' s')[i s]
+    assert Interval(90, 100) not in Interval(8, 9)
+    assert Interval(90.0, 100.0) not in Interval(8.0, 9.0)
+    assert Interval(90L, 100L) not in Interval(8L, 9L)
+    #test [i (i' s] s')
+    assert Interval(-2, 3) not in Interval(0, 5)
+    assert Interval(-2.0, 3.0) not in Interval(0.0, 5.0)
+    assert Interval(-2L, 3L) not in Interval(0L, 5L)
+    #test [i (i' s') s]
+    assert Interval(-5, 10) not in Interval(0, 5)
+    assert Interval(-5.0, 10.0) not in Interval(0.0, 5.0)
+    assert Interval(-5L, 10L) not in Interval(0L, 5L)
+    #test [i' (i s) s']
+    assert Interval(-5, 10) in Interval(-10, 15)
+    assert Interval(-5.0, 10.0) in Interval(-10.0, 15.0)
+    assert Interval(-5L, 10L) in Interval(-10L, 15L)
+    #test (i', s') == (i, s)
+    assert Interval(-10, 15) in Interval(-10, 15)
+    assert Interval(-10.0, 15.0) in Interval(-10.0, 15.0)
+    assert Interval(-10L, 15L) in Interval(-10L, 15L)
+    #test type mismatch
+    test_TypeError(1.0, Interval(6, 7))
+    test_TypeError(1L, Interval(6, 7))
+    test_TypeError(1, Interval(6.0, 7.0))
+    test_TypeError(1L, Interval(6.0, 7.0))
+    test_TypeError(1.0, Interval(6L, 7L))
+    test_TypeError(1, Interval(6L, 7L))
 
 def test___getitem__():
-    """."""
-    pass
+    """Test indexing for Interval."""
+    def test_IndexError(interval, index):
+        """Test IndexError catching."""
+        with pytest.raises(IndexError) as excinfo:
+            interval[index]
+    def test_TypeError(interval, index):
+        """Test TypeError catching."""
+        with pytest.raises(TypeError) as excinfo:
+            Interval[index]
+    
+    test_TypeError(Interval(0, 1), "")
+    test_IndexError(Interval(0, 1), -1)
+    test_IndexError(Interval(0, 1), 2)
 
 def test___deepcopy__():
-    """."""
-    pass
+    """Test copy.deepcopy for Interval object."""
+    from copy import deepcopy
+    #test ints
+    i = Interval(0, 1)
+    i_copy = deepcopy(i)
+    assert i == i_copy
+    assert i_copy is not deepcopy(i)
+    #test floats
+    i = Interval(0.0, 1.0)
+    i_copy = deepcopy(i)
+    assert i == i_copy
+    assert i_copy is not deepcopy(i)
+    #test longs
+    i = Interval(0L, 1L)
+    i_copy = deepcopy(i)
+    assert i == i_copy
+    assert i_copy is not deepcopy(i)
 
 def test__key():
-    """."""
-    pass
+    """Test key used for hashing; just 2-tuple."""
+    assert Interval(0, 1)._key() == (0, 1)
+    assert Interval(0.0, 1.0)._key() == (0.0, 1.0)
+    assert Interval(0L, 1L)._key() == (0L, 1L)
 
 def test___hash__():
-    """."""
-    pass
+    """Test hash of Interval."""
+    assert hash(Interval(0, 1)) == 3713080549409410656
+    assert hash(Interval(0.0, 1.0)) == 3713080549409410656
+    assert hash(Interval(0L, 1L)) == 3713080549409410656
 
 def test_discretize():
     """."""
     pass
 
 def test___str__():
-    """."""
-    pass
+    """Test str() of Interval object."""
+    assert str(Interval(0, 1)) == "I(0, 1)"
+    assert str(Interval(0.0, 1.0)) == "I(0.0, 1.0)"
+    assert str(Interval(0L, 1L)) == "I(0, 1)"
 
 def test___repr__():
-    """."""
-    pass
-
+    """Test repr() of Interval object."""
+    assert repr(Interval(0, 1)) == "I(0, 1)"
+    assert repr(Interval(0.0, 1.0)) == "I(0.0, 1.0)"
+    assert repr(Interval(0L, 1L)) == "I(0, 1)"
 
 def test_collapse_intervals():
     """."""
