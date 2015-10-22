@@ -83,7 +83,7 @@ class Interval(object):
 
     def __ne__(self, other):
         """Implement != for Interval objects."""
-        return self.__eq__(other)
+        return not self.__eq__(other)
 
     def __add__(self, other):
         """Implement + operator for intervals."""
