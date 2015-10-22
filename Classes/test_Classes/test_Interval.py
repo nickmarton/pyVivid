@@ -45,8 +45,35 @@ def test___lt__():
     assert not Interval(8L, 9L) < Interval(0L, 1L)
 
 def test___le__():
-    """."""
-    pass
+    """Implement overloaded <= operator for Interval; (i',[i, s'), s]"""
+    #test standard greater than or equal to
+    assert Interval(0, 5) <= Interval(3, 8)
+    assert Interval(0.0, 5.0) <= Interval(3.0, 8.0)
+    assert Interval(0L, 5L) <= Interval(3L, 8L)
+    #test (i' s')[i s]
+    assert not Interval(0, 5) <= Interval(-5, -3)
+    assert not Interval(0.0, 5.0) <= Interval(-5.0, -3.0)
+    assert not Interval(0L, 5L) <= Interval(-5L, -3L)
+    #test [i s](i' s')
+    assert not Interval(8, 9) <= Interval(90, 100)
+    assert not Interval(8.0, 9.0) <= Interval(90.0, 100.0)
+    assert not Interval(8L, 9L) <= Interval(90L, 100L)
+    #test [i' (i s'] s)
+    assert not Interval(0, 5) <= Interval(-2, 3)
+    assert not Interval(0.0, 5.0) <= Interval(-2.0, 3.0)
+    assert not Interval(0L, 5L) <= Interval(-2L, 3L)
+    #test [i' (i s) s']
+    assert not Interval(0, 5) <= Interval(-5, 10)
+    assert not Interval(0.0, 5.0) <= Interval(-5.0, 10.0)
+    assert not Interval(0L, 5L) <= Interval(-5L, 10L)
+    #test [i (i' s') s]
+    assert not Interval(-10, 15) <= Interval(-5, 10)
+    assert not Interval(-10.0, 15.0) <= Interval(-5.0, 10.0)
+    assert not Interval(-10L, 15L) <= Interval(-5L, 10L)
+    #test (i', s') == (i, s)
+    assert not Interval(-10, 15) <= Interval(-10, 15)
+    assert not Interval(-10.0, 15.0) <= Interval(-10.0, 15.0)
+    assert not Interval(-10L, 15L) <= Interval(-10L, 15L)
 
 def test___eq__():
     """Test == operator for Interval object."""
@@ -61,15 +88,7 @@ def test___eq__():
     assert not Interval(0L, 1L) == Interval(0.0, 1.0)
 
 def test___ge__():
-    """
-    Implement overloaded >= operator for Interval; (i',[i, s'), s]
-    Return True when other Interval's infimum is strictly less than this
-    Interval's infimum, other Interval supremum is less than this Interval's supremum
-    """
-    #c_inf = other._infimum < self._infimum
-    #c_sup = self._infimum <= other._supremum < self._supremum
-    #return c_inf and c_sup
-
+    """Implement overloaded >= operator for Interval; (i',[i, s'), s]"""
     #test standard greater than or equal to
     assert Interval(3, 8) >= Interval(0, 5)
     assert Interval(3.0, 8.0) >= Interval(0.0, 5.0)
@@ -94,11 +113,10 @@ def test___ge__():
     assert not Interval(-5, 10) >= Interval(-10, 15)
     assert not Interval(-5.0, 10.0) >= Interval(-10.0, 15.0)
     assert not Interval(-5L, 10L) >= Interval(-10L, 15L)
-    #test ([i'i ss'])
+    #test (i', s') == (i, s)
     assert not Interval(-10, 15) >= Interval(-10, 15)
     assert not Interval(-10.0, 15.0) >= Interval(-10.0, 15.0)
     assert not Interval(-10L, 15L) >= Interval(-10L, 15L)
-
 
 def test___gt__():
     """Test > operator for Interval; (i' s')[i, s]."""

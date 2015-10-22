@@ -63,7 +63,7 @@ class Interval(object):
         """
         Implement overloaded >= operator for Interval. 
 
-        (o1,[s1, o2), s2]
+        (s1,[o1, s2), o2]
         Return True when other Interval's infimum is strictly less than this
         Interval's infimum, other Interval supremum is less than this Interval's supremum
         """
