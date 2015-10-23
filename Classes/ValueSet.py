@@ -71,7 +71,7 @@ class ValueSet(object):
         #respective types
         self_type_lists = ValueSet._split_by_types(self._values)
         other_type_lists = ValueSet._split_by_types(other._values)
-        
+
         from collections import defaultdict
         std_type_lists = defaultdict(list)
         
@@ -93,9 +93,13 @@ class ValueSet(object):
         return ValueSet(output_set)
 
     def __getitem__(self, key):
+        """implement indexing for ValueSet object."""
         if type(key) != int:
             raise TypeError("indicies must be of type int")
-        return self._values[key]
+        if key in range(len(self._values)):
+            return self._values[key]
+        else:
+            raise IndexError("Invalid index: " + str(key))
 
     def __contains__(self, key):
         """Implement "in" operator for ValueSet."""
