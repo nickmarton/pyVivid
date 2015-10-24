@@ -191,6 +191,39 @@ def test___iter__():
     v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
     assert [i for i in v.__iter__()] == v._values
 
+def test___setitem__():
+    """Test ValueSet[key] = value assignment for ValueSet object."""
+    def test_TypeError(valueset, key, value):
+        """Test TypeError raising in index assignment."""
+        with pytest.raises(TypeError) as excinfo:
+            valueset[key] = value
+    def test_ValueError(valueset, key, value):
+        """Test ValueError raising in index assignment."""
+        with pytest.raises(ValueError) as excinfo:
+            valueset[key] = value
+    def test_AttributeError(valueset, key, value):
+        """Test AttributeError raising in index assignment."""
+        with pytest.raises(AttributeError) as excinfo:
+            valueset[key] = value
+    def test_IndexError(valueset, key, value):
+        """Test IndexError raising in index assignment."""
+        with pytest.raises(IndexError) as excinfo:
+            valueset[key] = value
+
+    v = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
+
+    v[0] = 1000
+    assert v[0] == 1000
+    #test invalid key types
+    test_TypeError(v, '', 1)
+    test_TypeError(v, object, 1)
+    test_TypeError(v, None, 1)
+    test_TypeError(v, 1.0, 1)
+    test_TypeError(v, 1L, 1)
+    #test duplicate value catching
+    test_ValueError(v, 1, 1)
+    test_IndexError(v, 10, -37)
+
 def test___nonzero__():
     """Test boolean behavior for ValueSet."""
     v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
@@ -200,15 +233,41 @@ def test___nonzero__():
 
 def test___deepcopy__():
     """Test copy.deepcopy for ValueSet object."""
-    pass
+    import copy
+    v = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
+    v_copy = copy.deepcopy(v)
+    assert v == v_copy
+    assert v is not v_copy
+    assert v[8] is not v_copy[8]
+    assert v[9] is not v_copy[9]
 
 def test___str__():
-    """."""
-    pass
+    """Test str() for ValueSet object."""
+    v1 = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
+    v2 = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v3 = ValueSet([])
+    assert str(v1) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v1.__str__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    #test out of order
+    assert str(v2) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v2.__str__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    #test empty
+    assert str(v3) == "V()"
+    assert v3.__str__() == "V()"
 
 def test___repr__():
-    """."""
-    pass
+    """Test repr() for ValueSet object."""
+    v1 = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
+    v2 = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v3 = ValueSet([])
+    assert repr(v1) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v1.__repr__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    #test out of order
+    assert repr(v2) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v2.__repr__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    #test empty
+    assert repr(v3) == "V()"
+    assert v3.__repr__() == "V()"
 
 def test__split_by_types():
     """."""

@@ -121,6 +121,34 @@ class ValueSet(object):
         for value in self._values:
             yield value
 
+    def __setitem__(self, key, value):
+        """Implement mutability (assignment) for ValueSet object."""
+        if type(key) != int:
+            raise TypeError("indicies must be of type int")
+        #ensure value is not a duplicate
+        if value in self:
+            raise ValueError("Duplicate values not permitted in ValueSet.")
+        if key in range(len(self._values)):
+            #if simple type, replace item at index with value
+            if type(value) in ValueSet._base_types:
+                self._values[key] = value
+                return
+            
+            #not simple type, check if it's a valid object type
+            identifier = None
+            for object_identifier in ValueSet._object_types:
+                if hasattr(value, object_identifier):
+                    if identifier:
+                        raise AttributeError(
+                            "Any object passed must have only 1 "
+                            "supported identifier")
+                    identifier = object_identifier
+            if identifier:
+                self._values[key] = value
+                return
+        else:
+            raise IndexError("Invalid index: " + str(key))
+
     def __nonzero__(self):
         """Define boolean behavior."""
         if self._values:
