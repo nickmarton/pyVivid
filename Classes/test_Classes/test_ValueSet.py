@@ -166,23 +166,40 @@ def test___getitem__():
     assert v[6] is v._values[6]
 
 def test___contains__():
-    """."""
-    pass
+    """Test in operator for ValueSet object."""
+    v = ValueSet([1, 2, 'a', 'b', False, True, Interval(100, 1000)])
+    assert 1 in v
+    assert 2 in v
+    assert 'a' in v
+    assert 'b' in v
+    assert False in v
+    assert True in v
+    assert Interval(100, 1000) in v
+    assert not Interval(400, 500) in v
+    assert not Interval(100.0, 1000.0) in v
+    assert not Interval(100L, 1000L) in v
 
 def test___len__():
-    """."""
-    pass
+    """Test len() function for ValueSet object."""
+    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v2 = ValueSet([])
+    assert len(v) == 10
+    assert len(v2) == 0
 
 def test___iter__():
-    """."""
-    pass
+    """Test iterator for ValueSet object."""
+    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    assert [i for i in v.__iter__()] == v._values
 
 def test___nonzero__():
-    """."""
-    pass
+    """Test boolean behavior for ValueSet."""
+    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    assert v
+    v2 = ValueSet([])
+    assert not v2
 
 def test___deepcopy__():
-    """."""
+    """Test copy.deepcopy for ValueSet object."""
     pass
 
 def test___str__():

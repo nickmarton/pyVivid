@@ -103,10 +103,14 @@ class ValueSet(object):
 
     def __contains__(self, key):
         """Implement "in" operator for ValueSet."""
-        if key in self._values:
-            return True
-        else:
-            return False
+        for value in self:
+            try:
+                is_equal = key == value
+                if is_equal:
+                    return True
+            except AttributeError:
+                pass
+        return False
 
     def __len__(self):
         """Implement len() for ValueSet."""
