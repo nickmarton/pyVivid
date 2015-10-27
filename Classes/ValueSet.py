@@ -19,7 +19,7 @@ class ValueSet(object):
     def add_object_type(cls, object_identifier):
         """Add compatibility for object."""
         #Ensure object identifiers are strings
-        if not isinstance(object_identifier,str):
+        if not isinstance(object_identifier, str):
             raise TypeError("Object identifier's must be strings")
         import re
         
@@ -271,7 +271,6 @@ class ValueSet(object):
             output_set += type_lists[object_type]
 
         return output_set
-
 
 def main():
     """."""

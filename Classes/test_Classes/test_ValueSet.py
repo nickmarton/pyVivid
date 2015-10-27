@@ -5,8 +5,21 @@ from vivid.Classes.ValueSet import ValueSet
 from vivid.Classes.Interval import Interval
 
 def test_add_object_type():
-    """."""
-    pass
+    """Test add object types for ValueSet class."""
+    def test_TypeError(object_type):
+        """Test TypeError raising in add_object_type."""
+        with pytest.raises(TypeError) as excinfo:
+            ValueSet.add_object_type(object_type)
+    def test_ValueError(object_type):
+        """Test ValueError raising in add_object_type."""
+        with pytest.raises(ValueError) as excinfo:
+            ValueSet.add_object_type(object_type)
+
+    test_TypeError(None)
+    test_TypeError(object)
+    test_ValueError('bad_string')
+    test_ValueError('_bad_string')
+    test_ValueError('_isbad_string')
 
 def test___init__():
     """Test ValueSet Constructor"""
@@ -270,9 +283,67 @@ def test___repr__():
     assert v3.__repr__() == "V()"
 
 def test__split_by_types():
-    """."""
-    pass
+    """Test split_by_types used in parsing."""
+    def test_AttributeError(values):
+        """Test AttributeError raising in split_by_types."""
+        with pytest.raises(AttributeError) as excinfo:
+            ValueSet._split_by_types(values)
+    def test_TypeError(values):
+        """Test TypeError raising in split_by_types."""
+        with pytest.raises(TypeError) as excinfo:
+            ValueSet._split_by_types(values)
+
+    #test error raising
+    i = Interval(1, 10)
+    i._is_different_object = True
+    ValueSet.add_object_type("_is_different_object")
+    test_AttributeError([i])
+    test_TypeError([object])
+
+    #test output
+    types = ValueSet._split_by_types(
+        [1, 2, 1.0, 1.5, 1L, 2L, 'a', 'b', True, False, 
+        Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)])
+    
+    d = {
+        int: [1, 2], float: [1.0, 1.5], long: [1L, 2L],
+        str: ['a', 'b'], bool: [True, False],
+        "_is_Interval": [Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)]}
+    
+    empty = ValueSet._split_by_types([])
+    assert empty == {}
+    assert d == types
 
 def test__parse():
-    """."""
-    pass
+    """Test _parse function for ValueSet."""
+    def test_TypeError(values):
+        """Test TypeError raising in split_by_types."""
+        with pytest.raises(TypeError) as excinfo:
+            ValueSet._parse(values)
+
+    #test standard type parsing
+    standard_types = ValueSet._parse(
+        [-1, -2, -1.0, -1.5, -1L, -2L, 'a', 'b', True, False,
+        Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)])
+    
+    assert standard_types == [-2, -1, -1.5, -1.0, -2L, -1L, 'a', 'b',
+                                False, True, Interval(0, 10),
+                                Interval(0.0, 10.0), Interval(0L, 10L)]
+    
+    #test single numbers being filtered by intervals
+    number_filters = ValueSet._parse(
+        [-2, 1, -1.5, 1.0, -2L, 1L, 
+            Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)])
+
+    assert number_filters == [-2, -1.5, -2L, Interval(0, 10),
+                                Interval(0.0, 10.0), Interval(0L, 10L)]
+
+    interval_collapsing = ValueSet._parse(
+        [Interval(0, 10), Interval(5, 15), Interval(7, 11), Interval(15, 25),
+        Interval(-10, 500), Interval(0.0, 10.4), Interval(5.56, 15.33),
+        Interval(7.765, 11.001), Interval(15.32, 25.77),
+        Interval(-10.2, 500.442), Interval(0L, 10L), Interval(5L, 15L),
+        Interval(7L, 11L), Interval(15L, 25L), Interval(-10L, 500L)])
+
+    assert interval_collapsing == [
+            Interval(-10, 500), Interval(-10.2, 500.442), Interval(-10L, 500L)]
