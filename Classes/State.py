@@ -269,10 +269,11 @@ class State(object):
         #iterate over both sets of worlds and compare
         for self_world in self_worlds:
             for other_world in other_worlds:
+                #if both states share some world, they're not disjoint
                 if self_world == other_world:
-                    return True
+                    return False
 
-        return False
+        return True
 
     def is_alternate_extension(self, s_prime, *states):
         """

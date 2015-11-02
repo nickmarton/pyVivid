@@ -121,7 +121,29 @@ def test___ne__():
 
 def test___deepcopy__():
     """Test deepcopy"""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s = State(asys, ascr)
+    
+    from copy import deepcopy
+    s_copy = deepcopy(s)
+
+    assert s == s_copy
+    assert s is not s_copy
+    assert s._attribute_system == s_copy._attribute_system
+    assert s._attribute_system is not s_copy._attribute_system
+    assert s._ascriptions == s_copy._ascriptions
+    assert s._ascriptions is not s_copy._ascriptions
 
 def test_set_ascription():
     """Test set_ascription function."""
@@ -186,15 +208,98 @@ def test___getitem__():
 
 def test_is_valuation():
     """Test is_valuation function."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s = State(asys, ascr)
+
+    assert not s.is_valuation('color')
+    assert not s.is_valuation('size')
+    s.set_ascription(('color', 's2'), ['B'])
+    assert s.is_valuation('color')
+    s.set_ascription(('size', 's2'), ['L'])
+    assert s.is_valuation('size')
 
 def test_is_world():
     """Test is_world function."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s = State(asys, ascr)
+
+    assert not s.is_world()
+    s.set_ascription(('color', 's2'), ['B'])
+    s.set_ascription(('size', 's2'), ['L'])
+    assert s.is_world()
 
 def test_get_worlds():
     """Test get_worlds function."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    ascr1 = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L']}
+
+    ascr2 = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['S']}
+
+    ascr3 = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L']}
+
+    ascr4 = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['S']}
+
+    s = State(asys, ascr)
+
+    w1 = State(asys, ascr1)
+    w2 = State(asys, ascr2)
+    w3 = State(asys, ascr3)
+    w4 = State(asys, ascr4)
+    worlds = [w1, w2, w3, w4]
+
+    for w in s.get_worlds():
+        assert w in worlds
+
+    assert len(s.get_worlds()) == len(worlds)
 
 def test_is_disjoint():
     """Test is_disjoint function."""
