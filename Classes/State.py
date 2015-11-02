@@ -444,7 +444,7 @@ class State(object):
             for obj in objects:
                 state_str += label + "(" + obj + "): {"
                 state_str += str(self._ascriptions[(label, obj)]) + "}\n"
-        return state_str
+        return state_str[:-1]
 
     def __repr__(self):
         """Implement repr() for State object."""

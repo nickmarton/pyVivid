@@ -77,7 +77,6 @@ def test___eq__():
     assert s == s1
     assert s == s1 == s2
 
-
 def test___lt__():
     """Test < operator overloaded for proper extension."""
     pass
@@ -197,6 +196,10 @@ def test_get_worlds():
     """Test get_worlds function."""
     pass
 
+def test_is_disjoint():
+    """Test is_disjoint function."""
+    pass
+
 def test_is_alternate_extension():
     """Test is_alternate_extension function."""
     pass
@@ -207,8 +210,40 @@ def test_get_alternate_extensions():
 
 def test___str__():
     """Test str(State)"""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    s = State(asys)
+    s1 = State(asys, {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']})
+
+    s_empty = State(AttributeSystem(AttributeStructure(), []))
+    assert s_empty.__str__() == ""
+    assert s.__str__() == "color(s1): {V(B, G, R)}\ncolor(s2): {V(B, G, R)}\nsize(s1): {V(L, M, S)}\nsize(s2): {V(L, M, S)}"
+    assert s1.__str__() == "color(s1): {V(R)}\ncolor(s2): {V(B, G)}\nsize(s1): {V(M)}\nsize(s2): {V(L, S)}"
 
 def test___repr__():
-    """."""
-    pass
+    """Test repr(State)."""
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    s = State(asys)
+    s1 = State(asys, {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']})
+
+    s_empty = State(AttributeSystem(AttributeStructure(), []))
+    assert s_empty.__repr__() == ""
+    assert s.__repr__() == "color(s1): {V(B, G, R)}\ncolor(s2): {V(B, G, R)}\nsize(s1): {V(L, M, S)}\nsize(s2): {V(L, M, S)}"
+    assert s1.__repr__() == "color(s1): {V(R)}\ncolor(s2): {V(B, G)}\nsize(s1): {V(M)}\nsize(s2): {V(L, S)}"
