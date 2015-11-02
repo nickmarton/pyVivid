@@ -9,36 +9,74 @@ from vivid.Classes.State import Attribute, Relation
 
 def test___init__():
     """Test State constructor."""
-    def test_TypeError(attribute_system, ascriptions):
+    def test_TypeError(attribute_system, ascriptions={}):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             State(attribute_system, ascriptions)
 
-    def test_ValueError(attribute_system, ascriptions):
-        """Test constructor for ValueErrors with given params."""
-        with pytest.raises(ValueError) as excinfo:
-            State(attribute_system, ascriptions)
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+    
+    #test no attribute system
+    test_TypeError(a)
+    test_TypeError(object)
+    test_TypeError(None)
+    #test bad ascriptions
+    test_TypeError(asys, [])
+    test_TypeError(asys, None)
+    test_TypeError(asys, object)
 
-    a = Attribute("a", [])
-    b = Attribute("b", [])
-    R1 = Relation("R1(a) <=> ", ["a1"], 1)
-    R2 = Relation("R2(a) <=> ", ["b"], 2)
-    R3 = Relation("R3(a) <=> ", ["a"], 3)
-    astr = AttributeStructure()
+    s = State(asys)
+    assert s._attribute_system == asys
+    assert s._attribute_system is not asys
+    s = State(asys, {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']})
 
-    #TODO further implementation
-    pass
+    assert s[(('color', 's1'))] == ValueSet(['R'])
+    assert s[(('color', 's2'))] == ValueSet(['G', 'B'])
+    assert s[(('size', 's1'))] == ValueSet(['M'])
+    assert s[(('size', 's2'))] == ValueSet(['L', 'S'])
 
 def test___eq__():
     """Test == operator."""
-    a = Attribute("a", [])
-    b = Attribute("b", [])
-    R1 = Relation("R1(a) <=> ", ["a1"], 1)
-    R2 = Relation("R2(a) <=> ", ["b"], 2)
-    R3 = Relation("R3(a) <=> ", ["a"], 3)
-    astr = AttributeStructure()
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
 
-    pass
+    s = State(asys)
+    s1 = State(asys, {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']})
+
+    s2 = State(asys, {
+        ('size', 's1'): ['M'],
+        ('color', 's2'): ['B', 'G'],
+        ('color', 's1'): ['R'],
+        ('size', 's2'): ['L', 'S']})
+
+    assert s1 == s2
+
+    assert not s == s1
+    s.set_ascription(('color', 's1'), ['R'])
+    assert not s == s1
+    s.set_ascription(('color', 's2'), ['B', 'G'])
+    assert not s == s1
+    s.set_ascription(('size', 's1'), ['M'])
+    assert not s == s1
+    s.set_ascription(('size', 's2'), ['L', 'S'])
+    assert s == s1
+    assert s == s1 == s2
+
 
 def test___lt__():
     """Test < operator overloaded for proper extension."""
@@ -50,7 +88,37 @@ def test___le__():
 
 def test___ne__():
     """Test != operator."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    s = State(asys)
+    s1 = State(asys, {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']})
+
+    s2 = State(asys, {
+        ('size', 's1'): ['M'],
+        ('color', 's2'): ['B', 'G'],
+        ('color', 's1'): ['R'],
+        ('size', 's2'): ['L', 'S']})
+
+    assert not s1 != s2
+
+    assert s != s1
+    s.set_ascription(('color', 's1'), ['R'])
+    assert s != s1
+    s.set_ascription(('color', 's2'), ['B', 'G'])
+    assert s != s1
+    s.set_ascription(('size', 's1'), ['M'])
+    assert s != s1
+    s.set_ascription(('size', 's2'), ['L', 'S'])
+    assert not s != s1
+    assert not s != s1 != s2
 
 def test___deepcopy__():
     """Test deepcopy"""
