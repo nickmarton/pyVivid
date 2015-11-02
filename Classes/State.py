@@ -270,7 +270,7 @@ class State(object):
         arguments in states parameter.
         """
 
-        if not isinstance(s_prime, State):
+        if not hasattr(s_prime, "_is_State"):
             raise TypeError(
                 "s_prime parameter must be of type State.")
 
