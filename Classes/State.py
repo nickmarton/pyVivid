@@ -329,26 +329,23 @@ class State(object):
                     sublists = list(combinations(spanning_list, i))
                     
                     for sublist in sublists:
-                        
                         #check if sublist labels are homogeneous, i.e., 
                         #if a.o. pairs are all equal in sublist
-                        labels = [ao_pair[0] for ao_pair in sublist]
-                        if labels.count(labels[0]) == len(labels):
+                        ao_pairs = [ao_pair for ao_pair, valueset in sublist]
+                        if ao_pairs.count(ao_pairs[0]) == len(ao_pairs):
                             
                             #sublist is homogeneous so merge the value sets 
                             #of the a.o. pairs
-                            value_sets = [ao_pair[1] for ao_pair in sublist]
+                            value_sets = [valueset for ao_pair, valueset in sublist]
                             #flatten value sets into signle merged list
                             merged_value_set = [item for sublist in value_sets for item in sublist]
-                            
+
                             #determine if ascription in self is equal to union
                             #of merged ascriptions in sublist
-                            equal_cond_1 = is_subset(self.get_ascription(ao_pair[0]), merged_value_set)
-                            equal_cond_2 = is_subset(merged_value_set, self.get_ascription(ao_pair[0]))
-                            
-                            if equal_cond_1 and equal_cond_2:
+                            if self[ao_pairs[0]] == ValueSet(merged_value_set):
                                 non_spanning_flag = True
                                 break
+
                     if non_spanning_flag:
                         break
                 #if non-spannig flag was tripped, erase current spanning list
@@ -365,40 +362,19 @@ class State(object):
             a dictionary of the ascriptions with their value sets.
             """
 
-            def delete_duplicates(value_set):
-                """
-                Delete duplicates in a value_set.
-
-                Cannot use standard list(set(...)) as objects and nested
-                lists may be elements in value_set.
-                """
-
-                del_indicies = []
-                for i, v1 in enumerate(value_set):
-                   for j, v2 in enumerate(value_set):
-                       if i != j:
-                           if isinstance(v1, list) and isinstance(v2, list):
-                               if nested_equivalence(v1, v2):
-                                   del value_set[i]
-                                   return True
-                           if v1 == v2:
-                               del value_set[i]
-                               return True
-                return False
-
             #Make a default dict with empty list as default value so value sets
             #can be extended when there are multiple a.o. pair copies in
             #proper_spanning_list 
             from collections import defaultdict
-            ascriptions = defaultdict(lambda: [])
+            ascriptions = defaultdict(list)
             for (ao_pair, value_set) in proper_spanning_list:
                 ascriptions[ao_pair].extend(value_set)
             
             #There could be duplicates in ascriptions from extending lists;
-            #delete any duplicates that might be in ascriptions. 
+            #delete any duplicates that might be in ascriptions by simply
+            #casting to ValueSet which enforces no duplicates. 
             for (ao_pair, value_set) in ascriptions.items():
-                 value_set = ascriptions[ao_pair]
-                 while delete_duplicates(value_set): pass
+                ascriptions[ao_pair] = ValueSet(ascriptions[ao_pair])
 
             #cast back to a regular dict and return
             return dict(ascriptions)
@@ -410,16 +386,15 @@ class State(object):
 
             #First make a new copy of this State and create the ascriptions
             #available from the properly spanning list
-            ae = State(self.get_attribute_system(), self.get_ascriptions())
+            ae = State(self._attribute_system, self._ascriptions)
             ascriptions = make_ascriptions(proper_spanning_list)
 
             #for each ascription, complement it w.r.t. the original ascription
             #and replace the original ascription with the complement
-            for (label, value_set) in ascriptions.items():
-                complement_value_set = get_set_theoretic_difference(
-                    ae.get_ascription(label), value_set)
-                ae.set_ascription(label, complement_value_set)
-            
+            for (ao_pair, valueset) in ascriptions.items():
+                complement_valueset = self._ascriptions[ao_pair] - valueset
+                ae.set_ascription(ao_pair, complement_valueset)
+
             return ae
 
         #check for exceptions first
@@ -440,15 +415,13 @@ class State(object):
                     "extensions of this State object.")
 
         proper_spanning_lists = get_properly_spanning_lists()
-        
-        '''
+
         alternate_extensions = []
         for psl in proper_spanning_lists:
             ae = make_alternate_extension(psl)
             alternate_extensions.append(ae)
 
         return alternate_extensions
-        '''
 
     def __str__(self):
         """Implement str() for State object."""
@@ -479,10 +452,19 @@ def main():
     s.set_ascription(('size', 's2'), ['M', 'L'])
 
     s1 = deepcopy(s)
+    s1.set_ascription(('color', 's1'), ['B'])
+    s1.set_ascription(('size', 's1'), ['S', 'M'])
+    s1.set_ascription(('color', 's2'), ['B', 'G'])
     s2 = deepcopy(s)
+    s2.set_ascription(('size', 's1'), ['L'])
+    s2.set_ascription(('size', 's2'), ['L'])
     s3 = deepcopy(s)
+    s3.set_ascription(('color', 's1'), ['R'])
 
-    print s
+    aes = s.get_alternate_extensions(s1, s2, s3)
+    for ae in aes:
+        print ae
+        print
 
 if __name__ == "__main__":
     main()
