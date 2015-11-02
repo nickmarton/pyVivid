@@ -3,9 +3,6 @@
 from copy import deepcopy
 from functools import total_ordering
 from AttributeStructure import Attribute, Relation, AttributeStructure
-from loader import load_src
-load_src("assistance_functions", "../assistance_functions.py")
-from assistance_functions import is_subset
 
 @total_ordering
 class AttributeSystem(object):
