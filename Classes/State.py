@@ -448,6 +448,7 @@ def main():
 
     asys = AttributeSystem(a, o)
     s = State(asys)
+
     s.set_ascription(('color', 's1'), ['R', 'B'])
     s.set_ascription(('size', 's2'), ['M', 'L'])
 
@@ -463,8 +464,7 @@ def main():
 
     aes = s.get_alternate_extensions(s1, s2, s3)
     for ae in aes:
-        print ae
-        print
+        print s.is_alternate_extension(ae, s1, s2, s3)
 
 if __name__ == "__main__":
     main()

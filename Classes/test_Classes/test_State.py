@@ -28,7 +28,7 @@ def test___init__():
     #TODO further implementation
     pass
 
-def test__eq__():
+def test___eq__():
     """Test == operator."""
     a = Attribute("a", [])
     b = Attribute("b", [])
@@ -39,7 +39,15 @@ def test__eq__():
 
     pass
 
-def test__ne__():
+def test___lt__():
+    """Test < operator overloaded for proper extension."""
+    pass
+
+def test___le__():
+    """Test <= operator overloaded for extension."""
+    pass
+
+def test___ne__():
     """Test != operator."""
     pass
 
@@ -47,15 +55,11 @@ def test___deepcopy__():
     """Test deepcopy"""
     pass
 
-def test_get_ascription_keys():
-    """Test get_ascription_keys function."""
-    pass
-
 def test_set_ascription():
     """Test set_ascription function."""
     pass
 
-def test__getitem__():
+def test___getitem__():
     """Test indexing for State"""
     pass
 
@@ -65,14 +69,6 @@ def test_is_valuation():
 
 def test_is_world():
     """Test is_world function."""
-    pass
-
-def test_is_extension():
-    """Test is_extension function."""
-    pass
-
-def test_is_proper_extension():
-    """Test is_proper_extension function."""
     pass
 
 def test_get_worlds():
@@ -87,6 +83,10 @@ def test_get_alternate_extensions():
     """Test get_alternate_extensions function."""
     pass
 
-def test__str__():
+def test___str__():
     """Test str(State)"""
+    pass
+
+def test___repr__():
+    """."""
     pass
