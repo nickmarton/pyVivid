@@ -34,7 +34,7 @@ class ValueSet(object):
 
     def __init__(self, valueset):
         """Construct a ValueSet object."""
-        if not isinstance(valueset, list):
+        if not isinstance(valueset, list) and not isinstance(valueset, set):
             raise TypeError("valueset parameter must be of type list")
         #Save parsed output
         self._values = ValueSet._parse(valueset)

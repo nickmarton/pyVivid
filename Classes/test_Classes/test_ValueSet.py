@@ -32,7 +32,6 @@ def test___init__():
     test_TypeError(1)
     test_TypeError(1.0)
     test_TypeError("")
-    test_TypeError(set([]))
     test_TypeError(object)
     test_TypeError(Interval(0,10))
 

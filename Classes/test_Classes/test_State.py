@@ -1,6 +1,7 @@
 """State unit tests."""
 
 import pytest
+from vivid.Classes.ValueSet import ValueSet
 from vivid.Classes.State import State
 from vivid.Classes.State import AttributeSystem
 from vivid.Classes.State import AttributeStructure
@@ -8,15 +9,15 @@ from vivid.Classes.State import Attribute, Relation
 
 def test___init__():
     """Test State constructor."""
-    def test_TypeError(attrsys, **asc):
+    def test_TypeError(attribute_system, ascriptions):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
-            State(attrsys, **asc)
+            State(attribute_system, ascriptions)
 
-    def test_ValueError(attrsys, **asc):
+    def test_ValueError(attribute_system, ascriptions):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
-            State(attrsys, **asc)
+            State(attribute_system, ascriptions)
 
     a = Attribute("a", [])
     b = Attribute("b", [])
@@ -57,7 +58,60 @@ def test___deepcopy__():
 
 def test_set_ascription():
     """Test set_ascription function."""
-    pass
+    def test_TypeError(state, ascription, valueset):
+        """Test set_ascription for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            state.set_ascription(ascription, valueset)
+
+    def test_ValueError(state, ascription, valueset):
+        """Test set_ascription for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            state.set_ascription(ascription, valueset)
+
+    def test_KeyError(state, ascription, valueset):
+        """Test set_ascription for KeyErrors with given params."""
+        with pytest.raises(KeyError) as excinfo:
+            state.set_ascription(ascription, valueset)
+
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+
+    asys = AttributeSystem(a, o)
+    s = State(asys)
+
+    #test bad ao_pair types/values
+    test_TypeError(s, [], ['R'])
+    test_ValueError(s, (), ['R'])
+    test_ValueError(s, (1,2,3), ['R'])
+    test_ValueError(s, (1, 2), ['R'])
+    test_ValueError(s, (1, ''), ['R'])
+    test_ValueError(s, ('', 1), ['R'])
+    #test bad types for ValueSet
+    test_TypeError(s, ('color', 's1'), None)
+    test_TypeError(s, ('color', 's1'), ())
+    test_TypeError(s, ('color', 's1'), 'a')
+    test_TypeError(s, ('color', 's1'), object)
+    #test empty ValueSet catching
+    test_ValueError(s, ('color', 's1'), [])
+    test_ValueError(s, ('color', 's1'), set([]))
+    test_ValueError(s, ('color', 's1'), ValueSet([]))
+    #test bad ao-pair keys
+    test_KeyError(s, ('color', 'bad object'), ['R'])
+    test_KeyError(s, ('bad label', 's2'), ['R'])
+    #test nonsubset valuesets
+    test_ValueError(s, ('color', 's2'), ['a'])
+    test_ValueError(s, ('color', 's2'), [1])
+
+    s.set_ascription(('color', 's2'), ['R'])
+    assert s[('color', 's2')] == ValueSet(['R'])
+    #check reversion to superset is possible
+    s.set_ascription(('color', 's2'), ['R', 'G'])
+    assert s[('color', 's2')] == ValueSet(['R', 'G'])
+    s.set_ascription(('size', 's1'), ['M', 'S'])
+    assert s[('size', 's1')] == ValueSet(['S', 'M'])
 
 def test___getitem__():
     """Test indexing for State"""

@@ -24,6 +24,9 @@ class State(object):
             raise TypeError(
                 "asys parameter must be of type AttributeSystem")
 
+        if not isinstance(ascriptions, dict):
+            raise TypeError("ascriptions parameter must be of type dict")
+
         self._attribute_system = deepcopy(attribute_system)
         self._ascriptions = {}
         self._is_State = True
@@ -114,13 +117,21 @@ class State(object):
 
     def set_ascription(self, ao_pair, new_valueset):
         """
-        Set an ascription ao_pair (label,obj) value set to v.
+        Set an ascription denoted by ao_pair (label,obj)to new_valueset.
 
-        Raise TypeError if v parameter is not a list
+        Raise TypeError if v parameter is not a list, set, or ValueSet
         Raise ValueError if v parameter is not subset of valueset.
         Raise KeyError if ao_pair parameter not in ascriptions, 
         """
         
+        if not isinstance(ao_pair, tuple):
+            raise TypeError("ao_pair must be of type tuple")
+        if len(ao_pair) != 2:
+            raise ValueError("ao_pair must be a 2-tuple")
+        if not isinstance(ao_pair[0], str) or not isinstance(ao_pair[1], str):
+            raise ValueError(
+                "ao_pair must be a 2-tuple of strings (label, object)")
+
         new_values = None
         #Enforce new_value_set as a list, set, or ValueSet
         if isinstance(new_valueset, list) or isinstance(new_valueset, set):
@@ -135,7 +146,7 @@ class State(object):
         if not new_values:
             raise ValueError("Ascriptions must be non-empty.")
 
-        #
+        #check if ao pair is a valid key for ascriptions
         if ao_pair in self._ascriptions.keys():
             label, obj = ao_pair
             #Get ValueSet of Attribute with provided label in ao_pair
