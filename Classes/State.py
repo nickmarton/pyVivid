@@ -17,7 +17,7 @@ class State(object):
                             Attribute value sets as values.
     """
 
-    def __init__(self, attribute_system, **ascriptions):
+    def __init__(self, attribute_system, ascriptions={}):
         """Return an initialized State object."""
 
         if not hasattr(attribute_system, "_is_AttributeSystem"):
@@ -103,7 +103,7 @@ class State(object):
         
         return not self.__eq__(other)
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo):
         """
         Implement copy.deepcopy for State object. 
         
@@ -125,7 +125,7 @@ class State(object):
         #Enforce new_value_set as a list, set, or ValueSet
         if isinstance(new_valueset, list) or isinstance(new_valueset, set):
             new_values = ValueSet(new_valueset)
-        elif hasattr(new_value_set, "_is_ValueSet"):
+        elif hasattr(new_valueset, "_is_ValueSet"):
             new_values = deepcopy(new_valueset)
         else:
             raise TypeError(
@@ -309,23 +309,19 @@ class State(object):
             table = []
             for state in states:
                 row = []
-                for (label, value_set) in state.get_ascriptions().items():
-                    if is_proper_subset(
-                        state.get_ascription(label),
-                        self.get_ascription(label)):
-                        row.append([label, value_set])
+                for (ao_pair, value_set) in state._ascriptions.items():
+                    if state[ao_pair] < self[ao_pair]:
+                        row.append([ao_pair, value_set])
                 table.append(row)
             
             #make all possible spanning lists from filtered table
             #this is step 2 of the algorithm outlined in the paper.
             from itertools import product, combinations
-            spanning_tuples = list(product(*table))
-            spanning_lists = [list(tup) for tup in spanning_tuples]
+            spanning_lists = [list(tup) for tup in list(product(*table))]
 
             #we now proceed to step 3 of the algorithm outlined in the paper
             #by filtering out the non-properly spanning lists.
-            for sl_index, spanning_list in reversed(
-                list(enumerate(spanning_lists))):
+            for sl_index, spanning_list in reversed(list(enumerate(spanning_lists))):
                 non_spanning_flag = False
                 #try every sublist with a length greater than 1 as 1 is already
                 #ensured not to be properly spanning by virtue of step 2.
@@ -343,18 +339,12 @@ class State(object):
                             #of the a.o. pairs
                             value_sets = [ao_pair[1] for ao_pair in sublist]
                             #flatten value sets into signle merged list
-                            merged_value_set = [
-                                item for sublist in value_sets
-                                for item in sublist]
+                            merged_value_set = [item for sublist in value_sets for item in sublist]
                             
                             #determine if ascription in self is equal to union
                             #of merged ascriptions in sublist
-                            equal_cond_1 = is_subset(
-                                self.get_ascription(ao_pair[0]), 
-                                merged_value_set)
-                            equal_cond_2 = is_subset(
-                                merged_value_set, 
-                                self.get_ascription(ao_pair[0]))
+                            equal_cond_1 = is_subset(self.get_ascription(ao_pair[0]), merged_value_set)
+                            equal_cond_2 = is_subset(merged_value_set, self.get_ascription(ao_pair[0]))
                             
                             if equal_cond_1 and equal_cond_2:
                                 non_spanning_flag = True
@@ -439,24 +429,26 @@ class State(object):
                 "at least one State object must be provided as an argument")
 
         for state in states:
-            if not isinstance(state, State):
+            if not hasattr(state, "_is_State"):
                 raise TypeError(
                     "all optional positional arguments must be of type State.")
 
         for state in states:
-            if not state.is_proper_extension(self):
+            if not state < self:
                 raise ValueError(
                     "all states provided must be proper "
-                    "subsets of this State object.")
+                    "extensions of this State object.")
 
         proper_spanning_lists = get_properly_spanning_lists()
         
+        '''
         alternate_extensions = []
         for psl in proper_spanning_lists:
             ae = make_alternate_extension(psl)
             alternate_extensions.append(ae)
 
         return alternate_extensions
+        '''
 
     def __str__(self):
         """Implement str() for State object."""
@@ -468,6 +460,7 @@ class State(object):
             for obj in objects:
                 state_str += label + "(" + obj + "): {"
                 state_str += str(self._ascriptions[(label, obj)]) + "}\n"
+        return state_str
 
     def __repr__(self):
         """Implement repr() for State object."""
@@ -475,18 +468,19 @@ class State(object):
 
 def main():
     """."""
-    a, b = Attribute("a", ["A", 1]), Attribute("b", ["B", 2])
-    r = Relation("R1(a,b) <=> ", ["a", "b"], 1)
+    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
 
-    a = AttributeStructure(a, b, r)
-    o = ['o1', 'o2']
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
 
     asys = AttributeSystem(a, o)
     s = State(asys)
-    s2 = State(asys)
-    s.set_ascription(('a', 'o1'), ['A'])
-    #print s['a']
-    #print s.is_valuation('a')
+    s.set_ascription(('color', 's1'), ['R', 'B'])
+    s.set_ascription(('size', 's2'), ['M', 'L'])
+
+    s1 = deepcopy(s)
+    s2 = deepcopy(s)
+    s3 = deepcopy(s)
 
     print s
 
