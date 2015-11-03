@@ -95,6 +95,66 @@ def test___ne__():
     assert A1 != A4
     assert A1 != A5
 
+def test___lt__():
+    """Test overloaded < subset operator for ConstantAssignment."""
+    vocabulary1 = Vocabulary(['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
+    vocabulary2 = Vocabulary(['C\''], [RelationSymbol('R\'', 1)], ['V\''])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr1 = AttributeStructure(a, b)
+    astr2 = AttributeStructure(b)
+    objs1 = ['a', 'b', 'c']
+    objs2 = ['a']
+    attribute_system1 = AttributeSystem(astr1, objs1)
+    attribute_system2 = AttributeSystem(astr2, objs2)
+
+    mapping1 = {'C1': 'a'}
+    mapping2 = {'C1': 'a', 'C2': 'b'}
+    mapping3 = {'C1': 'a', 'C2': 'b', 'C3': 'c'}
+    mapping4 = {'C\'': 'a'}
+
+    CA1 = ConstantAssignment(vocabulary1, attribute_system1, mapping1)
+    CA2 = ConstantAssignment(vocabulary1, attribute_system1, mapping2)
+    CA3 = ConstantAssignment(vocabulary1, attribute_system1, mapping3)
+    CA4 = ConstantAssignment(vocabulary2, attribute_system2, mapping4)
+
+    assert not CA1 < CA1
+    assert CA1 < CA2
+    assert CA1 < CA2 < CA3
+    assert not CA1 < CA4
+    assert not CA4 < CA1
+
+def test___le__():
+    """Test overloaded <= subset operator for ConstantAssignment."""
+    vocabulary1 = Vocabulary(['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
+    vocabulary2 = Vocabulary(['C\''], [RelationSymbol('R\'', 1)], ['V\''])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr1 = AttributeStructure(a, b)
+    astr2 = AttributeStructure(b)
+    objs1 = ['a', 'b', 'c']
+    objs2 = ['a']
+    attribute_system1 = AttributeSystem(astr1, objs1)
+    attribute_system2 = AttributeSystem(astr2, objs2)
+
+    mapping1 = {'C1': 'a'}
+    mapping2 = {'C1': 'a', 'C2': 'b'}
+    mapping3 = {'C1': 'a', 'C2': 'b', 'C3': 'c'}
+    mapping4 = {'C\'': 'a'}
+
+    CA1 = ConstantAssignment(vocabulary1, attribute_system1, mapping1)
+    CA2 = ConstantAssignment(vocabulary1, attribute_system1, mapping2)
+    CA3 = ConstantAssignment(vocabulary1, attribute_system1, mapping3)
+    CA4 = ConstantAssignment(vocabulary2, attribute_system2, mapping4)
+
+    assert CA1 <= CA1
+    assert CA1 <= CA2
+    assert CA1 <= CA2 <= CA3
+    assert not CA1 <= CA4
+    assert not CA4 <= CA1
+
 def test___getitem__():
     """Test indexing for ConstantAssignment object."""
     def test_TypeError(constant_assignment, key):

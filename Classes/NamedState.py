@@ -1,8 +1,10 @@
-from assistance_functions import *
+"""Named State class."""
 
-from Base import Attribute, Relation, AttributeStructure, AttributeSystem
+from State import Attribute, Relation, AttributeStructure, AttributeSystem, State
+from RelationSymbol import RelationSymbol
 from Vocabulary import Vocabulary
-from Assignment import ConstantAssignment, VariableAssignment
+from ConstantAssignment import ConstantAssignment
+from VariableAssignment import VariableAssignment
 
 def generate_variable_assignments(variables, named_state):
     """
@@ -70,108 +72,69 @@ class NamedState(State):
     subclasses State and adds p (ConstantAssignment).
     """
 
-    def __init__(self, asys, p, ascriptions=None):
+    def __init__(self, attribute_system, p, ascriptions={}):
         """
-        Initialize a NamedState object with AttributeSystem asys
+        Initialize a NamedState object with AttributeSystem attribute_system
         and constant assignment p.
 
-        Raise TypeError if asys parameter is not of type
+        Raise TypeError if attribute_system parameter is not of type
         AttributeSystem or p parameter is not of type
         ConstantAssignment.
         """
-
-        #check for exceptions
-        if not isinstance(asys, AttributeSystem):
-            raise TypeError(
-                "asys parameter must be of type AttributeSystem")
-        if not isinstance(p, ConstantAssignment):
-            raise TypeError(
-                "p parameter must be a constant assignment"
-                "(i.e., of type ConstantAssignment)")
         
-        State.__init__(self, asys, ascriptions)
-        self._p = p
+        if p._attribute_system != attribute_system:
+            raise ValueError(
+                "ConstantAssignment AttributeSystem and "
+                "State AttributeSystem must match")
+
+        from copy import deepcopy
+        State.__init__(self, attribute_system, ascriptions)
+        self._p = deepcopy(p)
 
     def __eq__(self, other):
-        """
-        Return boolean for whether or not this NamedState is equivalent
-        to other NamedState.
-        """
-        
-        if not State.__eq__(self, other):                                               #if this NamedState's state is not equal to other NamedState's state
-            return False                                                                #this NamedState != other NamedState, return False
-        
-        if self.get_p() != other.get_p():                                               #if this NamedState's const assignment is not equal to other NamedState's const assignment
-            return False                                                                #this NamedState != other NamedState, return False
-        
-        return True                                                                     #this NamedState's and other NamedState's states and constant assignments equal, return True
-    
-    def __ne__(self, other):
-        """
-        Return boolean for whether or not this NamedState is not
-        equivalent to other NamedState.
-        """
-        
-        if not State.__eq__(self, other):                                               #if this NamedState's state is not equal to other NamedState's state
-            return True                                                                 #this NamedState != other NamedState, return False
-        
-        if self.get_p() != other.get_p():                                               #if this NamedState's const assignment is not equal to other NamedState's const assignment
-            return True                                                                 #this NamedState != other NamedState, return False
-        
-        return False                                                                    #this NamedState's and other NamedState's states and constant assignments equal, return True
-
-    def deep_copy(self):
-        """Return a deep copy of this NamedState."""
-        import copy
-        
-        attribute_system_copy = self._attribute_system.deep_copy()
-        p_copy = self._p.deep_copy()
-        ascriptions_copy = copy.copy(self._ascriptions)
-        
-        return NamedState(attribute_system_copy, p_copy, ascriptions_copy)
-
-    def get_p(self):
-        """
-        Return the ConstantAssignment embedded in this
-        NamedState object.
-        """
-        
-        return self._p
-
-    def set_p(self, p):
-        """
-        Replace the current constant assignment contained in this 
-        NamedState with p parameter.
-
-        Raise TypeError if p parameter is not of type ConstantAssignment.
-        """
-
-        if not isinstance(p, ConstantAssignment):
-            raise TypeError(
-                'p parameter must be of type dict')
-
-        self._p = p
-
-    def get_vocabulary(self):
-        """
-        Return the Vocabulary object of the ConstantAssignment
-        object embedded in this NamedState object.
-        """
-        
-        return self._p.get_vocabulary()
-
-    def __str__(self):
-        """Return a dtring representation of this NamedState object."""
-        return 'ascriptions:\n'+ State.__str__(self) + '\nconstant assignment:\n' + str(self._p)
-
-    def is_world(self):
-        """Determine if this NamedState is a world."""
-
-        #if state is a world and p is total, this NamedState is a world
-        if State.is_world(self) and self.get_p().is_total():
+        """Implement == operator for NamedState object."""
+        if State.__eq__(self, other) and self._p == other._p:
             return True
         else:
             return False
+    
+    def __ne__(self, other):
+        """Implement != operator for NamedState object."""
+        return not self.__eq__(other)
+
+    def __deepcopy__(self):
+        """Return a deep copy of this NamedState."""
+        from copy import deepcopy
+        
+        return NamedState(
+            deepcopy(self._attribute_system),
+            deepcopy(self._p),
+            deepcopy(self._ascriptions))
+
+    def __str__(self):
+        """Implement str(NamedState)."""
+        return State.__str__(self) + '\n' + str(self._p)
+
+    def __repr__(self):
+        """Implement repr(NamedState)."""
+        return self.__str__()
+
+    def is_world(self):
+        """Determine if this NamedState is a world."""
+        #if state is a world and p is total, this NamedState is a world
+        return State.is_world(self) and self._p.is_total()
+
+    def __lt__(self, other):
+        """Implement overloaded < operator for NamedState proper extension."""
+        pass
+
+    def __le__(self, other):
+        """Implement overloaded <= operator for NamedState extension."""
+        if not isinstance(other, NamedState):
+            raise TypeError('other parameter must be of type NamedState')
+
+        self_state = State(self._attribute_system, self._ascriptions)
+        other_state = State(other._attribute_system, other._ascriptions)
 
     def is_extension(self, other):
         """
@@ -742,7 +705,17 @@ class NamedState(State):
 
 def main():
     """quick dev tests."""
-    pass
+    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s']
+    asys = AttributeSystem(a, o)
+    
+    vocab = Vocabulary(['C'], [RelationSymbol('R', 1)], ['V'])
+    mapping = {'C': 's'}
+
+    CA = ConstantAssignment(vocab, asys, mapping)
+
+    NamedState(asys, CA)
 
 if __name__ == "__main__":
     main()

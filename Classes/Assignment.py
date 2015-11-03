@@ -1,7 +1,7 @@
 """Assignment base class."""
 
-from vivid.Classes.Vocabulary import Vocabulary
-from vivid.Classes.AttributeSystem import AttributeSystem
+from Vocabulary import Vocabulary
+from AttributeSystem import AttributeSystem
 
 class Assignment(object):
     """This is a superclass for generic assignments."""

@@ -1,6 +1,6 @@
 """Constant Assignemnt object."""
 
-from vivid.Classes.Assignment import Assignment
+from Assignment import Assignment
 
 class ConstantAssignment(Assignment):
     """
@@ -67,6 +67,32 @@ class ConstantAssignment(Assignment):
     def __ne__(self, other):
         """Implement == operator ConstantAssignment objects."""
         return not self.__eq__(other)
+
+    def __lt__(self, other):
+        """Implement overloaded < operator for ConstantAssignment subset."""
+        if not hasattr(other, "_is_ConstantAssignment"):
+            raise TypeError("other must be of type ConstantAssignment")
+
+        same_attr_systems = self._attribute_system == other._attribute_system
+        same_vocabularies = self._vocabulary == other._vocabulary
+
+        if not same_attr_systems or not same_vocabularies:
+            return False
+
+        return self._mapping < other._mapping
+
+    def __le__(self, other):
+        """Implement overloaded < operator for ConstantAssignment subset."""
+        if not hasattr(other, "_is_ConstantAssignment"):
+            raise TypeError("other must be of type ConstantAssignment")
+
+        same_attr_systems = self._attribute_system == other._attribute_system
+        same_vocabularies = self._vocabulary == other._vocabulary
+
+        if not same_attr_systems or not same_vocabularies:
+            return False
+
+        return self._mapping <= other._mapping
 
     def __getitem__(self, key):
         """Implement indexing for ConstantAssignment object."""

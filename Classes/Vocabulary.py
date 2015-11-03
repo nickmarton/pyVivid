@@ -1,6 +1,6 @@
 """Vocabulary class."""
 
-from vivid.Classes.RelationSymbol import RelationSymbol
+from RelationSymbol import RelationSymbol
 
 class Vocabulary(object):
     """

@@ -1,6 +1,6 @@
 """Variable Assignment class."""
 
-from vivid.Classes.Assignment import Assignment
+from Assignment import Assignment
 
 class VariableAssignment(Assignment):
     """
