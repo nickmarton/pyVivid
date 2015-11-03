@@ -28,7 +28,7 @@ class ConstantAssignment(Assignment):
         source = mapping.keys()
         target = mapping.values()
 
-        if len(source) != len(set(source)) or len(target) != len(set(target)):
+        if len(target) != len(set(target)):
             raise ValueError(
                 "duplicate values in mapping parameter "
                 "are not allowed; mapping must be 1-to-1.")
@@ -66,7 +66,7 @@ class ConstantAssignment(Assignment):
 
     def __ne__(self, other):
         """Implement == operator ConstantAssignment objects."""
-        return not self.__eq__()
+        return not self.__eq__(other)
 
     def __getitem__(self, key):
         """Implement indexing for ConstantAssignment object."""
