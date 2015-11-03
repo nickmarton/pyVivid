@@ -3,6 +3,7 @@
 import pytest
 from vivid.Classes.ValueSet import ValueSet
 from vivid.Classes.Interval import Interval
+from vivid.Classes.Point import Point
 
 def test_add_object_type():
     """Test add object types for ValueSet class."""
@@ -34,6 +35,7 @@ def test___init__():
     test_TypeError("")
     test_TypeError(object)
     test_TypeError(Interval(0,10))
+    test_TypeError(Point(0.0))
 
 def test___eq__():
     """Test == operator."""
@@ -46,8 +48,12 @@ def test___eq__():
     assert VS1 == VS2
     VS1, VS2 = ValueSet([1,'b', 3,'c','a', 5]), ValueSet([5,3,1, 'a', 'b', 'c'])
     assert VS1 == VS2
-    VS1, VS2 = ValueSet([1,'b', 3,'c','a', 5, Interval(1,10)]), ValueSet([Interval(1,10), 5, 3, 1, 'a', 'b', 'c'])
+    VS1 = ValueSet([1, 'b', 3, 'c', 'a', 5, Interval(1,10), Point(1.0)])
+    VS2 = ValueSet([Interval(1,10), 5, 3, 1, Point(1.0), 'a', 'b', 'c'])
     assert VS1 == VS2
+    VS1 = ValueSet([Point(1.0, 1.0)])
+    VS2 = ValueSet([Point(1.0)])
+    assert not VS1 == VS2
     #test type mismatch for Interval
     VS1, VS2 = ValueSet([Interval(1,10)]), ValueSet([Interval(1.0,10.0)])
     assert VS1 != VS2
@@ -63,6 +69,12 @@ def test___ne__():
     assert not VS1 != VS2
     VS1, VS2 = ValueSet([1,'b', 3,'c','a', 5]), ValueSet([5,3,1, 'a', 'b', 'c'])
     assert not VS1 != VS2
+    VS1 = ValueSet([Point(1.0, 1.0)])
+    VS2 = ValueSet([Point(1.0)])
+    assert VS1 != VS2
+    VS1 = ValueSet([Point(1.0)])
+    VS2 = ValueSet([Point(2.0)])
+    assert VS1 != VS2
     #test type mismatch for Interval
     VS1, VS2 = ValueSet([Interval(1,10)]), ValueSet([Interval(1.0,10.0)])
     assert VS1 != VS2
