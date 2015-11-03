@@ -147,20 +147,101 @@ def test___deepcopy__():
 
 def test_is_total():
     """Test is_total function for ConstantAssignment object."""
-    pass
+    vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
+    vocabulary_total = Vocabulary(
+        ['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+    total_mapping = {'C1': 'a', 'C2': 'b', 'C3': 'c'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+    CA_total = ConstantAssignment(
+        vocabulary_total, attribute_system, total_mapping)
+
+    assert not CA.is_total()
+    assert CA_total.is_total()
 
 def test_get_domain():
     """Test get_domain function for ConstantAssignment object."""
-    pass
+    vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+    mapping2 = {'C': 'a', 'C\'': 'b'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+    CA2 = ConstantAssignment(vocabulary, attribute_system, mapping2)
+
+    assert CA.get_domain() == ['C']
+    assert CA2.get_domain() == ['C', "C'"]
 
 def test_in_conflict():
     """Test in_conflict function for ConstantAssignment object."""
-    pass
+    vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+    mapping2 = {'C': 'a', 'C\'': 'b'}
+    mapping3 = {'C': 'b'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+    CA2 = ConstantAssignment(vocabulary, attribute_system, mapping2)
+    CA3 = ConstantAssignment(vocabulary, attribute_system, mapping3)
+
+    assert not ConstantAssignment.in_conflict(CA, CA)
+    assert not ConstantAssignment.in_conflict(CA, CA2)
+    assert ConstantAssignment.in_conflict(CA, CA3)
 
 def test___str__():
     """Test str(ConstantAssignment)."""
-    pass
+    vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+    mapping2 = {'C': 'a', 'C\'': 'b'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+    CA2 = ConstantAssignment(vocabulary, attribute_system, mapping2)
+
+    assert CA.__str__() == "CA{'C': 'a'}"
+    assert CA2.__str__() == "CA{'C': 'a', \"C\'\": 'b'}"
 
 def test___repr__():
     """Test repr(ConstantAssignment)."""
-    pass
+    vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+    mapping2 = {'C': 'a', 'C\'': 'b'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+    CA2 = ConstantAssignment(vocabulary, attribute_system, mapping2)
+
+    assert CA.__repr__() == "CA{'C': 'a'}"
+    assert CA2.__repr__() == "CA{'C': 'a', \"C\'\": 'b'}"

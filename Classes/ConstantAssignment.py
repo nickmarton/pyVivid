@@ -93,11 +93,9 @@ class ConstantAssignment(Assignment):
         from C to {s_1,...,s_n}.
         """
         source_len = len(self._source)
-        target_len = len(self._target)
-        C_len = len(self._C)
-        attribute_system_len = len(self._asys)
+        C_len = len(self._vocabulary._C)
 
-        if source_len == target_len == C_len == attribute_system_len:
+        if source_len == C_len:
             return True
         else:
             return False
@@ -123,7 +121,7 @@ class ConstantAssignment(Assignment):
 
     def __str__(self):
         """Return a string of this ConstantAssignment's mapping."""
-        return 'C' + str(self._mapping)
+        return 'CA' + str(self._mapping)
 
     def __repr__(self):
         """Return a string of this ConstantAssignment's mapping."""
