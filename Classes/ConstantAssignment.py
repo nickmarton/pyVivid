@@ -1,6 +1,6 @@
 """Constant Assignemnt object."""
 
-from vivid.Classes.Assignemnt import Assignemnt
+from vivid.Classes.Assignment import Assignment
 
 class ConstantAssignment(Assignment):
     """
