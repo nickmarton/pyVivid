@@ -36,52 +36,36 @@ class Vocabulary:
         anything other than RelationSymbol objects.
         """
 
-        if not isinstance(C, list):                                                 #if C parameter is not of type list
-            raise TypeError(                                                            #explicitly raise TypeError
-                'C parameter must be of type list'
-                )
-        if not isinstance(R, list):                                                 #if R parameter is not of type list
-            raise TypeError(                                                            #explicitly raise TypeError
-                'R parameter must be of type list'
-                )
-        if not isinstance(V, list):                                                 #if V parameter is not of type list
-            raise TypeError(                                                            #explicitly raise TypeError
-                'V parameter must be of type list'
-                )
+        if not isinstance(C, list):
+            raise TypeError('C parameter must be of type list')
+        if not isinstance(R, list):
+            raise TypeError('R parameter must be of type list')
+        if not isinstance(V, list):
+            raise TypeError('V parameter must be of type list')
         
-        for c in C:                                                                 #for every member c of C
-            if not isinstance(c, str):                                                  #if c is not of type  string
-                raise TypeError(                                                        #explicitly raise TypeError
-                    'all entries in C parameter must ' + 
-                    'be of type str'
-                    )   
+        for c in C:
+            if not isinstance(c, str):
+                raise TypeError(
+                    'all entries in C parameter must be of type str')
 
-        for rs in R:                                                                    #for every member rs of R
-            if not isinstance(rs, RelationSymbol):                                 #if rs is not of type RelationSymbol
-                raise TypeError(                                                        #explicitly raise TypeError
-                    'all entries in R parameter must ' + 
-                    'be of type RelationSymbol'
-                    )
+        for rs in R:
+            if not isinstance(rs, RelationSymbol):
+                raise TypeError(
+                    'all entries in R parameter must be of type RelationSymbol')
 
-        for v in V:                                                                 #for every member v of V
-            if not isinstance(v, str):                                                  #if v is not of type  string
-                raise TypeError(                                                        #explicitly raise TypeError
-                    'all entries in V parameter must ' + 
-                    'be of type str'
-                    )
+        for v in V:
+            if not isinstance(v, str):
+                raise TypeError(
+                    'all entries in V parameter must be of type str')
         
-        intersection = (set(C) & set(V))                                                #determine if C and V have any shared elements
-        if len(intersection) > 0:                                                       #if C and V have a common element
-            raise ValueError(                                                           #explicitly raise ValueError
+        intersection = (set(C) & set(V))
+        if len(intersection) > 0:
+            raise ValueError(
                 'C and V parameters may not have a common element')
 
-        prevent_duplicates(C, 'constants')                                              #prevent duplicates in C
-        prevent_duplicates(R, 'relation symbols')                                       #prevent duplicates in R
-        prevent_duplicates(V, 'variables')                                              #prevent duplicates in V
-
-        self._c = C
-        self._r = R
-        self._v = V
+        self._C = list(set(C))
+        self._R = list(set(R))
+        self._V = list(set(V))
 
     def __eq__(self, other):
         """
@@ -234,7 +218,7 @@ class Vocabulary:
 
 def main():
     """short tests."""
-    
+
 
 if __name__ == "__main__":
     main()
