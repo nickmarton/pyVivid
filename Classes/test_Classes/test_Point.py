@@ -4,7 +4,15 @@ import pytest
 from vivid.Classes.Point import Point
 
 def test___init__():
-    """Test ."""
+    """Test Point constructor."""
+    def test_TypeError(*dimension_values):
+        """Test constructor for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            Point(*dimension_values)
+    def test_ValueError(*dimension_values):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            Point(*dimension_values)
     pass
 
 def test___eq__():
@@ -24,18 +32,6 @@ def test__key():
     pass
 
 def test___hash__():
-    """Test ."""
-    pass
-
-def test_is_generic():
-    """Test ."""
-    pass
-
-def test_get_dimension():
-    """Test ."""
-    pass
-
-def test_get_coordinate():
     """Test ."""
     pass
 

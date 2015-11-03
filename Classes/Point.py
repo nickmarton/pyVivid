@@ -35,30 +35,12 @@ class Point(object):
         self._is_Point = True
 
     def __eq__(self, other):
-        """
-        Return a boolean for whether or not this Point is equal 
-        to other Point.
-        """
-
-        #simple equality suffices as coordinate is ordered
-
-        if self.get_coordinate() == other.get_coordinate():
-            return True
-        else:
-            return False
+        """Implement == operator for Point object."""
+        return self._coordinate == other._coordinate
 
     def __ne__(self, other):
-        """
-        Return a boolean for whether or not this Point is not equal to
-        other Point
-        """
-
-        #simple equality suffices as coordinate is ordered
-
-        if self.get_coordinate() == other.get_coordinate():
-            return False
-        else:
-            return True
+        """Implement != operator for Point object."""
+        return not self.__eq__(other)
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for Point object."""
@@ -72,26 +54,11 @@ class Point(object):
         """Hash so sets can use Interval's."""
         return hash(self._key())
 
-    def is_generic(self):
-        """Return whether or not this Point is generic."""
-
-        return self._generic
-
-    def get_dimension(self):
-        """Return this Point's dimension."""
-
-        return self._dimension
-
-    def get_coordinate(self):
-        """Return this Point's coordinate."""
-
-        return self._coordinate
-
     def __str__(self):
         """Return a readable Point."""
 
         point_string = 'P(' + ''.join(
-            [str(x_i) + ',' for x_i in self.get_coordinate()])[:-1] + ')'
+            [str(x_i) + ',' for x_i in self._coordinate])[:-1] + ')'
         
         return point_string
 
@@ -99,6 +66,6 @@ class Point(object):
         """Return a unambiguous Point."""
 
         point_string = 'P(' + ''.join(
-            [str(x_i) + ',' for x_i in self.get_coordinate()])[:-1] + ')'
+            [str(x_i) + ',' for x_i in self._coordinate])[:-1] + ')'
         
         return point_string
