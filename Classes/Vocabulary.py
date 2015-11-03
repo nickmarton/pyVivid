@@ -55,6 +55,7 @@ class Vocabulary(object):
         self._C = sorted(list(set(C)))
         self._R = sorted(list(set(R)), key=lambda rs: rs._name)
         self._V = sorted(list(set(V)))
+        self._is_Vocabulary = True
 
     def __eq__(self, other):
         """Implement == operator for Vocabulary object."""
