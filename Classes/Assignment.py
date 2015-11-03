@@ -1,5 +1,8 @@
 """Assignment base class."""
 
+from vivid.Classes.Vocabulary import Vocabulary
+from vivid.Classes.AttributeSystem import AttributeSystem
+
 class Assignment(object):
     """This is a superclass for generic assignments."""
 
@@ -13,23 +16,25 @@ class Assignment(object):
         or attribute_system parameter is not of type AttributeSystem.
         """
 
-        if not isinstance(vocabulary, Vocabulary):
+        from copy import deepcopy
+
+        if not hasattr(vocabulary, "_is_Vocabulary"):
             raise TypeError(
                 "vocabulary parameter must be of type Vocabulary")
 
-        if not isinstance(attribute_system, AttributeSystem):
+        if not hasattr(attribute_system, "_is_AttributeSystem"):
             raise TypeError(
                 "attribute_system parameter must be of type AttributeSystem")
 
-        self._vocabulary = vocabulary
-        self._attribute_system = attribute_system
+        self._vocabulary = deepcopy(vocabulary)
+        self._attribute_system = deepcopy(attribute_system)
         self._is_Assignment = True
 
     def __eq__(self, other):
         """Implement == for Assignment object."""
         vocabulary_cond = self._vocabulary == other._vocabulary
-        objects_cond = self.attribute_system._objects == \
-                                                other.attribute_system._objects
+        objects_cond = self._attribute_system._objects == \
+                                            other._attribute_system._objects
 
         if vocabulary_cond and objects_cond:
             return True

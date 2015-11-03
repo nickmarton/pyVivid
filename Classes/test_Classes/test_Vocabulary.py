@@ -10,7 +10,7 @@ def test___init__():
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             Vocabulary(C, R, V)
-    def test_ValueErro(C, R, V):
+    def test_ValueError(C, R, V):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
             Vocabulary(C, R, V)
@@ -26,6 +26,9 @@ def test___init__():
     test_TypeError([], [1], [])
     test_TypeError([], [''], [])
     test_TypeError([], [], [1])
+
+    #test C and V overlap
+    test_ValueError(['O'], [], ['O'])
 
     C = ['C']
     R = [RelationSymbol('R', 1)]

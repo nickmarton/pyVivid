@@ -68,6 +68,16 @@ class ConstantAssignment(Assignment):
         """Implement == operator ConstantAssignment objects."""
         return not self.__eq__()
 
+    def __getitem__(self, key):
+        """Implement indexing for ConstantAssignment object."""
+        if not isinstance(key, str):
+            raise TypeError("key parameter must be of type string")
+
+        try:
+            self._source[key]
+        except KeyError:
+            raise KeyError(str(key) + " is not in source")
+
     def __deepcopy__(self):
         """Return a deep copy of this ConstantAssignment object."""
         from copy import deepcopy

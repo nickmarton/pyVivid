@@ -16,6 +16,10 @@ def test___ne__():
     """Test ."""
     pass
 
+def test___getitem__():
+    """Test ."""
+    pass
+
 def test___deepcopy__():
     """Test ."""
     pass

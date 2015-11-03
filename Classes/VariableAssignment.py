@@ -70,6 +70,16 @@ class VariableAssignment(Assignment):
         """Implement != operator ConstantAssignment objects."""
         return not self.__eq__(other)
 
+    def __getitem__(self, key):
+        """Implement indexing for VariableAssignment object."""
+        if not isinstance(key, str):
+            raise TypeError("key parameter must be of type string")
+
+        try:
+            self._source[key]
+        except KeyError:
+            raise KeyError(str(key) + " is not in source")
+
     def __deepcopy__(self):
         """Implement copy.deepcopy for VariableAssignment object."""
         from copy import deepcopy
