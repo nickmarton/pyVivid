@@ -36,9 +36,9 @@ class VariableAssignment(Assignment):
                     "are not allowed; mapping must be 1-to-1.")
 
             #total mapping so check for equality
-            source_condition = set(source) == set(vocabulary.get_V())
+            source_condition = set(source) == set(vocabulary._V)
 
-            target_condition = set(target) <= set(self.attribute_system._objects)
+            target_condition = set(target) <= set(attribute_system._objects)
 
             if source_condition and target_condition:
                 Assignment.__init__(self, vocabulary, attribute_system)
@@ -49,7 +49,7 @@ class VariableAssignment(Assignment):
             else:
                 raise ValueError(
                     "VariableAssignment must be a total function from "
-                    "vocabulary.get_V() to attribute_system.get_objects()")
+                    "vocabulary._V to attribute_system._objects")
 
     def __eq__(self, other):
         """
@@ -84,14 +84,14 @@ class VariableAssignment(Assignment):
         """Implement copy.deepcopy for VariableAssignment object."""
         from copy import deepcopy
         
-        return ConstantAssignment(
+        return VariableAssignment(
             deepcopy(self._vocabulary),
             deepcopy(self._attribute_system),
             deepcopy(self._mapping))
 
     def __str__(self):
         """Return a string of this ConstantAssignment's mapping."""
-        return 'V' + str(self._mapping)
+        return 'VA' + str(self._mapping)
 
     def __repr__(self):
         """Return a string of this ConstantAssignment's mapping."""

@@ -144,6 +144,9 @@ def test___deepcopy__():
     CA_copy = deepcopy(CA)
     assert CA == CA_copy
     assert CA is not CA_copy
+    assert CA._vocabulary is not CA_copy._vocabulary
+    assert CA._attribute_system is not CA_copy._attribute_system
+    assert CA._mapping is not CA_copy._mapping
 
 def test_is_total():
     """Test is_total function for ConstantAssignment object."""
