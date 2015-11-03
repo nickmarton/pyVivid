@@ -176,66 +176,50 @@ class NamedState(State):
         NamedState object.
         """
 
-        source = self.get_vocabulary().get_C()
-        target = self.get_attribute_system().get_objects()
+        source = self._p._vocabulary._C
+        target = self._attribute_system._objects
 
         repeat_num = len(source) if len(source) < len(target) else len(target)
 
         from itertools import product
 
+        #create all combinations of source and target elements
         combos = list(product(source, target, repeat=repeat_num))
+        #remove combinations with duplicate source or target elements
+        combos = [c for c in combos if len(set(c)) == len(source) + len(target)]
+        #group the combinations into 2-tuples
+        combos = [[combo[i:i+2] for i, item in enumerate(combo) if i%2 == 0] for combo in combos]
+        #sort the combinations by vocabulary elements
+        combos = [sorted(combo, key=lambda x: x[0]) for combo in combos]
 
-        valid_combos = []
+        #remove duplcate combinations
+        unique_combos = []
 
         for combo in combos:
-            #bundle the combo elements into 2-tuples representing
-            #domain-object pairs, then remove duplicates.
-            combo = [combo[i:i+2] for i, item in enumerate(combo)
-                                                            if i%2 == 0]
-            combo = list(set(combo))
+            if combo not in unique_combos:
+                unique_combos.append(combo)
+
+        #remove combinations in conflict with this NamedState
+        valid_constant_assignments = []
+        for combo in unique_combos:
+            CA = ConstantAssignment(
+                self._p._vocabulary,
+                self._attribute_system,
+                {vocab: obj for (vocab, obj) in combo})
+
+            if not ConstantAssignment.in_conflict(self._p, CA):
+                valid_constant_assignments.append(CA)
+
+        self_worlds = State.get_worlds(self)
+
                 
-            #ensure that individual combos do not contain duplicate
-            #domain elemens or duplicate objects.
-            domain_elements = [pair[0] for pair in combo]
-            object_elements = [pair[1] for pair in combo]
-
-            no_domain_duplicates_cond = \
-                        len(domain_elements) == len(set(domain_elements))
-            no_object_duplicates_cond = \
-                        len(object_elements) == len(set(object_elements))
-
-            if no_domain_duplicates_cond and no_object_duplicates_cond:
-                for vc in valid_combos:
-                    if set(vc) == set(combo):
-                        break
-                else:
-                    valid_combos.append(combo)
-
-        #convert valid combinations to ConstantAssignments, removing any
-        #mappings of the incorrect size they may have passed through b/c
-        #list lenght evaluates to 2 even if there's a single 2-tuple in it
-        #according to the above code block sometimes.
-        const_assignments = []
-        for combo in valid_combos:
-            p = ConstantAssignment(
-                self.get_vocabulary(), self.get_attribute_system(),
-                dict(combo))
-
-            if len(p.get_mapping()) == repeat_num:
-                const_assignments.append(p)
-
-        #get all the possible worlds of just the state alone and initialize
-        #an empty list to hold all of the named worlds.
+        #create worlds for all constant assignment and world combos.
         worlds = []
-        s_worlds = State.get_worlds(self)
-
-        #create worlds for all constant assignments and worlds.
-        for p in const_assignments:
-            for s_world in s_worlds:
+        for p in valid_constant_assignments:
+            for self_world in self_worlds:
+                #construct world and save it
                 world = NamedState(
-                    self.get_attribute_system(), p, 
-                    s_world.get_ascriptions())
-
+                    self._attribute_system, p, self_world._ascriptions)
                 worlds.append(world)
 
         return worlds
@@ -680,20 +664,20 @@ class NamedState(State):
 
         return True                                                                     #world satisfies NamedState of Context and every Formula in AssumptionBase of Context
 
-
 def main():
     """quick dev tests."""
-    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
-    a = AttributeStructure(color, size)
-    o = ['s']
-    asys = AttributeSystem(a, o)
+    color, size = Attribute("color", ['R', 'G']), Attribute("size", ['S'])
+    attribute_structure = AttributeStructure(color, size)
+    objects = ['s1', 's2', 's3']
+    asys = AttributeSystem(attribute_structure, objects)
     
-    vocab = Vocabulary(['C'], [RelationSymbol('R', 1)], ['V'])
-    mapping = {'C': 's'}
+    vocab = Vocabulary(['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
+    mapping = {'C1': 's1'}#, 'C2': 's2', 'C3': 's3'}
 
     CA = ConstantAssignment(vocab, asys, mapping)
 
-    NamedState(asys, CA)
+    ns = NamedState(asys, CA)
+    worlds = ns.get_worlds()
 
 if __name__ == "__main__":
     main()
