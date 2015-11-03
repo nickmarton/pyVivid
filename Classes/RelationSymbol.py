@@ -19,9 +19,11 @@ class RelationSymbol(object):
         if not isinstance(arity, int):
             raise TypeError('arity parameter must be of type int')
 
-        self._name = name
-        self._arity = arity
-        self._is_RelationSymbol
+        from copy import deepcopy
+
+        self._name = deepcopy(name)
+        self._arity = deepcopy(arity)
+        self._is_RelationSymbol = True
 
     def __eq__(self, other):
         """Implement == operator for RelationSymbol object."""
@@ -39,8 +41,9 @@ class RelationSymbol(object):
 
     def __str__(self): 
         """Implement str(RelationSymbol)."""
-        return self._name
+        name_str = self._name
+        return name_str
 
     def __repr__(self): 
         """Implement str(RelationSymbol)."""
-        return self.__repr__()
+        return self.__str__()
