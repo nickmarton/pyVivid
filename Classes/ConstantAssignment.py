@@ -9,8 +9,6 @@ class ConstantAssignment(Assignment):
     in Assignment's AttributeSystem's list of objects.
     """
 
-    #add check conflict
-
     def __init__(self, vocabulary, attribute_system, mapping):
         """
         Initialize a ConstantAssignment object with a mapping from the
@@ -36,9 +34,9 @@ class ConstantAssignment(Assignment):
                 "are not allowed; mapping must be 1-to-1.")
         
         #note: Vocabularies prevent duplicates as do dictionary keys
-        source_cond = set(source) <= set(vocabulary._C)
+        source_condition = set(source) <= set(vocabulary._C)
         #note: AttributeSystems prevent duplicate objects
-        target_cond = set(target) <= set(attribute_system._objects)
+        target_condition = set(target) <= set(attribute_system._objects)
 
         if source_condition and target_condition:
             Assignment.__init__(self, vocabulary, attribute_system)
@@ -101,6 +99,17 @@ class ConstantAssignment(Assignment):
         """
 
         return [key for key in self._source if key in self._vocabulary._C]
+
+    @staticmethod
+    def in_conflict(p1, p2):
+        """Check if p1 is in conflict with p2."""
+        union_domain = set(p1.get_domain()) & set(p2.get_domain())
+
+        for c in union_domain:
+            if p1._mapping[c] != p2._mapping[c]:
+                return True
+
+        return False
 
     def __str__(self):
         """Return a string of this ConstantAssignment's mapping."""

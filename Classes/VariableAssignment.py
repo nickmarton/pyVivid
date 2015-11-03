@@ -4,9 +4,8 @@ from vivid.Classes.Assignment import Assignment
 
 class VariableAssignment(Assignment):
     """
-    Class to represent a variable assignment from Assignment's
-    Vocabulary object's variables to the set of objects contained
-    in Assignment's AttributeSystem's list of objects.
+    Class to represent a Variable Assignment or a total mapping from the
+    variable symbols in a Vocabulary to the objects in an AttributeSystem.
     """
 
     def __init__(self, vocabulary, attribute_system, mapping, dummy=False):
@@ -19,7 +18,11 @@ class VariableAssignment(Assignment):
             raise TypeError(
                 "mapping parameter must be of type dict")
 
-        Assignment.__init__(self, vocabulary, attribute_system)
+        if not all([isinstance(s, str) for s in mapping.keys()]):
+            raise TypeError("mapping must be of form str: str")
+
+        if not all([isinstance(s, str) for s in mapping.values()]):
+            raise TypeError("mapping must be of form str: str")
 
         if dummy:
             self._mapping = {}
@@ -27,21 +30,22 @@ class VariableAssignment(Assignment):
             source = mapping.keys()
             target = mapping.values()
 
-            if len(target) != len(set(target)):
+            if len(source) != len(set(source)) or len(target) != len(set(target)):
                 raise ValueError(
                     "duplicate values in mapping parameter "
                     "are not allowed; mapping must be 1-to-1.")
 
-            #note: Vocabularies prevent duplicates as do dictionary keys
-            #but converting to sets allows unordered equality comparison.
+            #total mapping so check for equality
             source_condition = set(source) == set(vocabulary.get_V())
-            #source_condition = set.issubset(set(source), set(vocabulary.get_V()))
-            #note: AttributeSystems prevent duplicate objects
-            target_condition = set.issubset(
-                set(target), set(self.get_objects()))
+
+            target_condition = set(target) <= set(self.attribute_system._objects)
 
             if source_condition and target_condition:
+                Assignment.__init__(self, vocabulary, attribute_system)
                 self._mapping = mapping
+                self._source = mapping.keys()
+                self._target = mapping.values()
+                self._is_ConstantAssignment = True
             else:
                 raise ValueError(
                     "VariableAssignment must be a total function from "
@@ -53,59 +57,32 @@ class VariableAssignment(Assignment):
         self and other ConstantAssignment objects.
         """
 
-        vocabulary_cond = self.get_vocabulary() == other.get_vocabulary()
-        attribute_system_cond = \
-            self.get_attribute_system() == other.get_attribute_system()
-        mapping_cond = self.get_mapping() == other.get_mapping()
+        vocabulary_cond = self._vocabulary == other._vocabulary
+        asys_cond = self._attribute_system == other._attribute_system
+        mapping_cond = self._mapping == other._mapping
 
-        if vocabulary_cond and attribute_system_cond and mapping_cond:
+        if vocabulary_cond and asys_cond and mapping_cond:
             return True
         else:
             return False
 
     def __ne__(self, other):
-        """
-        Determine if self != other for
-        self and other ConstantAssignment objects.
-        """
+        """Implement != operator ConstantAssignment objects."""
+        return not self.__eq__(other)
 
-        vocabulary_cond = self.get_vocabulary() == other.get_vocabulary()
-        attribute_system_cond = \
-            self.get_attribute_system() == other.get_attribute_system()
-        mapping_cond = self.get_mapping() == other.get_mapping()
-
-        if vocabulary_cond and attribute_system_cond and mapping_cond:
-            return False
-        else:
-            return True
-
-    def deep_copy(self):
-        """Return a deep copy of this ConstantAssignment object."""
-        import copy
-
-        vocabulary_copy = self._vocabulary.deep_copy()
-        attribute_system_copy = self._attribute_system.deep_copy()
-        mapping_copy = copy.copy(self._mapping)
-
+    def __deepcopy__(self):
+        """Implement copy.deepcopy for VariableAssignment object."""
+        from copy import deepcopy
+        
         return ConstantAssignment(
-            vocabulary_copy, attribute_system_copy, mapping_copy)
-
-    def get_mapping(self):
-        """Return this ConstantAssignment's mapping."""
-        return self._mapping
-
-    def get_source(self):
-        """Return the source of this VariableAssignment's mapping."""
-        return self.get_mapping().keys()
-
-    def get_target(self):
-        """Return the target of this VariableAssignment's mapping."""
-        return self.get_mapping().values()
+            deepcopy(self._vocabulary),
+            deepcopy(self._attribute_system),
+            deepcopy(self._mapping))
 
     def __str__(self):
         """Return a string of this ConstantAssignment's mapping."""
-        return 'V' + str(self.get_mapping())
+        return 'V' + str(self._mapping)
 
     def __repr__(self):
         """Return a string of this ConstantAssignment's mapping."""
-        return 'V' + str(self.get_mapping())
+        return self.__str__()
