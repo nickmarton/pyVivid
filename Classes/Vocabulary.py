@@ -1,19 +1,8 @@
 """Vocabulary class."""
 
-from assistance_functions import *
+from vivid.Classes.RelationSymbol import RelationSymbol
 
-def prevent_duplicates(x, label):
-    """Prevent duplicates in x by raising a ValueError."""
-
-    for i, x1 in enumerate(x):                                                          #for every element x1 in x
-        for j, x2 in enumerate(x):                                                      #for every element x2 in x
-            if i != j:                                                                  #if x1 and x2 are different entries in x
-                if x1 == x2:                                                            #if two different entries in x are equal
-                    raise ValueError(                                                   #explicitly raise ValueError; forbid duplicate elements
-                        'Duplicate ' + label + ' not ' +
-                        'allowed in Vocabulary')   
-
-class Vocabulary:
+class Vocabulary(object):
     """
     Class for First-Order Vocabulary
         
@@ -83,10 +72,11 @@ class Vocabulary:
         """Implement != operator for Vocabulary object."""
         return not self.__eq__(other)
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo):
         """Implement copy.deepcopy for Vocabulary object."""
         from copy import deepcopy
-        return Vocabulary(deepcopy(c_copy), deepcopy(r_copy), deepcopy(v_copy))
+        return Vocabulary(
+            deepcopy(self._C), deepcopy(self._R), deepcopy(self._V))
 
     @staticmethod
     def constant_assignment(vocabulary, objs): 
@@ -94,7 +84,9 @@ class Vocabulary:
         Create a partial or total constant assignment from 
         vocab.C to objs.
         """
-        
+        if not isinstance(vocabulary, Vocabulary):
+            raise TypeError("vocabulary parameter must be of type Vocabulary")
+
         if not isinstance(objs, list):
             raise TypeError('objs parameter must be of type list')
         
@@ -105,7 +97,9 @@ class Vocabulary:
         """
         Create a total constant assignment from vocab.V to objs.
         """
-        
+        if not isinstance(vocabulary, Vocabulary):
+            raise TypeError("vocabulary parameter must be of type Vocabulary")
+
         if not isinstance(objs, list):
             raise TypeError('objs parameter must be of type list')
         
@@ -113,9 +107,9 @@ class Vocabulary:
 
     def __str__(self):
         """Implement str(Vocabulary)."""
-        c_str = '[' + ''.join([c + ', ' for c in self.get_C()])[:-2] + ']'
-        r_str = '[' + ''.join([str(r) + ', ' for r in self.get_R()])[:-2] + ']'
-        v_str = '[' + ''.join([v + ', ' for v in self.get_V()])[:-2] + ']'
+        c_str = '[' + ''.join([c + ', ' for c in self._C])[:-2] + ']'
+        r_str = '[' + ''.join([str(r) + ', ' for r in self._R])[:-2] + ']'
+        v_str = '[' + ''.join([v + ', ' for v in self._V])[:-2] + ']'
 
         return '(' + c_str + ', ' + r_str + ', ' + v_str + ')'
 
