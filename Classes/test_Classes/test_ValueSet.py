@@ -86,9 +86,9 @@ def test___le__():
     Test <, <=, >, >= total ordering operators for subset-superset relations.
     """
     VS0 = ValueSet([])
-    VS1 = ValueSet([Interval(20, 100), True, 1,'b', 3,'c','a', 5, Interval(1,10)])
-    VS2 = ValueSet([Interval(1,10), 5, 3, 1, 'a', Interval(20, 100), 'b', True, 'c'])
-    VS3 = ValueSet([Interval(1,10), 5, 3, 1, 'a', Interval(20, 100), 'b', True, 'c', False])
+    VS1 = ValueSet([Interval(20, 100), True, 1,'b', 3,'c','a', 5, Interval(1,10), Point(0.0)])
+    VS2 = ValueSet([Interval(1,10), 5, 3, 1, 'a', Interval(20, 100), 'b', True, 'c', Point(0.0)])
+    VS3 = ValueSet([Interval(1,10), 5, 3, 1, 'a', Interval(20, 100), 'b', True, 'c', False, Point(0.0), Point(0.0, 0.0)])
 
     assert not VS0 < VS0
     assert not VS1 < VS2
@@ -133,7 +133,8 @@ def test___sub__():
         167.4,
         'c', 
         False, 
-        Interval(1,10), Interval(2L, 5L)])
+        Interval(1,10), Interval(2L, 5L),
+        Point(0.0)])
 
     VSD = ValueSet([
         -1, -3,
@@ -141,7 +142,8 @@ def test___sub__():
         555.678,
         'b', 'c', 
         False, 
-        Interval(1,10), Interval(10.0, 75.4), Interval(2L, 5L)])
+        Interval(1,10), Interval(10.0, 75.4), Interval(2L, 5L),
+        Point(1.0, 1.0)])
 
     VSE = ValueSet([
         -1, -5,
@@ -149,15 +151,16 @@ def test___sub__():
         167.4,
         'a', 
         True, 
-        Interval(1,10), Interval(20, 100)])
+        Interval(1,10), Interval(20, 100),
+        Point(3.4)])
 
 
     assert VSA - VSA == ValueSet([])
     assert VSA - VSB == ValueSet([])
     assert VSA - VSC == ValueSet([-5, 15L, 555.678, 'a', 'b', True, Interval(20, 100), Interval(10.0, 75.4)])
-    assert VSC - VSA == ValueSet([])
-    assert VSD - VSE == ValueSet([-3, 32L, 555.678, 'b', 'c', False, Interval(10.0, 75.4), Interval(2L, 5L)])
-    assert VSE - VSD == ValueSet([-5, 15L, 167.4, 'a', True, Interval(20, 100)])
+    assert VSC - VSA == ValueSet([Point(0.0)])
+    assert VSD - VSE == ValueSet([-3, 32L, 555.678, 'b', 'c', False, Interval(10.0, 75.4), Interval(2L, 5L), Point(1.0, 1.0)])
+    assert VSE - VSD == ValueSet([-5, 15L, 167.4, 'a', True, Interval(20, 100), Point(3.4)])
 
 def test___getitem__():
     """Test indexing for ValueSet object."""
@@ -171,9 +174,9 @@ def test___getitem__():
         with pytest.raises(IndexError):
             valueset._values[index]
 
-    v = ValueSet([1, 2, 'a', 'b', False, True, Interval(100, 1000)])
+    v = ValueSet([1, 2, 'a', 'b', False, True, Interval(100, 1000), Point(1.0)])
     test_TypeError(v, '')
-    test_IndexError(v, 7)
+    test_IndexError(v, 8)
     assert v[0] == 1
     assert v[0] is v._values[0]
     assert v[1] == 2
@@ -188,10 +191,12 @@ def test___getitem__():
     assert v[5] is v._values[5]
     assert v[6] == Interval(100, 1000)
     assert v[6] is v._values[6]
+    assert v[7] == Point(1.0)
+    assert v[7] is v._values[7]
 
 def test___contains__():
     """Test in operator for ValueSet object."""
-    v = ValueSet([1, 2, 'a', 'b', False, True, Interval(100, 1000)])
+    v = ValueSet([1, 2, 'a', 'b', False, True, Interval(100, 1000), Point(1.0)])
     assert 1 in v
     assert 2 in v
     assert 'a' in v
@@ -199,20 +204,22 @@ def test___contains__():
     assert False in v
     assert True in v
     assert Interval(100, 1000) in v
+    assert Point(1.0) in v
     assert not Interval(400, 500) in v
     assert not Interval(100.0, 1000.0) in v
     assert not Interval(100L, 1000L) in v
+    assert not Point('x') in v
 
 def test___len__():
     """Test len() function for ValueSet object."""
-    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False, Point(1.0)])
     v2 = ValueSet([])
-    assert len(v) == 10
+    assert len(v) == 11
     assert len(v2) == 0
 
 def test___iter__():
     """Test iterator for ValueSet object."""
-    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False, Point(1.0)])
     assert [i for i in v.__iter__()] == v._values
 
 def test___setitem__():
@@ -234,7 +241,7 @@ def test___setitem__():
         with pytest.raises(IndexError) as excinfo:
             valueset[key] = value
 
-    v = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
+    v = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0), Point(1.0)])
 
     v[0] = 1000
     assert v[0] == 1000
@@ -246,11 +253,11 @@ def test___setitem__():
     test_TypeError(v, 1L, 1)
     #test duplicate value catching
     test_ValueError(v, 1, 1)
-    test_IndexError(v, 10, -37)
+    test_IndexError(v, 11, -37)
 
 def test___nonzero__():
     """Test boolean behavior for ValueSet."""
-    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False, Point(1.0)])
     assert v
     v2 = ValueSet([])
     assert not v2
@@ -258,39 +265,34 @@ def test___nonzero__():
 def test___deepcopy__():
     """Test copy.deepcopy for ValueSet object."""
     import copy
-    v = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
+    v = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0), Point(1.0)])
     v_copy = copy.deepcopy(v)
     assert v == v_copy
     assert v is not v_copy
     assert v[8] is not v_copy[8]
     assert v[9] is not v_copy[9]
+    assert v[10] is not v_copy[10]
 
 def test___str__():
     """Test str() for ValueSet object."""
-    v1 = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
-    v2 = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v1 = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0), Point(1.0)])
+    v2 = ValueSet([Interval(100,105), 5, 3, 1, Point(1.0), 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
     v3 = ValueSet([])
-    assert str(v1) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
-    assert v1.__str__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v1.__str__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0), P(1.0))"
     #test out of order
-    assert str(v2) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
-    assert v2.__str__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v2.__str__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0), P(1.0))"
     #test empty
-    assert str(v3) == "V()"
     assert v3.__str__() == "V()"
 
 def test___repr__():
     """Test repr() for ValueSet object."""
-    v1 = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0)])
-    v2 = ValueSet([Interval(100,105), 5, 3, 1, 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
+    v1 = ValueSet([1, 3, 5, 'a', 'b', 'c', False, True, Interval(100, 105), Interval(2.0, 10.0), Point(1.0)])
+    v2 = ValueSet([Interval(100,105), 5, 3, 1, Point(1.0), 'a', Interval(2.0, 10.0), 'b', True, 'c', False])
     v3 = ValueSet([])
-    assert repr(v1) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
-    assert v1.__repr__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v1.__repr__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0), P(1.0))"
     #test out of order
-    assert repr(v2) == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
-    assert v2.__repr__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0))"
+    assert v2.__repr__() == "V(1, 3, 5, a, b, c, False, True, I(100, 105), I(2.0, 10.0), P(1.0))"
     #test empty
-    assert repr(v3) == "V()"
     assert v3.__repr__() == "V()"
 
 def test__split_by_types():
@@ -314,12 +316,14 @@ def test__split_by_types():
     #test output
     types = ValueSet._split_by_types(
         [1, 2, 1.0, 1.5, 1L, 2L, 'a', 'b', True, False, 
-        Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)])
+        Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L),
+        Point(1.0), Point(1.0, 1.0), Point('x')])
     
     d = {
         int: [1, 2], float: [1.0, 1.5], long: [1L, 2L],
         str: ['a', 'b'], bool: [True, False],
-        "_is_Interval": [Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)]}
+        "_is_Interval": [Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)],
+        "_is_Point": [Point(1.0), Point(1.0, 1.0), Point('x')]}
     
     empty = ValueSet._split_by_types([])
     assert empty == {}
@@ -335,11 +339,11 @@ def test__parse():
     #test standard type parsing
     standard_types = ValueSet._parse(
         [-1, -2, -1.0, -1.5, -1L, -2L, 'a', 'b', True, False,
-        Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)])
+        Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L), Point(1.0)])
     
     assert standard_types == [-2, -1, -1.5, -1.0, -2L, -1L, 'a', 'b',
                                 False, True, Interval(0, 10),
-                                Interval(0.0, 10.0), Interval(0L, 10L)]
+                                Interval(0.0, 10.0), Interval(0L, 10L), Point(1.0)]
     
     #test single numbers being filtered by intervals
     number_filters = ValueSet._parse(
@@ -358,3 +362,7 @@ def test__parse():
 
     assert interval_collapsing == [
             Interval(-10, 500), Interval(-10.2, 500.442), Interval(-10L, 500L)]
+
+    point_duplicates = ValueSet._parse([Point(1.0), Point(1.0), Point('x')])
+
+    assert point_duplicates == [Point(1.0), Point('x')]
