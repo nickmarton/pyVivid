@@ -21,6 +21,9 @@ class RelationSymbol(object):
 
         from copy import deepcopy
 
+        if arity <= 0:
+            raise ValueError("arity must be a positive integer")
+
         self._name = deepcopy(name)
         self._arity = deepcopy(arity)
         self._is_RelationSymbol = True
@@ -38,6 +41,19 @@ class RelationSymbol(object):
     def __ne__(self, other):
         """Implement != operator for RelationSymbol object."""
         return not self.__eq__(other)
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for RelationSymbol object."""
+        from copy import deepcopy
+        return RelationSymbol(deepcopy(self._name), deepcopy(self._arity))
+    
+    def _key(self):
+        """Tuple key for hash function."""
+        return (self._name, self._arity)
+
+    def __hash__(self):
+        """Hash so sets can use RelationSymbol's."""
+        return hash(self._key())
 
     def __str__(self): 
         """Implement str(RelationSymbol)."""
