@@ -7,13 +7,14 @@ Supports any object provided they implement __deepcopy__, __eq__, and __hash__.
 from copy import deepcopy
 from functools import total_ordering
 from Interval import Interval
+from Point import Point
 
 @total_ordering
 class ValueSet(object):
     """ValueSet object."""
 
     _base_types = [int, float, long, str, bool]
-    _object_types = ["_is_Interval"]
+    _object_types = ["_is_Interval", "_is_Point"]
 
     @classmethod
     def add_object_type(cls, object_identifier):
@@ -281,8 +282,10 @@ def main():
         Interval(60, 144), Interval(77, 150),
         Interval(9, 25), Interval(25, 30), "f", -1])
     
-    v1 = ValueSet([-1, 'f', Interval(0, 4), Interval(60, 150), Interval(9, 35)])
-    v2 = ValueSet([-1, 'f', Interval(60, 150)])
+    v1 = ValueSet([-1, 'f', Point(1.0, 1.0)])
+    v2 = ValueSet([Point(1.0, 1.0)])
+
+    print Point(1.0, 1.0) == Point(1.0, 1.0)
     print v1 - v2
 
 
