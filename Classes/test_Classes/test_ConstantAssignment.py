@@ -97,11 +97,53 @@ def test___ne__():
 
 def test___getitem__():
     """Test indexing for ConstantAssignment object."""
-    pass
+    def test_TypeError(constant_assignment, key):
+        """Test constructor for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            constant_assignment[key]
+    def test_KeyError(constant_assignment, key):
+        """Test constructor for KeyErrors with given params."""
+        with pytest.raises(KeyError) as excinfo:
+            constant_assignment[key]
+
+    vocabulary = Vocabulary(['C'], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+
+    test_TypeError(CA, 1)
+    test_TypeError(CA, None)
+    test_TypeError(CA, object)
+    test_KeyError(CA, '')
+
+    assert CA['C'] == 'a'
 
 def test___deepcopy__():
     """Test copy.deepcopy for ConstantAssignment object."""
-    pass
+    from copy import deepcopy
+
+    vocabulary = Vocabulary(['C'], [RelationSymbol('R', 1)], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    mapping = {'C': 'a'}
+
+    CA = ConstantAssignment(vocabulary, attribute_system, mapping)
+
+    CA_copy = deepcopy(CA)
+    assert CA == CA_copy
+    assert CA is not CA_copy
 
 def test_is_total():
     """Test is_total function for ConstantAssignment object."""

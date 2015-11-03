@@ -76,11 +76,11 @@ class VariableAssignment(Assignment):
             raise TypeError("key parameter must be of type string")
 
         try:
-            self._source[key]
+            return self._mapping[key]
         except KeyError:
             raise KeyError(str(key) + " is not in source")
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo):
         """Implement copy.deepcopy for VariableAssignment object."""
         from copy import deepcopy
         
