@@ -456,27 +456,26 @@ def main():
     color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
 
     a = AttributeStructure(color, size)
-    o = ['s1', 's2']
+    o = ['s']
 
     asys = AttributeSystem(a, o)
     s = State(asys)
 
-    s.set_ascription(('color', 's1'), ['R', 'B'])
-    s.set_ascription(('size', 's2'), ['M', 'L'])
-
     s1 = deepcopy(s)
-    s1.set_ascription(('color', 's1'), ['B'])
-    s1.set_ascription(('size', 's1'), ['S', 'M'])
-    s1.set_ascription(('color', 's2'), ['B', 'G'])
-    s2 = deepcopy(s)
-    s2.set_ascription(('size', 's1'), ['L'])
-    s2.set_ascription(('size', 's2'), ['L'])
-    s3 = deepcopy(s)
-    s3.set_ascription(('color', 's1'), ['R'])
+    s1.set_ascription(('color', 's'), ['B', 'G'])
+    s1.set_ascription(('size', 's'), ['S'])
 
-    aes = s.get_alternate_extensions(s1, s2, s3)
+    aes = s.get_alternate_extensions(s1)
     for ae in aes:
-        print s.is_alternate_extension(ae, s1, s2, s3)
+        print ae
+        print
+
+    s2 = deepcopy(s)
+    s2.set_ascription(('color', 's'), ['R'])
+    s2.set_ascription(('size', 's'), ['S', 'M', 'L'])
+    s3 = deepcopy(s)
+    s3.set_ascription(('color', 's'), ['R', 'B', 'G'])
+    s3.set_ascription(('size', 's'), ['L', 'M'])
 
 if __name__ == "__main__":
     main()

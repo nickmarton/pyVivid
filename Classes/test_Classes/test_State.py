@@ -79,11 +79,48 @@ def test___eq__():
 
 def test___lt__():
     """Test < operator overloaded for proper extension."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    s = State(asys)
+    
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s1 = State(asys, ascr)
+
+    s_empty = State(AttributeSystem(AttributeStructure(), []))
+
+    assert not s < s
+    assert s1 < s
 
 def test___le__():
     """Test <= operator overloaded for extension."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    s = State(asys)
+    
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s1 = State(asys, ascr)
+
+    assert s <= s
+    assert s1 <= s
+    assert not s <= s1
 
 def test___ne__():
     """Test != operator."""
@@ -204,7 +241,27 @@ def test_set_ascription():
 
 def test___getitem__():
     """Test indexing for State"""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s = State(asys, ascr)
+
+    assert s[('color', 's1')] == ValueSet(['R'])
+    assert s[('color', 's2')] == ValueSet(['G', 'B'])
+    assert s[('size', 's1')] == ValueSet(['M'])
+    assert s[('size', 's2')] == ValueSet(['L', 'S'])
+
+    assert s['color'] == [ValueSet(['R']), ValueSet(['B', 'G'])]
+    assert s['size'] == [ValueSet(['M']), ValueSet(['L', 'S'])]
 
 def test_is_valuation():
     """Test is_valuation function."""
@@ -303,15 +360,161 @@ def test_get_worlds():
 
 def test_is_disjoint():
     """Test is_disjoint function."""
-    pass
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['B', 'G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
+
+    s1 = State(asys, ascr)
+
+    s3 = State(asys, ascr)
+
+    length = Attribute("length", [1, 3, 5])
+    shape = Attribute("shape", ['circle', 'triangle', 'rectangle'])
+    a = AttributeStructure(length, shape)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr = {
+        ('length', 's1'): [5],
+        ('length', 's2'): [1, 3],
+        ('shape', 's1'): ['circle'],
+        ('shape', 's2'): ['triangle', 'rectangle']}
+
+    s2 = State(asys, ascr)
+
+    assert s1.is_disjoint(s2)
+    assert not s1.is_disjoint(s1)
+    assert not s1.is_disjoint(s3)
 
 def test_is_alternate_extension():
     """Test is_alternate_extension function."""
-    pass
+    from copy import deepcopy
+    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
+
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+
+    asys = AttributeSystem(a, o)
+    s = State(asys)
+
+    s.set_ascription(('color', 's1'), ['R', 'B'])
+    s.set_ascription(('size', 's2'), ['M', 'L'])
+
+    s1 = deepcopy(s)
+    s1.set_ascription(('color', 's1'), ['B'])
+    s1.set_ascription(('size', 's1'), ['S', 'M'])
+    s1.set_ascription(('color', 's2'), ['B', 'G'])
+    s2 = deepcopy(s)
+    s2.set_ascription(('size', 's1'), ['L'])
+    s2.set_ascription(('size', 's2'), ['L'])
+    s3 = deepcopy(s)
+    s3.set_ascription(('color', 's1'), ['R'])
+
+    aes = s.get_alternate_extensions(s1, s2, s3)
+    ae_s5, ae_s6, ae_s4 = aes
+
+    for ae in aes:
+        print s.is_alternate_extension(ae, s1, s2, s3)
+
+    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
+
+    a = AttributeStructure(color, size)
+    o = ['s']
+
+    asys = AttributeSystem(a, o)
+    s = State(asys)
+
+    s1 = deepcopy(s)
+    s1.set_ascription(('color', 's'), ['B', 'G'])
+    s1.set_ascription(('size', 's'), ['S'])
+
+    aes = s.get_alternate_extensions(s1)
+    ae_s2, ae_s3 = aes
+
+    for ae in aes:
+        print s.is_alternate_extension(ae, s1)
 
 def test_get_alternate_extensions():
     """Test get_alternate_extensions function."""
-    pass
+    from copy import deepcopy
+    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
+
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+
+    asys = AttributeSystem(a, o)
+    s = State(asys)
+
+    s.set_ascription(('color', 's1'), ['R', 'B'])
+    s.set_ascription(('size', 's2'), ['M', 'L'])
+
+    s1 = deepcopy(s)
+    s1.set_ascription(('color', 's1'), ['B'])
+    s1.set_ascription(('size', 's1'), ['S', 'M'])
+    s1.set_ascription(('color', 's2'), ['B', 'G'])
+    s2 = deepcopy(s)
+    s2.set_ascription(('size', 's1'), ['L'])
+    s2.set_ascription(('size', 's2'), ['L'])
+    s3 = deepcopy(s)
+    s3.set_ascription(('color', 's1'), ['R'])
+
+    aes = s.get_alternate_extensions(s1, s2, s3)
+    ae_s5, ae_s6, ae_s4 = aes
+
+    s4 = State(asys)
+    s4.set_ascription(('color','s1'), ['B'])
+    s4.set_ascription(('color','s2'), ['B', 'G', 'R'])
+    s4.set_ascription(('size','s1'), ['L'])
+    s4.set_ascription(('size','s2'), ['M'])
+
+    s5 = State(asys)
+    s5.set_ascription(('color','s1'), ['B'])
+    s5.set_ascription(('color','s2'), ['R'])
+    s5.set_ascription(('size','s1'), ['M', 'S'])
+    s5.set_ascription(('size','s2'), ['L', 'M'])
+
+    s6 = State(asys)
+    s6.set_ascription(('color','s1'), ['B'])
+    s6.set_ascription(('color','s2'), ['R'])
+    s6.set_ascription(('size','s1'), ['L', 'M', 'S'])
+    s6.set_ascription(('size','s2'), ['M'])
+
+    assert ae_s4 == s4
+    assert ae_s5 == s5
+    assert ae_s6 == s6
+
+    color, size = Attribute("color", ['R', 'G', 'B']), Attribute("size", ['S', 'M', 'L'])
+
+    a = AttributeStructure(color, size)
+    o = ['s']
+
+    asys = AttributeSystem(a, o)
+    s = State(asys)
+
+    s1 = deepcopy(s)
+    s1.set_ascription(('color', 's'), ['B', 'G'])
+    s1.set_ascription(('size', 's'), ['S'])
+
+    aes = s.get_alternate_extensions(s1)
+    ae_s2, ae_s3 = aes
+
+    s2 = deepcopy(s)
+    s2.set_ascription(('color', 's'), ['R'])
+    s2.set_ascription(('size', 's'), ['S', 'M', 'L'])
+    s3 = deepcopy(s)
+    s3.set_ascription(('color', 's'), ['R', 'B', 'G'])
+    s3.set_ascription(('size', 's'), ['L', 'M'])
+
+    assert ae_s2 == s2
+    assert ae_s3 == s3
 
 def test___str__():
     """Test str(State)"""
