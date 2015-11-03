@@ -126,71 +126,49 @@ class NamedState(State):
 
     def __lt__(self, other):
         """Implement overloaded < operator for NamedState proper extension."""
-        pass
+        if not isinstance(other, NamedState):
+            raise TypeError('other parameter must be of type NamedState')
+
+        same_attr_systems = self._attribute_system == other._attribute_system
+        same_vocabularies = self._p._vocabulary == other._p._vocabulary
+
+        #not same AttributeSystem or Vocabulary, not an extension
+        if not same_attr_systems or not same_vocabularies:
+            return False
+
+        #if this State is an extension of other State
+        if self <= other:
+            self_state = State(self._attribute_system, self._ascriptions)
+            other_state = State(other._attribute_system, other._ascriptions)
+
+            #if this State is a proper extension of other State or this
+            #ConstantAssignment is a proper superset of other
+            #ConstantAssignment, this NamedState is a proper extension of other
+            #NamedState
+            if self_state < other_state or self._p > other._p:
+                return True
+
+        return False
 
     def __le__(self, other):
         """Implement overloaded <= operator for NamedState extension."""
         if not isinstance(other, NamedState):
             raise TypeError('other parameter must be of type NamedState')
 
+        same_attr_systems = self._attribute_system == other._attribute_system
+        same_vocabularies = self._p._vocabulary == other._p._vocabulary
+
+        #not same AttributeSystem or Vocabulary, not an extension
+        if not same_attr_systems or not same_vocabularies:
+            return False
+
         self_state = State(self._attribute_system, self._ascriptions)
         other_state = State(other._attribute_system, other._ascriptions)
 
-    def is_extension(self, other):
-        """
-        Return a boolean for whether or not this NamedState object is
-        an extension of other NamedState object.
-
-        Raise TypeError if other parameter is not of Type NamedState
-        """
-
-        if not isinstance(other, NamedState):
-            raise TypeError(
-                'other parameter must be of type NamedState')
-        
-        #determine if this NamedState's State is an extension
-        #of other NamedState's State
-        state_condition = State.is_extension(self, other)
-        #determine if this NamedState's ConstantAssignment
-        #is a superset of other's
-        constant_assignment_condition = is_subset(
-            other._p.get_mapping(), self._p.get_mapping())
-
-        #if both conditions hold, it is an extension
-        if state_condition and constant_assignment_condition:
+        if self_state <= other_state and self._p >= other._p:
             return True
         else:
             return False
-
-    def is_proper_extension(self, other):
-        """
-        Return a boolean for whether or not this NamedState object is
-        a proper extension of other NamedState object.
-
-        raise TypeError if other parameter is not of Type NamedState.
-        """
-
-        #Check for exceptions.
-        if not isinstance(other, NamedState):
-            raise TypeError(
-                'other parameter must be of type NamedState')
-        
-
-        #Check if this NamedState is an extension of other NamedState.
-        if NamedState.is_extension(self, other):
-
-            #if other NamedState's ConstantAssignment is a proper subset of
-            #this NamedState's ConstantAssignment return True.
-            if is_proper_subset(
-                other._p.get_mapping(), self._p.get_mapping()):
-                return True
-            else:
-                #if this NamedState's State is a proper extension
-                #of other NamedState's State, return True.
-                if State.is_proper_extension(self, other):
-                    return True
-
-        return False
 
     def get_worlds(self):
         """
