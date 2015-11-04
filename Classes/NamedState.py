@@ -111,19 +111,6 @@ class NamedState(State):
             deepcopy(self._p),
             deepcopy(self._ascriptions))
 
-    def __str__(self):
-        """Implement str(NamedState)."""
-        return State.__str__(self) + '\n' + str(self._p)
-
-    def __repr__(self):
-        """Implement repr(NamedState)."""
-        return self.__str__()
-
-    def is_world(self):
-        """Determine if this NamedState is a world."""
-        #if state is a world and p is total, this NamedState is a world
-        return State.is_world(self) and self._p.is_total()
-
     def __lt__(self, other):
         """Implement overloaded < operator for NamedState proper extension."""
         if not isinstance(other, NamedState):
@@ -169,6 +156,19 @@ class NamedState(State):
             return True
         else:
             return False
+
+    def __str__(self):
+        """Implement str(NamedState)."""
+        return State.__str__(self) + '\n' + str(self._p)
+
+    def __repr__(self):
+        """Implement repr(NamedState)."""
+        return self.__str__()
+
+    def is_world(self):
+        """Determine if this NamedState is a world."""
+        #if state is a world and p is total, this NamedState is a world
+        return State.is_world(self) and self._p.is_total()
 
     def get_worlds(self):
         """
