@@ -102,7 +102,7 @@ class NamedState(State):
         """Implement != operator for NamedState object."""
         return not self.__eq__(other)
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo):
         """Return a deep copy of this NamedState."""
         from copy import deepcopy
         
@@ -302,9 +302,8 @@ class NamedState(State):
         Raise TypeError if any item in named_states parameter is not of
         type NamedState.
         Raise ValueError if any of the NamedStates ns1,...,nsm is not a
-        proper extension of this NamedState object.
-        Raise ValueError if any NamedStates (including this NamedState)
-        do not share the same Vocabulary or AttributeSystem.
+        proper extension of this NamedState object (this checks for matching
+        Vocabulary's and AttributeSystem's.
         """
 
         def get_supersets():
@@ -314,60 +313,43 @@ class NamedState(State):
             """
 
             #grab the system objects for convenience.
-            system_objects = self.get_attribute_system().get_objects()
+            system_objects = self._attribute_system._objects
             n = len(system_objects)
 
-            #get the set theoretic difference between the union of the domains
-            #of ns1,...,nsm and this NamedState's domain along with the total
-            #domain
+            #Get the union of all domains of provided NamedState objects
             domain_union = []
-
             for named_state in named_states:
-                domain_union.extend(named_state.get_p().get_domain())
+                domain_union.extend(named_state._p.get_domain())
+            domain_union = list(set(domain_union))
             
-            #domain_difference = list(
-                #set(domain_union) - set(self.get_p().get_domain()))
-            #d = len(domain_difference)
-            
-            domain = list(set(domain_union))
-            d = len(domain)
-
             #create set of all cartesian products of domain list and system
-            #object list where each product is of length repeat_num, that is,
+            #object list where each product is of length arity, that is,
             #the minimum number to match the smaller list with exactly one
             #member of the bigger list.
             from itertools import product
 
-            repeat_num = d if d < n else n
-
-            combos = list(product(domain, system_objects, repeat=repeat_num))
+            arity = len(domain_union) if len(domain_union) < n else n
+            combos = list(product(domain_union, system_objects, repeat=arity))
 
             supersets_list = []
 
             for combo in combos:
                 #bundle the combo elements into 2-tuples representing
                 #domain-object pairs, then remove duplicates.
-                combo = [combo[i:i+2] for i, item in enumerate(combo)
-                                                                if i%2 == 0]
+                combo = [combo[i:i+2] for i, item in enumerate(combo) if i%2 == 0]
                 combo = list(set(combo))
-                    
+                
                 #ensure that individual combos do not contain duplicate
                 #domain elemens or duplicate objects.
-                domain_elements = [pair[0] for pair in combo]
-                object_elements = [pair[1] for pair in combo]
+                domain = [pair[0] for pair in combo]
+                objects = [pair[1] for pair in combo]
+                domain_duplicates = len(domain) != len(set(domain))
+                object_duplicates = len(objects) != len(set(objects))
 
-                no_domain_duplicates_cond = \
-                            len(domain_elements) == len(set(domain_elements))
-                no_object_duplicates_cond = \
-                            len(object_elements) == len(set(object_elements))
-
-                if no_domain_duplicates_cond and no_object_duplicates_cond:
-                    p_mapping = self.get_p().get_mapping()
-                    p_list = [(key, value) for key, value in p_mapping.items()]
-                    
+                if not domain_duplicates and not object_duplicates:
                     #if this combo is a superset of this NamedState's p, and
                     #hasn't already been saved in supersets_list, save it.
-                    if is_subset(p_list, combo):
+                    if set(self._p._mapping.items()) <= set(combo):
                         for superset in supersets_list:
                             if set(superset) == set(combo):
                                 break
@@ -379,15 +361,13 @@ class NamedState(State):
             supersets = []
             for superset in supersets_list:
                 p_prime = ConstantAssignment(
-                    vocabulary, attribute_system, dict(superset))
+                            self._p._vocabulary,
+                            self._attribute_system,
+                            dict(superset))
                 supersets.append(p_prime)
 
             return supersets
 
-        vocabulary = self.get_p().get_vocabulary()
-        attribute_system = self.get_attribute_system()
-
-        #check for exceptions first.
         if not named_states:
             raise ValueError(
                 "at least one NamedState object must be "
@@ -398,15 +378,8 @@ class NamedState(State):
                 raise TypeError(
                     "all optional positional arguments must be of "
                     "type NamedState.")
-            if named_state.get_p().get_vocabulary() != vocabulary:
-                raise ValueError(
-                    "all vocabularies in this NamedState and optional "
-                    "positional NamedStates must be equivalent.")
-            if named_state.get_attribute_system() != attribute_system:
-                raise ValueError(
-                    "all AttributeSystems in this NamedState and optional "
-                    "positional NamedStates must be equivalent.")
-            if not named_state.is_proper_extension(self):
+            #
+            if not named_state < self:
                 raise ValueError(
                     "all NamedStates provided must be proper "
                     "subsets of this NamedState object.")
@@ -419,11 +392,9 @@ class NamedState(State):
         for p_prime in supersets:
             
             #get the list of provided NamedStates not in conflict with each
-            #superset of this NamedState's ConstantAssignment.
-            Sigma_i = []
-            for ns in named_states:
-                if not vocabulary.check_conflict(p_prime, ns.get_p()):
-                    Sigma_i.append(ns)
+            #superset of this NamedState's ConstantAssignment, i.e., the
+            #NamedState's where the p'_i >= p_j and sigma_j < sigma.
+            Sigma_i = [ns for ns in named_states if p_prime >= ns._p]
 
             #if there are such states, get the alternate extensions of this
             #NamedState's State component w.r.t. the list of non-conflicted
@@ -432,19 +403,23 @@ class NamedState(State):
                 phi_i = self.get_alternate_extensions(*Sigma_i)
                 #for each alternate extension, create a new NamedState with
                 #that alternate extensions ascriptions and the superset 
-                #p_prime and add to named_alternate_extensions.
+                #p_prime and add to named_alternate_extensions if not already
+                #in named_alternate_extensions.
                 for s_prime in phi_i:
                     nae = NamedState(
-                        attribute_system, p_prime, s_prime.get_ascriptions())
-                    named_alternate_extensions.append(nae)
+                        self._attribute_system, p_prime, s_prime._ascriptions)
+
+                    if nae not in named_alternate_extensions:
+                        named_alternate_extensions.append(nae)
             #There is no provided NamedState not in conflict with this
             #NamedState's ConstantAssignment, so create a new NamedState with
             #this NamedState's ascriptions and p_prime and add to 
             #named_alternate_extensions.
             else:
-                nae = NamedState(
-                    attribute_system, self.get_p(), self.get_ascriptions())
-                named_alternate_extensions.append(nae)
+                from copy import deepcopy
+                nae = deepcopy(self)
+                if nae not in named_alternate_extensions:
+                    named_alternate_extensions.append(nae)
 
         return named_alternate_extensions
 
@@ -666,18 +641,67 @@ class NamedState(State):
 
 def main():
     """quick dev tests."""
-    color, size = Attribute("color", ['R', 'G']), Attribute("size", ['S'])
+    color = Attribute('color', ['R', 'G', 'B'])
+    size = Attribute('size', ['S', 'M', 'L'])
+
     attribute_structure = AttributeStructure(color, size)
+
     objects = ['s1', 's2', 's3']
-    asys = AttributeSystem(attribute_structure, objects)
+    attribute_system = AttributeSystem(attribute_structure, objects)
+
     
-    vocab = Vocabulary(['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
-    mapping = {'C1': 's1'}#, 'C2': 's2', 'C3': 's3'}
+    sigma = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
 
-    CA = ConstantAssignment(vocab, asys, mapping)
+    p = ConstantAssignment(sigma, attribute_system, {'a': 's1'})
+    ascr = {
+        ('color', 's1'): ['R', 'B'],
+        ('size', 's1'): ['S', 'M', 'L'],
+        ('color', 's2'): ['R', 'B', 'G'],
+        ('size', 's2'): ['M', 'L']}
+    named_state = NamedState(attribute_system, p, ascr)
 
-    ns = NamedState(asys, CA)
-    worlds = ns.get_worlds()
+
+    p_1 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
+    ascr_1 = {
+        ('color', 's1'): ['B'], 
+        ('size', 's1'): ['S', 'M'],
+        ('color', 's2'): ['B', 'G'], 
+        ('size', 's2'): ['M', 'L']}
+    named_state_1 = NamedState(attribute_system, p_1, ascr_1)
+
+
+    p_2 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'f': 's2', 'c': 's3'})
+    ascr_2 = {
+        ('color', 's1'): ['R', 'B'], 
+        ('size', 's1'): ['L'],
+        ('color', 's2'): ['R', 'B', 'G'], 
+        ('size', 's2'): ['L']}
+    named_state_2 = NamedState(attribute_system, p_2, ascr_2)
+
+
+    p_3 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'g': 's2', 'c': 's3'})
+    ascr_3 = {
+        ('color', 's1'): ['R'], 
+        ('size', 's1'): ['S', 'M', 'L'],
+        ('color', 's2'): ['R', 'B', 'G'], 
+        ('size', 's2'): ['M', 'L']}
+    named_state_3 = NamedState(attribute_system, p_3, ascr_3)
+
+    aes = named_state.get_named_alternate_extensions(named_state_1, named_state_2, named_state_3)
+
+    print len(aes)
+
+    p_test = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
+    ascr_test = {
+        ('color', 's1'): ['B'],
+        ('size', 's1'): ['M', 'S'],
+        ('size', 's2'): ['M', 'L'],
+        ('color', 's2'): ['R']}
+    tester = NamedState(attribute_system, p_test, ascr_test)
+
+    #print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
+
+
 
 if __name__ == "__main__":
     main()
