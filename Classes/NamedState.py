@@ -654,7 +654,6 @@ def main():
 
     aes = named_state.get_named_alternate_extensions(named_state_1, named_state_2, named_state_3)
 
-    print len(aes)
     from copy import deepcopy
     tester = deepcopy(aes[1])
 
