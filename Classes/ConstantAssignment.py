@@ -79,7 +79,7 @@ class ConstantAssignment(Assignment):
         if not same_attr_systems or not same_vocabularies:
             return False
 
-        return self._mapping < other._mapping
+        return set(self._mapping.items()) < set(other._mapping.items())
 
     def __le__(self, other):
         """Implement overloaded < operator for ConstantAssignment subset."""
@@ -92,7 +92,7 @@ class ConstantAssignment(Assignment):
         if not same_attr_systems or not same_vocabularies:
             return False
 
-        return self._mapping <= other._mapping
+        return set(self._mapping.items()) <= set(other._mapping.items())
 
     def __getitem__(self, key):
         """Implement indexing for ConstantAssignment object."""
@@ -132,7 +132,7 @@ class ConstantAssignment(Assignment):
         is defined w.r.t. ConstantAssignment's Vocabulary object.
         """
 
-        return [key for key in self._source if key in self._vocabulary._C]
+        return list(self._source)
 
     @staticmethod
     def in_conflict(p1, p2):
