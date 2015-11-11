@@ -80,8 +80,13 @@ class NamedState(State):
         Raise TypeError if attribute_system parameter is not of type
         AttributeSystem or p parameter is not of type
         ConstantAssignment.
+        Raise ValueError if AttributeSystem of p doesn't match
+        AttributeSystem object provided in attribute_system.
         """
         
+        if not hasattr(p, "_is_ConstantAssignment"):
+            raise TypeError("p parameter must be a ConstantAssignment object")
+
         if p._attribute_system != attribute_system:
             raise ValueError(
                 "ConstantAssignment AttributeSystem and "
@@ -94,6 +99,9 @@ class NamedState(State):
 
     def __eq__(self, other):
         """Implement == operator for NamedState object."""
+        if not hasattr(other, "_is_NamedState"):
+            raise TypeError("Can only compare two NamedState objects")
+
         if State.__eq__(self, other) and self._p == other._p:
             return True
         else:
@@ -114,7 +122,7 @@ class NamedState(State):
 
     def __lt__(self, other):
         """Implement overloaded < operator for NamedState proper extension."""
-        if not isinstance(other, NamedState):
+        if not hasattr(other, "_is_NamedState"):
             raise TypeError('other parameter must be of type NamedState')
 
         same_attr_systems = self._attribute_system == other._attribute_system
@@ -140,7 +148,7 @@ class NamedState(State):
 
     def __le__(self, other):
         """Implement overloaded <= operator for NamedState extension."""
-        if not isinstance(other, NamedState):
+        if not hasattr(other, "_is_NamedState"):
             raise TypeError('other parameter must be of type NamedState')
 
         same_attr_systems = self._attribute_system == other._attribute_system
@@ -157,14 +165,6 @@ class NamedState(State):
             return True
         else:
             return False
-
-    def __str__(self):
-        """Implement str(NamedState)."""
-        return State.__str__(self) + '\n' + str(self._p)
-
-    def __repr__(self):
-        """Implement repr(NamedState)."""
-        return self.__str__()
 
     def is_world(self):
         """Determine if this NamedState is a world."""
@@ -604,6 +604,14 @@ class NamedState(State):
 
         return True
 
+    def __str__(self):
+        """Implement str(NamedState)."""
+        return State.__str__(self) + '\n' + str(self._p)
+
+    def __repr__(self):
+        """Implement repr(NamedState)."""
+        return self.__str__()
+
 def main():
     """quick dev tests."""
     color = Attribute('color', ['R', 'G', 'B'])
@@ -619,37 +627,29 @@ def main():
 
     p = ConstantAssignment(sigma, attribute_system, {'a': 's1'})
     ascr = {
-        ('color', 's1'): ['R', 'B'],
-        ('size', 's1'): ['S', 'M', 'L'],
-        ('color', 's2'): ['R', 'B', 'G'],
-        ('size', 's2'): ['M', 'L']}
+        ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
+        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
     named_state = NamedState(attribute_system, p, ascr)
 
 
     p_1 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
     ascr_1 = {
-        ('color', 's1'): ['B'], 
-        ('size', 's1'): ['S', 'M'],
-        ('color', 's2'): ['B', 'G'], 
-        ('size', 's2'): ['M', 'L']}
+        ('color', 's1'): ['B'], ('size', 's1'): ['S', 'M'],
+        ('color', 's2'): ['B', 'G'], ('size', 's2'): ['M', 'L']}
     named_state_1 = NamedState(attribute_system, p_1, ascr_1)
 
 
     p_2 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'f': 's2', 'c': 's3'})
     ascr_2 = {
-        ('color', 's1'): ['R', 'B'], 
-        ('size', 's1'): ['L'],
-        ('color', 's2'): ['R', 'B', 'G'], 
-        ('size', 's2'): ['L']}
+        ('color', 's1'): ['R', 'B'], ('size', 's1'): ['L'],
+        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['L']}
     named_state_2 = NamedState(attribute_system, p_2, ascr_2)
 
 
     p_3 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'g': 's2', 'c': 's3'})
     ascr_3 = {
-        ('color', 's1'): ['R'], 
-        ('size', 's1'): ['S', 'M', 'L'],
-        ('color', 's2'): ['R', 'B', 'G'], 
-        ('size', 's2'): ['M', 'L']}
+        ('color', 's1'): ['R'], ('size', 's1'): ['S', 'M', 'L'],
+        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
     named_state_3 = NamedState(attribute_system, p_3, ascr_3)
 
     aes = named_state.get_named_alternate_extensions(named_state_1, named_state_2, named_state_3)
