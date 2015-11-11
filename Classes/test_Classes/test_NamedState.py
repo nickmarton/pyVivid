@@ -273,41 +273,133 @@ def test___le__():
     assert named_state_4 <= named_state_3 <= named_state_2 <= named_state
 
 def test_is_world():
-    """Test ."""
-    pass
+    """Test is_world() function for NamedState."""
+    color = Attribute('color', ['R', 'G', 'B'])
+    size = Attribute('size', ['S', 'M', 'L'])
+    attribute_structure = AttributeStructure(color, size)
+    objects = ['s1', 's2']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    sigma = Vocabulary(['a', 'b'], [], [])
+
+
+    p = ConstantAssignment(sigma, attribute_system, {'a': 's1'})
+    p_total = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
+    
+    ascr = {
+        ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
+        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
+    validations = {
+        ('color', 's1'): ['R'], ('size', 's1'): ['S'],
+        ('color', 's2'): ['G'], ('size', 's2'): ['L']}
+
+    named_state_1 = NamedState(attribute_system, p, ascr)
+    named_state_2 = NamedState(attribute_system, p_total, ascr)
+    named_state_3 = NamedState(attribute_system, p, validations)
+    world = NamedState(attribute_system, p_total, validations)
+    assert not named_state_1.is_world()
+    assert not named_state_2.is_world()
+    assert not named_state_3.is_world()
+    assert world.is_world()
 
 def test_get_worlds():
-    """Test ."""
-    pass
+    """Test get_worlds() function for NamedState."""
+    color = Attribute('color', ['R', 'G'])
+    size = Attribute('size', ['S', 'L'])
+    attribute_structure = AttributeStructure(color, size)
+    objects = ['s1', 's2']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    sigma = Vocabulary(['a', 'b'], [], [])
+
+
+    p = ConstantAssignment(sigma, attribute_system, {})
+    p_1 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
+    p_2 = ConstantAssignment(sigma, attribute_system, {'a': 's2', 'b': 's1'})
+    
+    ascr = {('color', 's1'): ['R']}
+
+    ns = NamedState(attribute_system, p, ascr)
+    worlds = ns.get_worlds()
+
+    worlds_manual = [
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['S']})]
+
+    assert worlds == worlds_manual
 
 def test_is_named_alternate_extension():
-    """Test ."""
+    """Test is_named_alternate_extension() function for NamedState."""
     pass
 
 def test_get_named_alternate_extensions():
-    """Test ."""
+    """Test get_named_alternate_extensions() function for NamedState."""
     pass
 
 def test_satisfies_formula():
-    """Test ."""
+    """Test satisfies_formula() function for NamedState."""
     pass
 
 def test_satisfies_named_state():
-    """Test ."""
+    """Test satisfies_named_state() function for NamedState."""
     pass
 
 def test_satisfies_context():
-    """Test ."""
+    """Test satisfies_context() function for NamedState."""
     pass
 
 def test_is_named_entailment():
-    """Test ."""
+    """Test is_named_entailment() function for NamedState."""
     pass
 
 def test___str__():
-    """Test ."""
-    pass
+    """Test str(NamedState)."""
+    color = Attribute('color', ['R', 'G'])
+    size = Attribute('size', ['S', 'L'])
+    attribute_structure = AttributeStructure(color, size)
+    objects = ['s1', 's2']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    sigma = Vocabulary(['a', 'b'], [], [])
+
+
+    p = ConstantAssignment(sigma, attribute_system, {})
+    p_1 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
+
+    ascr = {('color', 's1'): ['R']}
+
+    ns = NamedState(attribute_system, p, ascr)
+    ns1 = NamedState(attribute_system, p_1, ascr)
+    assert str(ns) == "color(s1): {V(R)}\ncolor(s2): {V(G, R)}\nsize(s1): {V(L, S)}\nsize(s2): {V(L, S)}\nCA{}"
+    assert str(ns1) == "color(s1): {V(R)}\ncolor(s2): {V(G, R)}\nsize(s1): {V(L, S)}\nsize(s2): {V(L, S)}\nCA{'a': 's1', 'b': 's2'}"
 
 def test___repr__():
-    """Test ."""
-    pass
+    """Test repr(NamedState)."""
+    color = Attribute('color', ['R', 'G'])
+    size = Attribute('size', ['S', 'L'])
+    attribute_structure = AttributeStructure(color, size)
+    objects = ['s1', 's2']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    sigma = Vocabulary(['a', 'b'], [], [])
+
+
+    p = ConstantAssignment(sigma, attribute_system, {})
+    p_1 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
+
+    ascr = {('color', 's1'): ['R']}
+
+    ns = NamedState(attribute_system, p, ascr)
+    ns1 = NamedState(attribute_system, p_1, ascr)
+    assert repr(ns) == "color(s1): {V(R)}\ncolor(s2): {V(G, R)}\nsize(s1): {V(L, S)}\nsize(s2): {V(L, S)}\nCA{}"
+    assert repr(ns1) == "color(s1): {V(R)}\ncolor(s2): {V(G, R)}\nsize(s1): {V(L, S)}\nsize(s2): {V(L, S)}\nCA{'a': 's1', 'b': 's2'}"
