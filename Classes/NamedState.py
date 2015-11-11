@@ -234,63 +234,31 @@ class NamedState(State):
         Raise ValueError if ns_prime is not a proper extension of this 
         NamedState object.
         Raise ValueError if named_states parameter is empty.
-        Raise TypeError if any item in named_states parameter is not of
-        type NamedState.
-        Raise ValueError if any of the NamedStates ns1,...,nsm is not a
-        proper extension of this NamedState object.
-        Raise ValueError if any NamedStates (including this NamedState)
-        do not share the same Vocabulary or AttributeSystem.
+        Raise TypeError if any item in named_states parameter is not of type
+        NamedState.
+        Raise ValueError if any of the NamedStates ns1,...,nsm is not a proper
+        extension of this NamedState object (This checks for mistmatched
+        Vocabulary's and AttributeSystem's).
         """
-        
-        vocabulary = self.get_p().get_vocabulary()
-        attribute_system = self.get_attribute_system()
-        
-        #check for exceptions first.
-        if not isinstance(ns_prime, NamedState):
-            raise TypeError(
-                "ns_prime parameter must be of type NamedState.")
-        if not ns_prime.is_proper_extension(self):
-            raise ValueError(
-                "all NamedStates provided must be proper "
-                "subsets of this NamedState object.")
-        if ns_prime.get_p().get_vocabulary() != vocabulary:
-            raise ValueError(
-                "all vocabularies in this NamedState and optional "
-                "positional NamedStates must be equivalent.")
-        if ns_prime.get_attribute_system() != attribute_system:
-            raise ValueError(
-                "all AttributeSystems in this NamedState and optional "
-                "positional NamedStates must be equivalent.")
 
         if not named_states:
             raise ValueError(
                 "at least one NamedState object must be "
                 "provided as an argument")
-        for named_state in named_states:
+        
+        for named_state in list(named_states) + [ns_prime]:
             if not isinstance(named_state, NamedState):
                 raise TypeError(
                     "all optional positional arguments must be of "
                     "type NamedState.")
-            if named_state.get_p().get_vocabulary() != vocabulary:
-                raise ValueError(
-                    "all vocabularies in this NamedState and optional "
-                    "positional NamedStates must be equivalent.")
-            if named_state.get_attribute_system() != attribute_system:
-                raise ValueError(
-                    "all AttributeSystems in this NamedState and optional "
-                    "positional NamedStates must be equivalent.")
-            if not named_state.is_proper_extension(self):
+            if not named_state < self:
                 raise ValueError(
                     "all NamedStates provided must be proper "
                     "subsets of this NamedState object.")
 
-        aes = self.get_named_alternate_extensions(*named_states)
-        
-        for ae in aes:
-            if ns_prime == ae:
-                return True
+        aes = self.get_named_alternate_extensions(*named_states)        
+        return True if ns_prime in aes else False
 
-        return False
 
     def get_named_alternate_extensions(self, *named_states):
         """
@@ -388,7 +356,8 @@ class NamedState(State):
         #empty list to hold all alternate extensions.
         supersets = get_supersets()
         named_alternate_extensions = []
-        
+
+
         for p_prime in supersets:
             
             #get the list of provided NamedStates not in conflict with each
@@ -690,16 +659,10 @@ def main():
     aes = named_state.get_named_alternate_extensions(named_state_1, named_state_2, named_state_3)
 
     print len(aes)
+    from copy import deepcopy
+    tester = deepcopy(aes[1])
 
-    p_test = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
-    ascr_test = {
-        ('color', 's1'): ['B'],
-        ('size', 's1'): ['M', 'S'],
-        ('size', 's2'): ['M', 'L'],
-        ('color', 's2'): ['R']}
-    tester = NamedState(attribute_system, p_test, ascr_test)
-
-    #print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
+    print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
 
 
 
