@@ -91,7 +91,48 @@ class AttributeInterpretation(object):
             interpretation_table.append(entry)
 
         self._table = interpretation_table
+        self._relation_symbols = [entry[0] for entry in interpretation_table]
         self._is_AttributeInterpretation = True
+
+    def __eq__(self, other):
+        """Implement == operator for AttributeInterpretation."""
+        #No duplicates so just checking set equality works
+        rs_cond = set(self._relation_symbols) == set(other._relation_symbols)
+        if not rs_cond:
+            return False
+
+        #easy look up table to determine if set of rows are equal
+        self_dict = {entry[0]: entry[1:] for entry in self._table}
+        other_dict = {entry[0]: entry[1:] for entry in other._table}
+
+        #for every row, compare
+        for key in self_dict.keys():
+            #Pull the rows from the lookup table
+            self_row = self_dict[key]
+            other_row = other_dict[key]
+
+            arity_cond = self_row[0] == other_row[0]
+            r_cond = self_row[1] == other_row[1]
+            profile_cond = self_row[2] == other_row[2]
+
+            #if some pair of entries on the rows are unequal,
+            #AttributeInterpretation's are not equal
+            if not arity_cond or not r_cond or not profile_cond:
+                return False
+
+        return True
+
+    def __ne__(self, other):
+        """Implement == operator for AttributeInterpretation."""
+        return not self.__eq__(other)
+
+    def __str__(self):
+        """Implement str(AttributeInterpretation)."""
+        return '\n'.join([str(entry) for entry in self._table])
+
+    def __repr__(self):
+        """Implement repr(AttributeInterpretation)."""
+        return '\n'.join([str(entry) for entry in self._table])
 
 def main():
     """Quick tests."""
@@ -117,7 +158,8 @@ def main():
 
     mapping = {ahead_rs: 1, behind_rs: 2, pm_rs: 3}
 
-    AttributeInterpretation(vocabulary, attribute_structure, mapping, profiles)
+    ai = AttributeInterpretation(vocabulary, attribute_structure, mapping, profiles)
+    print ai == ai
 
 if __name__ == "__main__":
     main()
