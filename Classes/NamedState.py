@@ -412,7 +412,8 @@ class NamedState(State):
         if not self.is_world():
             raise ValueError('this NamedState object must be a world')
 
-        formula.assign_truth_value(attribute_interpretation, self, X)
+        truth_value = formula.assign_truth_value(
+                            attribute_interpretation, self, X)
 
         if truth_value == True:
             return True
