@@ -90,6 +90,52 @@ def test___deepcopy__():
     assert vocab._R is not vocab_copy._R
     assert vocab._V is not vocab_copy._V
 
+def test_add_constant():
+    """Test add_constant() function for Vocabulary object."""
+    def test_TypeError(vocabulary, c):
+        """Test TypeErrors in add_constant."""
+        with pytest.raises(TypeError) as excinfo:
+            vocabulary.add_constant(c)
+    def test_ValueError(vocabulary, c):
+        """Test ValueErrors in add constant."""
+        with pytest.raises(ValueError) as excinfo:
+            vocabulary.add_constant(c)
+
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocab = Vocabulary(C, R, V)
+
+    test_TypeError(vocab, None)
+    test_TypeError(vocab, object)
+    test_ValueError(vocab, 'C')
+    test_ValueError(vocab, 'V')
+    vocab.add_constant('x')
+    assert vocab._C == ['C', 'x']
+    vocab.add_constant('a')
+    assert vocab._C == ['a', 'C', 'x']
+
+def test_add_variable():
+    """Test add_variable() function for Vocabulary object."""
+    def test_TypeError(vocabulary, v):
+        """Test TypeErrors in add_constant."""
+        with pytest.raises(TypeError) as excinfo:
+            vocabulary.add_variable(v)
+    def test_ValueError(vocabulary, v):
+        """Test ValueErrors in add constant."""
+        with pytest.raises(ValueError) as excinfo:
+            vocabulary.add_variable(v)
+
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocab = Vocabulary(C, R, V)
+
+    test_TypeError(vocab, None)
+    test_TypeError(vocab, object)
+    test_ValueError(vocab, 'C')
+    test_ValueError(vocab, 'V')
+    vocab.add_variable('x')
+    assert vocab._V == ['V', 'x']
+    vocab.add_variable('a')
+    assert vocab._V == ['a', 'V', 'x']
+
 def test_constant_assignment():
     """Test constant assignment mapping."""
     pass

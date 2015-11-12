@@ -52,9 +52,9 @@ class Vocabulary(object):
             raise ValueError(
                 'C and V parameters may not have a common element')
 
-        self._C = sorted(list(set(C)))
-        self._R = sorted(list(set(R)), key=lambda rs: rs._name)
-        self._V = sorted(list(set(V)))
+        self._C = sorted(list(set(C)), key=lambda c: c.lower())
+        self._R = sorted(list(set(R)), key=lambda rs: rs._name.lower())
+        self._V = sorted(list(set(V)), key=lambda v: v.lower())
         self._is_Vocabulary = True
 
     def __eq__(self, other):
@@ -78,6 +78,30 @@ class Vocabulary(object):
         from copy import deepcopy
         return Vocabulary(
             deepcopy(self._C), deepcopy(self._R), deepcopy(self._V))
+
+    def add_constant(self, constant):
+        """Add a constant to this Vocabulary object's C."""
+        if type(constant) != str:
+            raise TypeError("constant parameter must be a string")
+        
+        in_C = constant in self._C
+        in_V = constant in self._V
+        if not in_C and not in_V:
+            self._C = sorted(self._C + [constant], key=lambda c: c.lower())
+        else:
+            raise ValueError("duplicate symbol cannot be added")
+
+    def add_variable(self, variable):
+        """Add a variable to this Vocabulary object's V."""
+        if type(variable) != str:
+            raise TypeError("variable parameter must be a string")
+        
+        in_C = variable in self._C
+        in_V = variable in self._V
+        if not in_C and not in_V:
+            self._V = sorted(self._V + [variable], key=lambda v: v.lower())
+        else:
+            raise ValueError("duplicate symbol cannot be added")
 
     @staticmethod
     def constant_assignment(vocabulary, objs): 
