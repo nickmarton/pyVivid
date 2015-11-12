@@ -112,6 +112,10 @@ def test___deepcopy__():
     f._name = "F"
     assert f._name != f_copy._name
 
+def test_assign_truth_value():
+    """Test assign_truth_value() function of Formula object."""
+    pass
+
 def test___str__():
     """Test str(Formula)."""
     ahead_rs = RelationSymbol('Ahead', 4)
