@@ -8,6 +8,5 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 #TODO
 * Finish NamedState refactoring
     * is_named_entailment
-    * satisfies_context
 * Finish NamedState unit tests
 * assign truth value needs more extendable/general solution

@@ -447,54 +447,44 @@ class NamedState(State):
         #simply return truth value of extension
         return self <= named_state
 
-    def satisfies_context(self, context, X, vocab, interpretation_table=None):
+    def satisfies_context(self, context, X, attribute_interpretation):
         """
-        Return a boolean for whether or not this NamedState
-        (which is a world) satisfies a given context. 
-        
-        vocab parameter of type Vocabulary is required to check if 
-        world is indeed a world.
-        
-        Raise TypeError if context parameter is not of type Context.
-        Raise TypeError if X parameter is not of type VariableAssignment.
-        Raise TypeError if vocab parameter is not of type Vocabulary.
-        Raise ValueError if this NamedState is not a world.
+        Determine if this NamedState object (which is a world) satisfies a
+        given context w.r.t. some VariableAssignment X.
         """
 
         from Context import Context
 
-        if not isinstance(context, Context):                                            #if context parameter is not of type Context
-            raise TypeError(                                                            #explicitly raise TypeError
+        if not hasattr(context, "_is_Context"):
+            raise TypeError(
                 'context parameter must be of type Context')
 
-        if not isinstance(X, VariableAssignment):                                                     #if X parameter is not of type VariableAssignment
-            raise TypeError(                                                            #explicitly raise TypeError
+        if not isinstance(X, VariableAssignment):
+            raise TypeError(
                 'X parameter must be of type VariableAssignment')
 
-        if not isinstance(vocab, Vocabulary):                                           #if vocab paramter is not of type Vocabulary
-            raise TypeError(
-                'vocab parameter must be of type Vocabulary')
-
-        if not self.is_world():                                                         #if this NamedState is not a world
-            raise ValueError(                                                           #explicitly raise ValueError
+        if not self.is_world():
+            raise ValueError(
                 'this NamedState object must be a world')
 
-        named_state = context.get_named_state()                                         #get NamedState from Context
+        named_state = context._named_state
+        assumption_base = context._assumption_base
         
-        if not self.is_extension(named_state):                                          #if world is does not satisfy the NamedState of the Context
-            return False                                                                #the world does not satisfy the Context
-
-        assumption_base = context.get_assumption_base()                                 #get AssumptionBase from the Context
+        #if this world doesn't satisfy Context's NamedState, doesn't satisfy
+        #Context
+        if not self <= named_state:
+            return False
         
-        for formula in assumption_base:                                                 #for each Formula within the AssumptionBase
-            
+        #If there's some formula for which the world does not satisfy, doesn't
+        #satisfy the Context
+        for formula in assumption_base:
             truth_value = self.satisfies_formula(
-                formula, X, vocab, interpretation_table)                                #get truth value of formula in world w.r.t. X
-            
-            if truth_value == False or truth_value == "unknown":                        #if world doesn't satisfy some formula in the AssumptionBase
-                return False                                                            #world does not satisfy context, return False
+                formula, attribute_interpretation, X)
 
-        return True                                                                     #world satisfies NamedState of Context and every Formula in AssumptionBase of Context
+            if truth_value == False or truth_value == "unknown":
+                return False
+
+        return True
     
     def is_named_entailment(self, beta, interpretation_table=None, *named_states):
         """
