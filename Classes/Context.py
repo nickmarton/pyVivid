@@ -1,8 +1,4 @@
-"""
-This module proivdes a Context object for the Vivid framework.
-
-Every Context is built from an AssumptionBase object and NamedState object.
-"""
+"""Context class."""
 
 from State import NamedState
 from F_and_AB import Formula, AssumptionBase
@@ -66,107 +62,39 @@ class Context(object):
     AssumptionBase and a NamedState.
     """
 
-    def __init__(self, beta, named_state):
-        """
-        Initialize a Context object with AssumptionBase beta and
-        NamedState named_state.
-
-        Raise TypeError if beta parameter is not of type AssumptionBase
-        or if named_state parameter is not of type NamedState.
-        """
+    def __init__(self, assumption_base, named_state):
+        """Construct a Context object."""
 
         #Check for exceptions first.
-        if not isinstance(beta, AssumptionBase):
+        if not hasattr(assumption_base, "_is_AssumptionBase"):
             raise TypeError(
-                "beta parameter must be of type AssumptionBase")
-        if not isinstance(named_state, NamedState):
+                "assumption_base parameter must be an AssumptionBase object")
+        if not hasattr(named_state, "_is_NamedState"):
             raise TypeError(
-                "named_state parameter must be of type NamedState")
+                "named_state parameter must be a NamedState object")
 
         self._named_state = named_state
-        self._assumption_base = beta
+        self._assumption_base = assumption_base
+        self._is_Context = True
 
     def __eq__(self, other):
-        """
-        Determine if self == other where both are Context objects.
-        """
+        """Determine if self == other where both are Context objects."""
+        if not hasattr(other, "_is_Context"):
+            raise TypeError(
+                "Only Context object can be compared against another "
+                "Context object")
 
-        #if NamedStates or AssumptionBases aren't equal,
-        #neither are Contexts.
-        if self.get_named_state() != other.get_named_state():
+        named_state_cond = self._named_state == other._named_state 
+        assumption_base_cond = self._assumption_base == other._assumption_base
+        
+        if named_state_cond and assumption_base_cond:
+            return True
+        else:
             return False
-        if self.get_assumption_base() != other.get_assumption_base():
-            return False
-
-        return True
 
     def __ne__(self, other):
-        """
-        Determine if self != other where both are Context objects.
-        """
-
-        #if NamedStates or AssumptionBases aren't equal,
-        #neither are Contexts.
-        if self.get_named_state() != other.get_named_state():
-            return True
-        if self.get_assumption_base() != other.get_assumption_base():
-            return True
-
-        return False
-
-    def get_named_state(self):
-        """Return this Context's NamedState object."""
-        return self._named_state
-
-    def set_named_state(self, named_state):
-        """
-        Set this Context's NamedState equal to named_state parameter.
-
-        Raise TypeError if named_state parameter is not of type NamedState.
-        Raise ValueError if named_state parameter's Vocabulary object is
-        not equal to Vocabulary of AssumptionBase within this Context.
-        """
-
-        if not isinstance(named_state, NamedState):
-            raise TypeError(
-                "named_state parameter must be of type NamedState")
-
-        beta_vocabulary = self.get_assumption_base().get_vocabulary()
-        ns_vocabulary = named_state.get_p().get_vocabulary()
-
-        if beta_vocabulary != ns_vocabulary:
-            raise ValueError(
-                "vocabulary used in NamedState's ConstantAssignment must "
-                "match this Context's AssumptionBase's Vocabulary")
-
-        self._named_state = named_state
-
-    def get_assumption_base(self):
-        """Return this Context's AssumptionBase object."""
-        return self._assumption_base
-
-    def set_assumption_base(self, beta):
-        """
-        Set this Context's AssumptionBase equal to beta parameter.
-
-        Raise TypeError if beta parameter is not of type AssumptionBase.
-        Raise ValueError if beta parameter's Vocabulary object is
-        not equal to Vocabulary of NamedState within this Context.
-        """
-
-        if not isinstance(beta, AssumptionBase):
-            raise TypeError(
-                "beta parameter must be of type AssumptionBase")
-
-        beta_vocabulary = beta.get_vocabulary()
-        ns_vocabulary = self.get_named_state().get_p().get_vocabulary()
-
-        if beta_vocabulary != ns_vocabulary:
-            raise ValueError(
-                "vocabulary used in NamedState's ConstantAssignment must "
-                "match this Context's AssumptionBase's Vocabulary")
-
-        self._assumption_base = beta
+        """Implement != operator for Context objects."""
+        return not self.__eq__(other)
 
     def entails_formula(self, formula, interpretation_table=None):
         """
@@ -312,3 +240,14 @@ class Context(object):
         context_str = str(self._named_state) + '\n'
         context_str += 'assumption base:' + '\n' + str(self._assumption_base)
         return context_str
+
+    def __repr__(self):
+        """Implement repr(Context)."""
+        return self.__str__()
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for Context object."""
+        from copy import deepcopy
+        return Context(
+            deepcopy(self._assumption_base),
+            deepcopy(self._named_state))
