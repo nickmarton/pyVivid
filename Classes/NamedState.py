@@ -393,46 +393,31 @@ class NamedState(State):
 
         return named_alternate_extensions
 
-    def satisfies_formula(self, f, X, vocab, interpretation_table=None):
+    def satisfies_formula(self, formula, attribute_interpretation, X):
         """
-        Return boolean for whether or not this NamedState
-        (which is a world) satisfies Formula f w.r.t. 
-        variable assignment X.
-
-        vocab parameter of type Vocabulary is required to check if 
-        world is indeed a world.
-
-        Raise TypeError if f parameter is not of type Formula.
-        Raise TypeError if X parameter is not of type ConstantAssignment.
-        Raise TypeError if vocab parameter is not of type Vocabulary.
-        Raise ValueError if this NamedState is not a world.
+        Determine if NamedState object (which must be a world) satisfies given
+        formula with respect to VariableAssignment X.
         """
 
         from F_and_AB import Formula
 
-        if not isinstance(f, Formula):                                                  #if f parameter is not of type Formula
-            raise TypeError(                                                            #explicitly raise TypeError
+        if not hasattr(formula, "_is_Formula"):
+            raise TypeError(
                 'f parameter must be of type Formula')
 
-        if not isinstance(X, VariableAssignment):                                                     #if X parameter is not of type VariableAssignment
-            raise TypeError(                                                            #explicitly raise TypeError
-                'X parameter must be of type VariableAssignment')
+        if not hasattr(X, "_is_VariableAssignment"):
+            raise TypeError(
+                'X parameter must be a VariableAssignment object')
 
-        if not isinstance(vocab, Vocabulary):                                           #if vocab paramter is not of type Vocabulary
-            raise TypeError(                                                            #explicitly raise TypeError
-                'vocab parameter must be of type Vocabulary')
+        if not self.is_world():
+            raise ValueError('this NamedState object must be a world')
 
-        if not self.is_world():                                                    #if this NamedState is not a world
-            raise ValueError(                                                           #explicitly raise ValueError
-                'world parameter must be a world')
+        formula.assign_truth_value(attribute_interpretation, self, X)
 
-        truth_value = assign_truth_value(
-            f, self, X, vocab, interpretation_table)                                    #get the truth value of the formula in the world
-
-        if truth_value == True:                                                         #if truth value is explicitly true (note: can't do "if truth_value:" as unknown token is truthy)
-            return True                                                                 #return True
-        else:                                                                           #if truth value is unknown or False 
-            return False                                                                #return False  
+        if truth_value == True:
+            return True
+        else:
+            return False
 
     def satisfies_named_state(self, named_state):
         """
