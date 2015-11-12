@@ -20,27 +20,6 @@ class TruthValueParser(object):
 
     negations = []
 
-    def pushFirst(self, strg, loc, toks):
-        """Push first token onto the stack."""
-        self.exprStack.append(toks[0])
-
-    def pushUMinus(self, strg, loc, toks):
-        """Push unary minus operator onto the stack."""
-        if toks and toks[0] == '-':
-            self.exprStack.append('unary -')
-
-    def pushNeg(self, strg, loc, toks):
-        "Push a negation into negation list."
-        self.negations.append(toks[0])
-
-    def pushRel(self, strg, loc, toks):
-        """Push relational operator onto stach and possible negations."""
-        self.exprStack.append(toks[0])
-        if self.negations:
-            for i in range(len(self.negations)):
-                self.exprStack.append("!")
-            self.negations = []
-
     def __init__(self):
         """
         expop       ::   '^'
@@ -138,6 +117,27 @@ class TruthValueParser(object):
         self.log = {"and": all,
                 "or": any}
 
+    def pushFirst(self, strg, loc, toks):
+        """Push first token onto the stack."""
+        self.exprStack.append(toks[0])
+
+    def pushUMinus(self, strg, loc, toks):
+        """Push unary minus operator onto the stack."""
+        if toks and toks[0] == '-':
+            self.exprStack.append('unary -')
+
+    def pushNeg(self, strg, loc, toks):
+        "Push a negation into negation list."
+        self.negations.append(toks[0])
+
+    def pushRel(self, strg, loc, toks):
+        """Push relational operator onto stach and possible negations."""
+        self.exprStack.append(toks[0])
+        if self.negations:
+            for i in range(len(self.negations)):
+                self.exprStack.append("!")
+            self.negations = []
+
     def evaluate_stack(self, s):
         """Evaluate internal stack of parse object."""
         op = s.pop()
@@ -173,12 +173,11 @@ class TruthValueParser(object):
         else:
             return float(op)
 
-    def eval(self,num_string,parseAll=True):
+    def eval(self, num_string, parseAll=True):
         self.exprStack = []
-        results = self.bnf.parseString(num_string,parseAll)
-        val = self.evaluate_stack( self.exprStack[:])
+        results = self.bnf.parseString(num_string, parseAll)
+        val = self.evaluate_stack(self.exprStack[:])
         return val
-
 
 def main():
     import time

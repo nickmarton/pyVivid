@@ -250,7 +250,7 @@ class Formula(object):
             p1 = ascriptions[0][0]
             p2 = ascriptions[1][0]
 
-        return p1.get_coordinate()[1] != p2.get_coordinate()[1]
+            return p1._coordinate[1] != p2._coordinate[1]
 
         if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
             raise TypeError(
@@ -265,9 +265,6 @@ class Formula(object):
             raise TypeError(
                 "X parameter must be a VariableAssignment object")
 
-        print self._vocabulary
-        print X._vocabulary
-        print named_state._p._vocabulary 
         if self._vocabulary == attribute_interpretation._vocabulary == \
                             named_state._p._vocabulary == X._vocabulary:
             pass
@@ -336,15 +333,15 @@ class Formula(object):
                 reverse=True)))
 
         #we now check the formula against each possible world within the state
-        if 'is_on_line' in definition and 'and' in definition:
+        if 'is_on_line' in relation._definition and 'and' in relation._definition:
             return handle_meets(profile)
-        elif 'is_on_line' in definition:
+        elif 'is_on_line' in relation._definition:
             return handle_is_on_line(profile)
-        elif 'through_worldline' in definition:
+        elif 'through_worldline' in relation._definition:
             return handle_through_worldline(profile)
-        elif 'not_same_point' in definition:
+        elif 'not_same_point' in relation._definition:
             return handle_not_same_point(profile)
-        elif 'clocks_unequal' in definition:
+        elif 'clocks_unequal' in relation._definition:
             return handle_clocks_unequal(profile)
         else :
             truth_values = []
