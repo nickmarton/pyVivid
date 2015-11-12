@@ -38,7 +38,7 @@ class Vocabulary(object):
                     'all entries in C parameter must be of type str')
 
         for rs in R:
-            if not isinstance(rs, RelationSymbol):
+            if not hasattr(rs, "_is_RelationSymbol"):
                 raise TypeError(
                     'all entries in R parameter must be of type RelationSymbol')
 
@@ -51,6 +51,10 @@ class Vocabulary(object):
         if len(intersection) > 0:
             raise ValueError(
                 'C and V parameters may not have a common element')
+
+        names = [rs._name for rs in R]
+        if len(names) != len(set(names)):
+            raise ValueError("Duplicate RelationSymbol names not permitted")
 
         self._C = sorted(list(set(C)), key=lambda c: c.lower())
         self._R = sorted(list(set(R)), key=lambda rs: rs._name.lower())
@@ -103,41 +107,6 @@ class Vocabulary(object):
         else:
             raise ValueError("duplicate symbol cannot be added")
 
-    @staticmethod
-    def constant_assignment(vocabulary, objs): 
-        """
-        Create a partial or total constant assignment from 
-        vocab.C to objs.
-        """
-        if not isinstance(vocabulary, Vocabulary):
-            raise TypeError("vocabulary parameter must be of type Vocabulary")
-
-        if not isinstance(objs, list):
-            raise TypeError('objs parameter must be of type list')
-        
-        return pygame_mapping(vocabulary.get_C(), objs)
-
-    @staticmethod
-    def variable_assignment(vocabulary, objs): 
-        """
-        Create a total constant assignment from vocab.V to objs.
-        """
-        if not isinstance(vocabulary, Vocabulary):
-            raise TypeError("vocabulary parameter must be of type Vocabulary")
-
-        if not isinstance(objs, list):
-            raise TypeError('objs parameter must be of type list')
-        
-        return pygame_mapping(vocabulary.get_V(), objs)
-
-    def _key(self):
-        """Tuple key for hash function."""
-        return (tuple(self._C), tuple(self._R), tuple(self._V))
-
-    def __hash__(self):
-        """Hash so sets can use Vocabulary's."""
-        return hash(self._key())
-
     def __str__(self):
         """Implement str(Vocabulary)."""
         c_str = '[' + ''.join([c + ', ' for c in self._C])[:-2] + ']'
@@ -149,6 +118,14 @@ class Vocabulary(object):
     def __repr__(self):
         """Implement repr(Vocabulary)."""
         return self.__str__()
+
+    def _key(self):
+        """Tuple key for hash function."""
+        return (tuple(self._C), tuple(self._R), tuple(self._V))
+
+    def __hash__(self):
+        """Hash so sets can use Vocabulary's."""
+        return hash(self._key())
 
 def main():
     """short tests."""

@@ -15,6 +15,7 @@ from vivid.Classes.Vocabulary import Vocabulary
 from vivid.Classes.ConstantAssignment import ConstantAssignment
 from vivid.Classes.VariableAssignment import VariableAssignment
 from vivid.Classes.Formula import Formula
+from vivid.Classes.AssumptionBase import AssumptionBase
 
 def test___init__():
     """Test Formula constructor."""
@@ -101,6 +102,70 @@ def test___ne__():
     assert not f != f3
     assert f != f4
     assert f != f5
+
+def test___add__():
+    """Test + operator for Formula object."""
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    pm_rs = RelationSymbol('PM', 1)
+    am_rs = RelationSymbol('AM', 1)
+    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, am_rs, pm_rs], ['V1', 'V2'])
+
+    f1 = Formula(vocabulary, 'Ahead', 'C1', 'V1')
+    f2 = Formula(vocabulary, 'Behind', 'C1', 'V1')
+    f3 = Formula(vocabulary, 'PM', 'C1')
+    f4 = Formula(vocabulary, 'AM', 'C1')
+    a1 = AssumptionBase(f1, f2)
+
+    a = f1 + f2
+    a = f2 + f1
+    assert hasattr(a, "_is_AssumptionBase")
+    a = f3 + a1
+    assert hasattr(a, "_is_AssumptionBase")
+
+    a = f1 + f2 + f3 + f4
+    assert hasattr(a, "_is_AssumptionBase")
+    assert len(a) == 4
+
+def test___str__():
+    """Test str(Formula)."""
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    pm_rs = RelationSymbol('PM', 1)
+    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+
+    f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
+
+    assert str(f) == "Ahead(C1, V1)"
+
+def test___repr__():
+    """Test repr(Formula)."""
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    pm_rs = RelationSymbol('PM', 1)
+    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+
+    f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
+
+    assert repr(f) == "Ahead(C1, V1)"
+
+def test__key():
+    """Test key for hash function."""
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocabulary = Vocabulary(C, R, V)
+
+    formula = Formula(vocabulary, 'R', 'C', 'V')
+    assert (hash(vocabulary), 'R', ('C', 'V')) == formula._key()
+
+def test___hash__():
+    """Test hash(Vocabulary)."""
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocabulary = Vocabulary(C, R, V)
+
+    formula1 = Formula(vocabulary, 'R', 'C', 'V')
+    formula2 = Formula(vocabulary, 'R', 'V', 'C')
+
+    assert hash(formula1) == hash(formula2)
 
 def test___deepcopy__():
     """Test Test copy.deepcopy for Formula object."""
@@ -200,43 +265,3 @@ def test_assign_truth_value():
     #Test profile j_x against length of terms
     test_ValueError(bad_t_f, attribute_interpretation, named_state, VA)
     assert f.assign_truth_value(attribute_interpretation, named_state, VA)
-
-def test__key():
-    """Test key for hash function."""
-    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
-    vocabulary = Vocabulary(C, R, V)
-
-    formula = Formula(vocabulary, 'R', 'C', 'V')
-    assert (hash(vocabulary), 'R', ('C', 'V')) == formula._key()
-
-def test___hash__():
-    """Test hash(Vocabulary)."""
-    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
-    vocabulary = Vocabulary(C, R, V)
-
-    formula1 = Formula(vocabulary, 'R', 'C', 'V')
-    formula2 = Formula(vocabulary, 'R', 'V', 'C')
-
-    assert hash(formula1) == hash(formula2)
-
-def test___str__():
-    """Test str(Formula)."""
-    ahead_rs = RelationSymbol('Ahead', 4)
-    behind_rs = RelationSymbol('Behind', 4)
-    pm_rs = RelationSymbol('PM', 1)
-    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
-
-    f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
-
-    assert str(f) == "Ahead(C1, V1)"
-
-def test___repr__():
-    """Test repr(Formula)."""
-    ahead_rs = RelationSymbol('Ahead', 4)
-    behind_rs = RelationSymbol('Behind', 4)
-    pm_rs = RelationSymbol('PM', 1)
-    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
-
-    f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
-
-    assert repr(f) == "Ahead(C1, V1)"

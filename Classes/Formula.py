@@ -2,7 +2,6 @@
 
 from RelationSymbol import RelationSymbol
 from Vocabulary import Vocabulary
-from AssumptionBase import AssumptionBase
 
 class Formula(object): 
     """Class for a formula in respect to some Vocabulary sigma."""
@@ -77,6 +76,8 @@ class Formula(object):
         AssumptionBase).
         """
 
+        from AssumptionBase import AssumptionBase
+
         #Handle adding an AssumptionBase
         if hasattr(other, "_is_AssumptionBase"):
             #Edge cases
@@ -88,17 +89,17 @@ class Formula(object):
                     raise ValueError(
                         "Cannot add an AssumptionBase's with different "
                         "Vocabulary than this Formula object")
-                if other_formula._name != self._name:
+                if other_formula._name == self._name:
                     raise ValueError("Duplicate Formula objects not permitted")
 
-            return AssumptionBase(*([other_formulae] + [other]))
+            return AssumptionBase(*(other._formulae + [self]))
 
         #Handle adding a Formula
         if hasattr(other, "_is_Formula"):
             if other._vocabulary != self._vocabulary:
                 raise ValueError(
                     "Cannot add Formula's with different Vocabulary's")
-            if other._name != self._name:
+            if other._name == self._name:
                 raise ValueError("Duplicate Formula objects not permitted")
 
             return AssumptionBase(*[self, other])
@@ -107,9 +108,29 @@ class Formula(object):
             "Only Formula and AssumptionBase objects can be added to an "
             "AssumptionBase")
 
-    def __iadd__(self, other):
-        """Implement += operator for Formula."""
-        return self + other
+    def __str__(self):
+        """Implement str(Formula)."""
+        return self._name + '(' + ', '.join([str(t) for t in self._terms]) + ')'
+
+    def __repr__(self):
+        """Implement repr(Formula)."""
+        return self.__str__()
+
+    def _key(self):
+        """Implement key for hashing Formula."""
+        return (hash(self._vocabulary), self._name, tuple(sorted(self._terms)))
+
+    def __hash__(self):
+        """Implement hash(Formula)."""
+        return hash(self._key())
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for formula object."""
+        from copy import deepcopy
+        return Formula(
+            deepcopy(self._vocabulary),
+            deepcopy(self._name),
+            *self._terms)
 
     def assign_truth_value(self, attribute_interpretation, named_state, X):
         """
@@ -405,30 +426,6 @@ class Formula(object):
                 return False
             else:
                 return "unknown"
-
-    def __str__(self):
-        """Implement str(Formula)."""
-        return self._name + '(' + ', '.join([str(t) for t in self._terms]) + ')'
-
-    def __repr__(self):
-        """Implement repr(Formula)."""
-        return self.__str__()
-
-    def _key(self):
-        """Implement key for hashing Formula."""
-        return (hash(self._vocabulary), self._name, tuple(sorted(self._terms)))
-
-    def __hash__(self):
-        """Implement hash(Formula)."""
-        return hash(self._key())
-
-    def __deepcopy__(self, memo):
-        """Implement copy.deepcopy for formula object."""
-        from copy import deepcopy
-        return Formula(
-            deepcopy(self._vocabulary),
-            deepcopy(self._name),
-            *self._terms)
 
 def main():
     """Quick tests."""

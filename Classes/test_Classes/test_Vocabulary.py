@@ -32,11 +32,15 @@ def test___init__():
 
     C = ['C']
     R = [RelationSymbol('R', 1)]
+    R_bad = [RelationSymbol('R', 1), RelationSymbol('R', 1)]
     V = ['V']
     vocab = Vocabulary(C, R, V)
     assert vocab._C is not C
     assert vocab._R is not R
     assert vocab._V is not V
+
+    test_ValueError(C, R_bad, V)
+
 
 def test___eq__():
     """Test == operator for Vocabulary."""

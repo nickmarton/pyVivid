@@ -65,6 +65,8 @@ class AssumptionBase(object):
     def __add__(self, other):
         """Implement + operator for AssumptionBase.""" 
         from copy import deepcopy
+        print self
+        print other
         self_copy = deepcopy(self)
 
         names = [formula._name for formula in self._formulae]
@@ -194,7 +196,8 @@ class AssumptionBase(object):
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for AssumptionBase."""
-        pass
+        from copy import deepcopy
+        return AssumptionBase(*deepcopy(self._formulae))
 
 def main():
     """Quick tests."""
