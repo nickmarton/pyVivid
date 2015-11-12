@@ -112,7 +112,6 @@ def test___add__():
     f2 = Formula(vocabulary, 'Behind', 'C1', 'V1')
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary, 'AM', 'C1')
-    a = AssumptionBase()
     a_1 = AssumptionBase(f1)
     a_2 = AssumptionBase(f2)
     a_3 = AssumptionBase(f3)
@@ -120,9 +119,8 @@ def test___add__():
     a_1_2_3 = AssumptionBase(f1, f2, f3)
     a_1_2_3_4 = AssumptionBase(f1, f2, f3, f4)
     
-    assert a_1 == a + f1
-    assert a_1 == f1 + a
     assert a_1_2 == a_1 + f2
+    assert a_1_2 == f2 + a_1
     assert a_1_2 is not a_1
     assert a_1_2 is not f2
     ref_a = a_1 + f2
@@ -146,7 +144,6 @@ def test___iadd__():
     f2 = Formula(vocabulary, 'Behind', 'C1', 'V1')
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary, 'AM', 'C1')
-    a = AssumptionBase()
     a_1 = AssumptionBase(f1)
     a_2 = AssumptionBase(f2)
     a_3 = AssumptionBase(f3)
@@ -154,14 +151,12 @@ def test___iadd__():
     a_1_2_3 = AssumptionBase(f1, f2, f3)
     a_1_2_3_4 = AssumptionBase(f1, f2, f3, f4)
 
-    a += f1
-    assert a == a_1
-    a += a_2
-    assert a == a_1_2
-    assert a is not a_1_2
-    a += (f3 + f4)
-    assert a == a_1_2_3_4
-    assert a is not a_1_2_3_4
+    a_1 += a_2
+    assert a_1 == a_1_2
+    assert a_1 is not a_1_2
+    a_1 += (f3 + f4)
+    assert a_1 == a_1_2_3_4
+    assert a_1 is not a_1_2_3_4
 
 def test___str__():
     """Test str(AssumptionBase)."""
@@ -176,10 +171,8 @@ def test___str__():
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary, 'AM', 'C1')
     a1 = AssumptionBase(f1, f2, f3, f4)
-    a_empty = AssumptionBase()
 
     assert str(a1) == "AB(AM(C1), Ahead(C1, V1), Behind(C1, V1), PM(C1))"
-    assert str(a_empty) == "AB()"
 
 def test___repr__():
     """Test repr(AssumptionBase)."""
@@ -194,31 +187,8 @@ def test___repr__():
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary, 'AM', 'C1')
     a1 = AssumptionBase(f1, f2, f3, f4)
-    a_empty = AssumptionBase()
 
     assert repr(a1) == "AB(AM(C1), Ahead(C1, V1), Behind(C1, V1), PM(C1))"
-    assert repr(a_empty) == "AB()"
-
-def test___nonzero__():
-    """Test bool(AssumptionBase)."""
-    ahead_rs = RelationSymbol('Ahead', 4)
-    behind_rs = RelationSymbol('Behind', 4)
-    pm_rs = RelationSymbol('PM', 1)
-    am_rs = RelationSymbol('AM', 1)
-    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, am_rs, pm_rs], ['V1', 'V2'])
-    vocabulary2 = Vocabulary(['C1', 'C2', 'C3'], [ahead_rs, behind_rs, am_rs, pm_rs], ['V1', 'V2'])
-
-    f1 = Formula(vocabulary, 'Ahead', 'C1', 'V1')
-    f2 = Formula(vocabulary, 'Behind', 'C1', 'V1')
-    f3 = Formula(vocabulary, 'PM', 'C1')
-    f4 = Formula(vocabulary, 'AM', 'C1')
-    a1 = AssumptionBase(f1, f2, f3, f4)
-    a_empty = AssumptionBase()
-
-    assert a1
-    assert bool(a1)
-    assert not a_empty
-    assert not bool(a_empty)
 
 def test___len__():
     """Test len(AssumptionBase)."""
@@ -234,10 +204,8 @@ def test___len__():
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary, 'AM', 'C1')
     a1 = AssumptionBase(f1, f2, f3, f4)
-    a_empty = AssumptionBase()
 
     assert len(a1) == 4
-    assert len(a_empty) == 0
 
 def test___getitem__():
     """Test indexing of AssumptionBase object."""

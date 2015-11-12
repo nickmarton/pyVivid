@@ -1,9 +1,5 @@
 """Context class."""
 
-from State import NamedState
-from F_and_AB import Formula, AssumptionBase
-from Assignment import VariableAssignment
-
 def generate_variable_assignments(variables, context):
     """
     Return a list of all possible VariableAssignments that can
@@ -73,8 +69,12 @@ class Context(object):
             raise TypeError(
                 "named_state parameter must be a NamedState object")
 
-        self._named_state = named_state
+        if assumption_base._vocabulary != named_state._p._vocabulary:
+            raise ValueError(
+                "Vocabulary's of NamedState and AssumptionBase must match")
+
         self._assumption_base = assumption_base
+        self._named_state = named_state
         self._is_Context = True
 
     def __eq__(self, other):
@@ -95,6 +95,23 @@ class Context(object):
     def __ne__(self, other):
         """Implement != operator for Context objects."""
         return not self.__eq__(other)
+
+    def __str__(self):
+        """Return string representation of this Context object."""
+        context_str = str(self._named_state) + '\n'
+        context_str += str(self._assumption_base)
+        return context_str
+
+    def __repr__(self):
+        """Implement repr(Context)."""
+        return self.__str__()
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for Context object."""
+        from copy import deepcopy
+        return Context(
+            deepcopy(self._assumption_base),
+            deepcopy(self._named_state))
 
     def entails_formula(self, formula, interpretation_table=None):
         """
@@ -234,20 +251,3 @@ class Context(object):
                 if sats_context and not sats_named_state:
                     return False
         return True
-
-    def __str__(self):
-        """Return string representation of this Context object."""
-        context_str = str(self._named_state) + '\n'
-        context_str += 'assumption base:' + '\n' + str(self._assumption_base)
-        return context_str
-
-    def __repr__(self):
-        """Implement repr(Context)."""
-        return self.__str__()
-
-    def __deepcopy__(self, memo):
-        """Implement copy.deepcopy for Context object."""
-        from copy import deepcopy
-        return Context(
-            deepcopy(self._assumption_base),
-            deepcopy(self._named_state))

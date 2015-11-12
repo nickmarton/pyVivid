@@ -647,7 +647,5 @@ def main():
 
     print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
 
-
-
 if __name__ == "__main__":
     main()

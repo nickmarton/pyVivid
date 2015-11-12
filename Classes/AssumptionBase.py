@@ -39,8 +39,11 @@ class AssumptionBase(object):
                 #ensure no duplicates
                 if f not in self._formulae:
                     self._formulae.append(f)
+        else:
+            raise ValueError("AssumptionBase cannot be empty")
 
         self._formulae = sorted(self._formulae, key=lambda x: x._name)
+        self._vocabulary = self._formulae[0]._vocabulary
         self._is_AssumptionBase = True
 
     def __eq__(self, other):
@@ -124,12 +127,6 @@ class AssumptionBase(object):
     def __repr__(self):
         """Implement str(AssumptionBase)."""
         return self.__str__()
-
-    def __nonzero__(self):
-        """Define behavior for bool()."""
-        if len(self._formulae) > 0:
-            return True
-        return False
 
     def __len__(self):
         """Implement len(AssumptionBase)."""
