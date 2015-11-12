@@ -34,6 +34,7 @@ class AttributeInterpretation(object):
                 "All values provided to mapping parameter must be integer "
                 "subscripts")
 
+
         valid_subscripts = attribute_structure._relations.keys()
         valid_r_symbols = vocabulary._R
         profile_r_symbols = [prof[0] for prof in profiles]
@@ -47,6 +48,7 @@ class AttributeInterpretation(object):
         if len(target) != len(set(target)):
             raise ValueError(
                 "Duplicate subscripts; Mapping must be 1-to-1")
+
 
         #Ensure source and target elements are valid
         if not set(source) == set(valid_r_symbols) == set(profile_r_symbols):
@@ -90,13 +92,29 @@ class AttributeInterpretation(object):
             entry = [R, R_prime.get_arity(), 'R' + str(R_prime._subscript), prof]
             interpretation_table.append(entry)
 
+        #Save copy of AttributeStructure and Vocabulary
+        from copy import deepcopy
+        self._attribute_structure = deepcopy(attribute_structure)
+        self._vocabulary = deepcopy(vocabulary)
+        
         self._table = interpretation_table
         self._relation_symbols = [entry[0] for entry in interpretation_table]
         self._is_AttributeInterpretation = True
 
     def __eq__(self, other):
         """Implement == operator for AttributeInterpretation."""
+        if not hasattr(other, "_is_AttributeInterpretation"):
+            raise TypeError(
+                "Can only compare an AttributeInterpretation object with "
+                "another AttributeInterpretation object")
+
         #No duplicates so just checking set equality works
+        if self._attribute_structure != other._attribute_structure:
+            return False
+
+        if self._vocabulary != other._vocabulary:
+            return False
+            
         rs_cond = set(self._relation_symbols) == set(other._relation_symbols)
         if not rs_cond:
             return False
