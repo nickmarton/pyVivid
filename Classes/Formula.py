@@ -76,6 +76,7 @@ class Formula(object):
         AssumptionBase).
         """
 
+        from copy import deepcopy
         from AssumptionBase import AssumptionBase
 
         #Handle adding an AssumptionBase
@@ -92,7 +93,7 @@ class Formula(object):
                 if other_formula._name == self._name:
                     raise ValueError("Duplicate Formula objects not permitted")
 
-            return AssumptionBase(*(other._formulae + [self]))
+            return AssumptionBase(*deepcopy(other._formulae + [self]))
 
         #Handle adding a Formula
         if hasattr(other, "_is_Formula"):
@@ -102,7 +103,7 @@ class Formula(object):
             if other._name == self._name:
                 raise ValueError("Duplicate Formula objects not permitted")
 
-            return AssumptionBase(*[self, other])
+            return AssumptionBase(*deepcopy([self, other]))
 
         raise TypeError(
             "Only Formula and AssumptionBase objects can be added to an "
@@ -130,7 +131,7 @@ class Formula(object):
         return Formula(
             deepcopy(self._vocabulary),
             deepcopy(self._name),
-            *self._terms)
+            *deepcopy(self._terms))
 
     def assign_truth_value(self, attribute_interpretation, named_state, X):
         """

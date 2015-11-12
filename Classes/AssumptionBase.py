@@ -65,12 +65,7 @@ class AssumptionBase(object):
     def __add__(self, other):
         """Implement + operator for AssumptionBase.""" 
         from copy import deepcopy
-        print self
-        print other
         self_copy = deepcopy(self)
-
-        names = [formula._name for formula in self._formulae]
-        vocabulary = self._formulae[0]._vocabulary
 
         #Handle adding an AssumptionBase
         if hasattr(other, "_is_AssumptionBase"):
@@ -80,6 +75,9 @@ class AssumptionBase(object):
             if len(other) == 0:
                 return self_copy
             
+            names = [formula._name for formula in self._formulae]
+            vocabulary = self._formulae[0]._vocabulary
+
             for other_formula in other:
                 if other_formula._vocabulary != vocabulary:
                     raise ValueError(
@@ -94,6 +92,13 @@ class AssumptionBase(object):
 
         #Handle adding a Formula
         if hasattr(other, "_is_Formula"):
+            #Edge cases
+            if len(self) == 0:
+                return AssumptionBase(*deepcopy([other]))
+
+            names = [formula._name for formula in self._formulae]
+            vocabulary = self._formulae[0]._vocabulary
+
             if other._vocabulary != vocabulary:
                 raise ValueError(
                     "Cannot add Formula's with different Vocabulary's")
@@ -148,7 +153,7 @@ class AssumptionBase(object):
             try:
                 return self._formulae[key] 
             except IndexError:
-                raise IndentationError(
+                raise IndexError(
                     str(key) + " not a valid index in AssumptionBase")
 
         raise TypeError("Invalid key type")
@@ -161,7 +166,7 @@ class AssumptionBase(object):
     def __contains__(self, item):
         """Implement 'in' and 'not in' operator for AssumptionBase."""
         #Handle if item provided is a string; assume it's a Formula name
-        if type(item) != str:
+        if type(item) == str:
             names = [f._name for f in self._formulae]
             if item in names:
                 return True
