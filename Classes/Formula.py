@@ -373,6 +373,14 @@ class Formula(object):
             else:
                 return "unknown"
 
+    def _key(self):
+        """Implement key for hashing Formula."""
+        return (hash(self._vocabulary), self._name, tuple(sorted(self._terms)))
+
+    def __hash__(self):
+        """Implement hash(Formula)."""
+        return hash(self._key())
+
     def __str__(self):
         """Implement str(Formula)."""
         return self._name + '(' + ', '.join([str(t) for t in self._terms]) + ')'

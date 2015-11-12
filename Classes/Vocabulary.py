@@ -130,6 +130,14 @@ class Vocabulary(object):
         
         return pygame_mapping(vocabulary.get_V(), objs)
 
+    def _key(self):
+        """Tuple key for hash function."""
+        return (tuple(self._C), tuple(self._R), tuple(self._V))
+
+    def __hash__(self):
+        """Hash so sets can use Vocabulary's."""
+        return hash(self._key())
+
     def __str__(self):
         """Implement str(Vocabulary)."""
         c_str = '[' + ''.join([c + ', ' for c in self._C])[:-2] + ']'

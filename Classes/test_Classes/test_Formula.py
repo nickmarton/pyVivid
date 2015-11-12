@@ -201,6 +201,24 @@ def test_assign_truth_value():
     test_ValueError(bad_t_f, attribute_interpretation, named_state, VA)
     assert f.assign_truth_value(attribute_interpretation, named_state, VA)
 
+def test__key():
+    """Test key for hash function."""
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocabulary = Vocabulary(C, R, V)
+
+    formula = Formula(vocabulary, 'R', 'C', 'V')
+    assert (hash(vocabulary), 'R', ('C', 'V')) == formula._key()
+
+def test___hash__():
+    """Test hash(Vocabulary)."""
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocabulary = Vocabulary(C, R, V)
+
+    formula1 = Formula(vocabulary, 'R', 'C', 'V')
+    formula2 = Formula(vocabulary, 'R', 'V', 'C')
+
+    assert hash(formula1) == hash(formula2)
+
 def test___str__():
     """Test str(Formula)."""
     ahead_rs = RelationSymbol('Ahead', 4)

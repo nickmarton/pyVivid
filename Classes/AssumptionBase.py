@@ -1,6 +1,8 @@
 """AssumptionBase class."""
 
-class AssumptionBase():
+from Formula import Formula
+
+class AssumptionBase(object):
     """
     Assumption base object.
 
@@ -9,46 +11,45 @@ class AssumptionBase():
     """
 
     def __init__(self, *formulae):
-        """
-        Initialize an AssumptionBase object to contain formulae.
-
-        Raise TypeError if any optional positional argument is not of
-        type Formula.
-        Raise ValueError if all Formulae don't share the same 
-        vocabulary.
-        """
-        
+        """Construct an AssumptionBase object."""
         self._formulae = []
 
         if formulae:
-
             #Ensure all optional positional args are of type Formula.
             for f in formulae: 
-                if not isinstance(f, Formula): 
+                if not hasattr(f, "_is_Formula"): 
                     raise TypeError(
-                        "all arguments passed to __init__()"
-                        " must be type Formula")
+                        "all arguments passed to constructor must be a "
+                        "Formula object")
 
-            vocabulary = formulae[0].get_vocabulary()
 
             #check for same vocabulary condition and add formula to list
+            vocabulary = formulae[0]._vocabulary
+            names = [f._name for f in formulae]
+
+            if len(names) != len(set(names)):
+                raise ValueError("Duplicate Formula names not permitted")
+
             for f in formulae:
-                if vocabulary != f.get_vocabulary():
+                if vocabulary != f._vocabulary:
                     raise ValueError(
-                        "all formulae provided to constructor"
-                        " must have the same vocabulary")
+                        "all formulae provided to constructor must share the "
+                        "same Vocabulary")
 
                 #ensure no duplicates
-                if f not in self.get_formulae():
+                if f not in self._formulae:
                     self._formulae.append(f)
 
+        self._is_AssumptionBase = True
+
     def __eq__(self, other):
-        """
-        Check if self == other where both are AssumptionBase objects.
-        """
-        
+        """Implement != operator for AssumptionBase objects."""
+        if not hasattr(other, "_is_AssumptionBase"):
+            raise TypeError("Can only compare an AssumptionBase object with "
+                "another AssumptionBase object")
+
         #Cardinalities must be the same.
-        if len(self.get_formulae()) != len(other.get_formulae()): 
+        if len(self._formulae) != len(other._formulae): 
             return False
         
         #check if each formula in self has a match in other.
@@ -61,48 +62,13 @@ class AssumptionBase():
         return True
     
     def __ne__(self, other):    
-        """
-        Check if self != other where both are AssumptionBase objects.
-        """
-        
-        #Cardinalities must be not the same.
-        if len(self.get_formulae()) != len(other.get_formulae()): 
-            return True
-        
-        #check if each formula in self doesn't have a match in other.
-        for sf in self.get_formulae():
-            for of in other.get_formulae():
-                if sf == of: 
-                    break
-            else: 
-                return True
-        return False
+        """Implement != operator for AssumptionBase objects."""
+        return not self.__eq__(other)
 
     def __iter__(self):
         """Add an interator to the class for easy formula access."""
         for formula in self._formulae:
             yield formula
-
-    def get_vocabulary(self):
-        """
-        Return the vocabulary used by all the formulae in this 
-        AssumptionBase.
-
-        Raise AttributeError if there are no formulae in this 
-        AssumptionBase and thus no vocabulary.
-        """
-
-        formulae = self.get_formulae()
-
-        if formulae:
-            return formulae[0].get_vocabulary()
-        else:
-            raise AttributeError(
-                'No vocabulary associated with this AssumptionBase')
-
-    def get_formulae(self): 
-        """Return the formulae of this AssumptionBase."""
-        return self._formulae
     
     def set_formulae(self, *formulae):
         """
@@ -191,3 +157,24 @@ class AssumptionBase():
 
     def __str__(self):
         return ''.join([str(f) + '\n' for f in self._formulae])[:-1]
+
+def main():
+    """Quick tests."""
+    from RelationSymbol import RelationSymbol
+    from Vocabulary import Vocabulary
+
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    pm_rs = RelationSymbol('PM', 1)
+    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+
+    f1 = Formula(vocabulary, 'Ahead', 'C1', 'V1')
+    f2 = Formula(vocabulary, 'Behind', 'C1')
+
+    AssumptionBase(f1, f2)
+
+    print hash(f1)
+    print hash(f2)
+
+if __name__ == "__main__":
+    main()

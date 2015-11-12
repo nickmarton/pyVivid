@@ -11,5 +11,3 @@ def test_eval():
     assert lmtp.eval('True or 1 = 1') == True
     assert lmtp.eval('(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)') == True
     assert lmtp.eval('!(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)') == False
-
-    assert False

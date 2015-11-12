@@ -144,6 +144,21 @@ def test_variable_assignment():
     """Test Test constant assignment mapping."""
     pass
 
+def test__key():
+    """Test key for hash function."""
+    C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
+    vocabulary = Vocabulary(C, R, V)
+    assert (('C',), (RelationSymbol('R', 1),), ('V',)) == vocabulary._key()
+
+def test___hash__():
+    """Test hash(Vocabulary)."""
+    C, R, V = ['C1', 'C2'], [RelationSymbol('R', 1)], ['V']
+    vocabulary = Vocabulary(C, R, V)
+    C, R, V = ['C2', 'C1'], [RelationSymbol('R', 1)], ['V']
+    vocabulary2 = Vocabulary(C, R, V)
+
+    assert hash(vocabulary) == hash(vocabulary2)
+
 def test___str__():
     """Test str(Vocabulary)."""
     C = ['C']
