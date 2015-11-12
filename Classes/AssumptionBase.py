@@ -40,6 +40,7 @@ class AssumptionBase(object):
                 if f not in self._formulae:
                     self._formulae.append(f)
 
+        self._formulae = sorted(self._formulae, key=lambda x: x._name)
         self._is_AssumptionBase = True
 
     def __eq__(self, other):
@@ -53,55 +54,24 @@ class AssumptionBase(object):
             return False
         
         #check if each formula in self has a match in other.
-        for sf in self.get_formulae():
-            for of in other.get_formulae():
-                if sf == of: 
-                    break
-            else: 
-                return False
-        return True
+        intersection = set(self._formulae) & set(other._formulae)
+        union = set(self._formulae) | set(other._formulae)
+        return intersection == union
     
-    def __ne__(self, other):    
+    def __ne__(self, other):
         """Implement != operator for AssumptionBase objects."""
         return not self.__eq__(other)
+
+    def __add__(self, other):
+        """Implement + operator for AssumptionBase."""
+        pass#if not hasattr(other, "_is_AssumptionBase"):
+
 
     def __iter__(self):
         """Add an interator to the class for easy formula access."""
         for formula in self._formulae:
             yield formula
-    
-    def set_formulae(self, *formulae):
-        """
-        Set self._formulae of assumption base to formulae if all 
-        members of formulae are of type Formula.
-        """
-        
-        f_set = []
-
-        if formulae:
-            #Ensure all provided arguments are of type Formula
-            for f in formulae: 
-                if not isinstance(f, Formula): 
-                    raise TypeError(
-                        "all arguments passed to set_formulae() "
-                        "must be of type Formula"
-                        )
-            
-            vocabulary = formulae[0].get_vocabulary()
-
-            #Ensure all formlae provided share the same vocabulary
-            for f in formulae:
-                if vocabulary != f.get_vocabulary():
-                    raise ValueError(
-                        "all formulae provided to set_formulae()"
-                        " must have the same vocabulary")
-
-                #ensure no duplicates
-                if f not in f_set:
-                    f_set.append(f)
-
-        self._formulae = f_set
-    
+  
     def add_formulae(self, *formulae):
         """
         Add all formulae passed to self._formulae if they're not
@@ -156,7 +126,12 @@ class AssumptionBase(object):
                     "vocabulary as this AssumptionBase")
 
     def __str__(self):
-        return ''.join([str(f) + '\n' for f in self._formulae])[:-1]
+        """Implement str(AssumptionBase)."""
+        return 'AB(' + ', '.join([str(f) for f in self._formulae]) + ')'
+
+    def __repr__(self):
+        """Implement str(AssumptionBase)."""
+        return self.__str__()
 
 def main():
     """Quick tests."""
@@ -171,10 +146,10 @@ def main():
     f1 = Formula(vocabulary, 'Ahead', 'C1', 'V1')
     f2 = Formula(vocabulary, 'Behind', 'C1')
 
-    AssumptionBase(f1, f2)
+    a = AssumptionBase(f1, f2)
+    a2 = AssumptionBase(f2, f1)
 
-    print hash(f1)
-    print hash(f2)
+    print a2
 
 if __name__ == "__main__":
     main()
