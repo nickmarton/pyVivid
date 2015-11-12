@@ -63,15 +63,53 @@ class AssumptionBase(object):
         return not self.__eq__(other)
 
     def __add__(self, other):
-        """Implement + operator for AssumptionBase."""
-        pass#if not hasattr(other, "_is_AssumptionBase"):
+        """Implement + operator for AssumptionBase.""" 
+        from copy import deepcopy
+        self_copy = deepcopy(self)
 
+        names = [formula._name for formula in self._formulae]
+        vocabulary = self._formulae[0]._vocabulary
 
-    def __iter__(self):
-        """Add an interator to the class for easy formula access."""
-        for formula in self._formulae:
-            yield formula
-  
+        #Handle adding an AssumptionBase
+        if hasattr(other, "_is_AssumptionBase"):
+            #Edge cases
+            if len(self) == 0:
+                return deepcopy(other)
+            if len(other) == 0:
+                return self_copy
+            
+            for other_formula in other:
+                if other_formula._vocabulary != vocabulary:
+                    raise ValueError(
+                        "Cannot add AssumptionBase's with different "
+                        "Vocabulary's")
+                if other_formula._name in names:
+                    raise ValueError("Duplicate Formula objects not permitted")
+                
+                self_copy._formulae.append(deepcopy(other_formula))
+
+            return self_copy
+
+        #Handle adding a Formula
+        if hasattr(other, "_is_Formula"):
+            if other._vocabulary != vocabulary:
+                raise ValueError(
+                    "Cannot add Formula's with different Vocabulary's")
+            if other._name in names:
+                raise ValueError("Duplicate Formula objects not permitted")
+
+            self_copy._formulae.append(deepcopy(other))
+
+            return self_copy
+
+        raise TypeError(
+            "Only Formula and AssumptionBase objects can be added to an "
+            "AssumptionBase")
+
+    def __iadd__(self, other):
+        """Implement += for AssumptionBase object."""
+        return self + other
+
     def add_formulae(self, *formulae):
         """
         Add all formulae passed to self._formulae if they're not
@@ -132,6 +170,31 @@ class AssumptionBase(object):
     def __repr__(self):
         """Implement str(AssumptionBase)."""
         return self.__str__()
+
+    def __nonzero__(self):
+        """Define behavior for bool()."""
+        pass
+
+    def __len__(self):
+        """Implement len(AssumptionBase)."""
+        return len(self._formulae)
+
+    def __getitem__(self, key):
+        """."""
+        pass
+
+    def __contains__(self, item):
+        """."""
+        pass
+
+    def __iter__(self):
+        """Add an interator to the class for easy formula access."""
+        for formula in self._formulae:
+            yield formula
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for AssumptionBase."""
+        pass
 
 def main():
     """Quick tests."""
