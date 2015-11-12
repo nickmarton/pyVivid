@@ -1,4 +1,7 @@
-"""Formula class."""
+"""Formula class; imutable."""
+
+from RelationSymbol import RelationSymbol
+from Vocabulary import Vocabulary
 
 class Formula(): 
     """
@@ -41,119 +44,76 @@ class Formula():
     """
 
     def __init__(self, vocabulary, name, *terms):
-        if not isinstance(vocabulary, Vocabulary): 
-            raise TypeError(vocabulary + " must be a Vocabulary object")
-        if not isinstance(name, str): 
+        """Construct a Formula object."""
+
+        if not hasattr(vocabulary, "_is_Vocabulary"): 
+            raise TypeError("vocabulary parameter must be a Vocabulary object")
+        if type(name) != str: 
             raise TypeError(name + " must be a string")
         
-        relation_symbol_names = [rs.get_name() for rs in vocabulary.get_R()]
-        
+        relation_symbol_names = [rs._name for rs in vocabulary._R]
         if name not in relation_symbol_names: 
             raise ValueError(
-                "only definitions matching some Relation " +
-                "in vocabulary supported at the moment"
-                )
+                "Name must match some RelationSymbol in Vocabulary")
+
         if not terms : 
-            raise ValueError("at least 1 term must be provided")                        #no terms, do not accept Formula with arity of 0
+            raise ValueError("at least 1 term must be provided")
         
-        for t in terms:                                                                 #for all terms provided
+        C, V = vocabulary._C, vocabulary._V
+
+        for t in terms:
             
-            if t in vocabulary.get_C() and t not in vocabulary.get_V(): c1 = True                 #if term is in C but not V
-            else: c1 = False
-            if t not in vocabulary.get_C() and t in vocabulary.get_V(): c2 = True                 #if term is in V but not C
-            else: c2 = False
-            
-            if not c1 and not c2:                                                       #if not (c1 or c2); that is if not(C XOR V)
-                raise ValueError(                                                       #raise exception, 
-                    "all terms must be contained in Vocabulary" +                       #we only want to allow the same term to be present in C or V but not both
-                    " in C XOR V"
-                    )           
+            if t in C:
+                in_C = True
+            else: 
+                in_C = False
+            if t in V:
+                in_V = True
+            else: 
+                in_V = False
+
+            #Vocabulary takes care of ensuring no overlap between C and V
+            if not in_C and not in_V:
+                raise ValueError(
+                    "all terms must be contained in vocabulary's C or V")      
         
-        self._vocabulary = vocabulary
-        self._name = name
+        from copy import deepcopy
+        self._vocabulary = deepcopy(vocabulary)
+        self._name = deepcopy(name)
         self._terms = list(terms);
 
     def __eq__(self, other):
-        if self._vocabulary == other._vocabulary and self._name == other._name and\
-         self._terms == other._terms: return True
-        else: return False
+        """Implement == operator for Formula."""
+        vocab_cond = self._vocabulary == other._vocabulary
+        name_cond = self._name == other._name
+        terms_cond = self._terms == other._terms
+
+        if vocab_cond and name_cond and terms_cond:
+            return True
+        else: 
+            return False
     
     def __ne__(self, other):
-        if self._vocabulary == other._vocabulary and self._name == other._name and\
-         self._terms == other._terms: return False
-        else: return True
-
-    def __repr__(self): return self.get_name()
-
-    def get_vocabulary(self): return self._vocabulary
-    
-    def set_vocabulary(self, s):
-        """
-        Replace self.vocabulary with s; 
-
-        s must contain the self._name and all t in self._terms for this
-        to be a successful call
-        """
-
-        if isinstance(s, Vocabulary):                                                   #if s is a Vocabulary
-            if self.get_name() in s.get_R():                                            #and s contains the relation that formula holds
-                for t in self.get_terms(): 
-                    
-                    if t in vocabulary.get_C() and t not in vocabulary.get_V(): c1 = True         #if term is in C but not V
-                    else: c1 = False
-                    if t not in vocabulary.get_C() and t in vocabulary.get_V(): c2 = True         #if term is in V but not C
-                    else: c2 = False
-                    
-                    if not c1 and not c2:                                               #if not (c1 or c2); that is if not(C XOR V)
-                        raise ValueError(                                               #raise exception, 
-                            "all terms must be contained in Vocabulary" +               #we only want to allow the same term to be present in C or V but not both
-                            "in C XOR V"
-                            )
-
-                self._vocabulary = s                                                         #name and all terms in s, set self._vocabulary to s
-            else:raise ValueError("s must contain " + self.get_name())                  #s does not have formula's relation, raise ValueError
-    
-    def get_name(self): return self._name
-    
-    def set_name(self, r):
-        """
-        replace self._name with r; 
-        
-        r must be contained in self.vocabulary._r for this to be a 
-        successful call."""
-        
-        if isinstance(r, str):                                                      #if r is a string
-            if r in self.get_vocabulary().get_R():                                           #if r is in Vocabulary's relations
-                self._name = r
-            else: raise ValueError(r + "must be contained in " + vocabulary)
-        else: raise ValueError("r must be a string")
-    
-    def get_terms(self): return self._terms
-    
-    def set_terms(self, *terms):
-        """
-        Set self._terms to terms;
-        
-        terms must contain at least 1 term and all terms must be 
-        contained in Vocabulary.
-        """
-        
-        if not terms: raise ValueError("at least 1 term must be provided")
-        for t in terms:                                                             #for all terms provided
-            if t in vocabulary.get_C() and t not in vocabulary.get_V(): c1 = True                 #if term is in C but not V
-            else: c1 = False
-            if t not in vocabulary.get_C() and t in vocabulary.get_V(): c2 = True                 #if term is in V but not C
-            else: c2 = False
-            
-            if not c1 and not c2:                                                       #if not (c1 or c2); that is if not(C XOR V)
-                raise ValueError(                                                       #raise exception, 
-                    "all terms must be contained in Vocabulary" +                       #we only want to allow the same term to be present in C or V but not both
-                    "in C XOR V"
-                    )
-        self._terms = list(terms)
+        """Implement != operator for Formula object."""
+        return not self.__eq__(other)
 
     def __str__(self):
-        return self.get_name() + '(' + ''.join(                                        #Start with name(
-            [str(t) + ', ' for t in self.get_terms()]                                   #add all terms, separated by commas
-            )\
-            [:-2] + ')'                                                                #drop trailing ", " and add closing parenthesis 
+        """Implement str(Formula)."""
+        return self._name + '(' + ', '.join([str(t) for t in self._terms]) + ')'
+
+    def __repr__(self):
+        """Implement repr(Formula)."""
+        return self.__str__()
+
+def main():
+    """Quick tests."""
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    pm_rs = RelationSymbol('PM', 1)
+    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+
+    f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
+    print f
+
+if __name__ == "__main__":
+    main()

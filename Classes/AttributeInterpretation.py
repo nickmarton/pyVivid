@@ -92,10 +92,12 @@ class AttributeInterpretation(object):
             entry = [R, R_prime.get_arity(), 'R' + str(R_prime._subscript), prof]
             interpretation_table.append(entry)
 
-        #Save copy of AttributeStructure and Vocabulary
+        #Save copy of all params for deepcopy implementation
         from copy import deepcopy
-        self._attribute_structure = deepcopy(attribute_structure)
         self._vocabulary = deepcopy(vocabulary)
+        self._attribute_structure = deepcopy(attribute_structure)
+        self._mapping = deepcopy(mapping)
+        self._profiles = deepcopy(profiles)
         
         self._table = interpretation_table
         self._relation_symbols = [entry[0] for entry in interpretation_table]
@@ -143,6 +145,14 @@ class AttributeInterpretation(object):
     def __ne__(self, other):
         """Implement == operator for AttributeInterpretation."""
         return not self.__eq__(other)
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for AttributeInterpretation object."""
+        return AttributeInterpretation(
+            self._vocabulary,
+            self._attribute_structure,
+            self._mapping,
+            self._profiles)
 
     def __str__(self):
         """Implement str(AttributeInterpretation)."""
