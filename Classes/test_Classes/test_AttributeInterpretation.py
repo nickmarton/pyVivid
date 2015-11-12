@@ -253,7 +253,6 @@ def test___deepcopy__():
     assert ai._table is not ai_copy._table
     assert ai._relation_symbols is not ai_copy._relation_symbols
 
-
 def test___str__():
     """Test str(AttributeInterpretation)."""
     a = Attribute('hour', ['0,...,23'])

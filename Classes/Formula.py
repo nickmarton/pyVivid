@@ -3,45 +3,8 @@
 from RelationSymbol import RelationSymbol
 from Vocabulary import Vocabulary
 
-class Formula(): 
-    """
-    Class for a formula in respect to some Vocabulary sigma; 
-
-    in our applications, a formula is a relation
-    This class is intended to provide a skeleton for a computable
-    function in accordance with some Vocabulary sigma.
-    
-    It is a skeleton in the sense that the definition of the formula,
-    that is the expression that is computed is defined as follows:
-    
-    each formula is provided a name, which must match some relation 
-    in a given Vocabulary. Then, each formula is nothing more than an
-    object created for some relation symbol. 
-
-    A Formula can only be evaluated through te assign_truth_value()
-    function, which in turn requires a call to the 
-    get_attribute_interpretation() which creates an interpretation 
-    table. 
-    
-    By definition, the interpretation table contains an entry for each 
-    relation symbol within some Vocabulary. Since the name of the 
-    formula is the label of some relation symbol in a Vocabulary, 
-    if it is not found in the interpretation table an error is thrown.
-
-    As such, the members of each Formula object are as follows:
-
-    sigma: the Vocabulary for which the formula will be valid; 
-    we store a copy of the Vocabulary for convenience and error checking
-    
-    name: the name of the formula used as an identifier; 
-    if the name is not in the Vocabulary sigma's relations, 
-    an error is thrown
-    
-    terms: a list of terms (either constants or variables) 
-    that are present in the formula; if every one of these in the list 
-    are not contained by either the Vocabulary's constants C or 
-    variables V, an error is thrown.
-    """
+class Formula(object): 
+    """Class for a formula in respect to some Vocabulary sigma."""
 
     def __init__(self, vocabulary, name, *terms):
         """Construct a Formula object."""
@@ -56,7 +19,7 @@ class Formula():
             raise ValueError(
                 "Name must match some RelationSymbol in Vocabulary")
 
-        if not terms : 
+        if not terms: 
             raise ValueError("at least 1 term must be provided")
         
         C, V = vocabulary._C, vocabulary._V
@@ -75,18 +38,23 @@ class Formula():
             #Vocabulary takes care of ensuring no overlap between C and V
             if not in_C and not in_V:
                 raise ValueError(
-                    "all terms must be contained in vocabulary's C or V")      
+                    "all terms must be contained in vocabulary's C or V")
         
         from copy import deepcopy
         self._vocabulary = deepcopy(vocabulary)
         self._name = deepcopy(name)
-        self._terms = list(terms);
+        self._terms = list(set(list(terms)))
+        self._is_Formula = True
 
     def __eq__(self, other):
         """Implement == operator for Formula."""
+        if not hasattr(other, "_is_Formula"):
+            raise TypeError(
+                "can only compare Formula object with another Formula object")
+
         vocab_cond = self._vocabulary == other._vocabulary
         name_cond = self._name == other._name
-        terms_cond = self._terms == other._terms
+        terms_cond = set(self._terms) == set(other._terms)
 
         if vocab_cond and name_cond and terms_cond:
             return True
@@ -96,6 +64,14 @@ class Formula():
     def __ne__(self, other):
         """Implement != operator for Formula object."""
         return not self.__eq__(other)
+
+    def __deepcopy__(self, memo):
+        """Implement copy.deepcopy for formula object."""
+        from copy import deepcopy
+        return Formula(
+            deepcopy(self._vocabulary),
+            deepcopy(self._name),
+            *self._terms)
 
     def __str__(self):
         """Implement str(Formula)."""
