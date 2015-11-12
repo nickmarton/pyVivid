@@ -49,13 +49,32 @@ class ValueSet(object):
 
     def __le__(self, other):
         """Implement <= for ValueSet object; overloaded for subset."""
-        if len(self._values) > len(other._values):
+
+        self_dict = ValueSet._split_by_types(self)
+        other_dict = ValueSet._split_by_types(other)
+
+        #filter out ints, floats, or longs contained in any Interval in other
+        filtered_self_values = []
+        for _type, values in self_dict.iteritems():
+            if _type == int or _type == float or _type == long or _type == "_is_Interval":
+                for value in values:
+                    for interval in other_dict['_is_Interval']:
+                        if value in interval:
+                            break
+                    else:
+                        filtered_self_values.append(value)
+            else:
+                filtered_self_values.extend(values)
+
+        new_self_values = ValueSet(filtered_self_values)
+
+        if len(new_self_values) > len(other._values):
             return False
 
         #if the intersection of both ValueSets is the same as this ValueSet
         #then this ValueSet is contained in other and is a subset.
-        intersection = set(self._values) & set(other._values)
-        return intersection == set(self._values)
+        intersection = set(new_self_values) & set(other._values)
+        return intersection == set(new_self_values)
 
     def __ne__(self, other):
         """Implement != for ValueSet object."""

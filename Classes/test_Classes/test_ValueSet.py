@@ -89,6 +89,8 @@ def test___le__():
     VS1 = ValueSet([Interval(20, 100), True, 1,'b', 3,'c','a', 5, Interval(1,10), Point(0.0)])
     VS2 = ValueSet([Interval(1,10), 5, 3, 1, 'a', Interval(20, 100), 'b', True, 'c', Point(0.0)])
     VS3 = ValueSet([Interval(1,10), 5, 3, 1, 'a', Interval(20, 100), 'b', True, 'c', False, Point(0.0), Point(0.0, 0.0)])
+    VS4 = ValueSet([5, 3, 1, 17L, 2.67854, 'b', True, Point(0.0, 0.0)])
+    VS5 = ValueSet([Interval(1,10), Interval(1.0,10.0), Interval(10L,100L), 'b', True, Point(0.0, 0.0)])
 
     assert not VS0 < VS0
     assert not VS1 < VS2
@@ -108,6 +110,12 @@ def test___le__():
     assert VS3 >= VS1
     assert not VS2 >= VS3
     assert VS0 >= VS0
+
+    #Test ints, floats, and longs being subsumed by Intervals during comp
+    assert VS4 < VS5
+    assert VS4 <= VS5
+    assert VS5 > VS4
+    assert VS5 >= VS4
 
 def test___sub__():
     """Test - operator for set theoretic difference."""

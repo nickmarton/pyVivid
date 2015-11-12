@@ -7,12 +7,6 @@ from AttributeSystem import AttributeSystem
 from AttributeSystem import AttributeStructure
 from AttributeSystem import Attribute, Relation 
 
-#
-#
-#TODO: dictionary magic functions depending on implementation of NamedState
-#
-#
-
 class State(object): 
     """
     Class for a state of an AttributeSystem

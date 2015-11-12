@@ -138,11 +138,9 @@ class Interval(object):
             else:
                 return False
 
-        #raise error if type mismatch
+        #not contained if type mismatch
         if type(key) != self._type:
-            raise TypeError(
-                "Cannot check if " + str(type(key)) + "is in " + 
-                str(self._type) + " Interval")
+            return False
         else:
             if self._infimum <= key <= self._supremum:
                 return True
