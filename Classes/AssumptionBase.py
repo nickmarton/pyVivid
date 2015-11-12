@@ -112,59 +112,6 @@ class AssumptionBase(object):
         """Implement += for AssumptionBase object."""
         return self + other
 
-    def add_formulae(self, *formulae):
-        """
-        Add all formulae passed to self._formulae if they're not
-        already in it.
-
-        Raise ValueError if formulae passed to add_formulae don't
-        share the same vocabulary as formulae within this
-        AssumptionBase.
-        """ 
-        
-        if formulae:
-            #Ensure all provided arguments are of type Formula
-            for f in formulae:
-                if not isinstance(f, Formula): 
-                    raise TypeError(
-                        "all arguments passed to add_formulae() "
-                        "must be of type Formula"
-                        )
-
-            vocabulary = formulae[0].get_vocabulary()
-
-            #check for same vocabulary condition and add formula to list
-            for f in formulae:
-                if vocabulary != f.get_vocabulary():
-                    raise ValueError(
-                        "all formulae provided to constructor "
-                        "must have the same vocabulary")
-
-                #ensure no duplicates
-                if f not in self.get_formulae():
-                    self._formulae.append(f)
-
-    def add_formula(self, formula):
-        """
-        Add a single formula to self.add_formulae if not already in it.
-
-        Raise ValueError if formula does not share the same vocabulary
-        as the formulae in this AssumptionBase.
-        """
-
-        if not isinstance(f, Formula): 
-            raise TypeError(
-                "argument passed to add_formula() must be of type Formula"
-                )
-        
-        if f not in self.get_formulae(): 
-            if formula.get_vocabulary() == self.get_vocabulary():
-                self._formulae.append(f)
-            else:
-                raise ValueError(
-                    "formula parameter must share the same "
-                    "vocabulary as this AssumptionBase")
-
     def __str__(self):
         """Implement str(AssumptionBase)."""
         return 'AB(' + ', '.join([str(f) for f in self._formulae]) + ')'
@@ -175,24 +122,57 @@ class AssumptionBase(object):
 
     def __nonzero__(self):
         """Define behavior for bool()."""
-        pass
+        if len(self._formulae) > 0:
+            return True
+        return False
 
     def __len__(self):
         """Implement len(AssumptionBase)."""
         return len(self._formulae)
 
     def __getitem__(self, key):
-        """."""
-        pass
+        """Implement indexing for AssumptionBase object."""
+        if hasattr(key, "_is_Formula"):
+            for i, formula in enumerate(self._formulae):
+                if key == formula:
+                    return self._formulae[i]
+            raise KeyError("Formula not found")
 
-    def __contains__(self, item):
-        """."""
-        pass
+        if type(key) == str:
+            for i, name in enumerate([f._name for f in self._formulae]):
+                if key == name:
+                    return self._formulae[i]
+            raise KeyError("Formula not found")
+
+        if type(key) == int:
+            try:
+                return self._formulae[key] 
+            except IndexError:
+                raise IndentationError(
+                    str(key) + " not a valid index in AssumptionBase")
+
+        raise TypeError("Invalid key type")
 
     def __iter__(self):
         """Add an interator to the class for easy formula access."""
         for formula in self._formulae:
             yield formula
+
+    def __contains__(self, item):
+        """Implement 'in' and 'not in' operator for AssumptionBase."""
+        #Handle if item provided is a string; assume it's a Formula name
+        if type(item) != str:
+            names = [f._name for f in self._formulae]
+            if item in names:
+                return True
+
+        #Handle if Formula object is provided
+        if hasattr(item, "_is_Formula"):
+            for formula in self._formulae:
+                if item == formula:
+                    return True
+
+        return False
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for AssumptionBase."""
