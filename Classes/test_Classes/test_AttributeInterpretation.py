@@ -253,6 +253,34 @@ def test___deepcopy__():
     assert ai._table is not ai_copy._table
     assert ai._relation_symbols is not ai_copy._relation_symbols
 
+def test___iter__():
+    """Test AttributeInterpretation iterator."""
+    a = Attribute('hour', ['0,...,23'])
+    a2 = Attribute('minute', ['0,...,59'])
+    r_ahead = Relation('R1(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 1)
+    r_behind = Relation('R2(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 2)
+    r_pm = Relation('R3(h1) <=> h1 > 12', ['hour'], 3)
+    r_am = Relation('R4(h1) <=> h1 < 12', ['hour'], 4)
+    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    pm_rs = RelationSymbol('PM', 1)
+    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+
+    profiles = [
+        [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
+        [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
+        [pm_rs, ('hour', 1)]
+    ]
+
+    mapping = {ahead_rs: 1, behind_rs: 2, pm_rs: 3}
+
+    ai = AttributeInterpretation(vocabulary, attribute_structure, mapping, profiles)
+
+    assert ai._table == [entry for entry in ai]
+    assert ai._table == [entry for entry in iter(ai)]
+
 def test___str__():
     """Test str(AttributeInterpretation)."""
     a = Attribute('hour', ['0,...,23'])

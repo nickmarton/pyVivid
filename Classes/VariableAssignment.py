@@ -25,7 +25,9 @@ class VariableAssignment(Assignment):
             raise TypeError("mapping must be of form str: str")
 
         if dummy:
+            Assignment.__init__(self, vocabulary, attribute_system)
             self._mapping = {}
+            self._is_VariableAssignment = True
         else:
             source = mapping.keys()
             target = mapping.values()
@@ -45,7 +47,7 @@ class VariableAssignment(Assignment):
                 self._mapping = mapping
                 self._source = mapping.keys()
                 self._target = mapping.values()
-                self._is_ConstantAssignment = True
+                self._is_VariableAssignment = True
             else:
                 raise ValueError(
                     "VariableAssignment must be a total function from "

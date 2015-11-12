@@ -103,6 +103,14 @@ class Formula(object):
                 "Vocabulry's of Formula, NamedState and VariableAssignment "
                 "must match")
 
+        print "passed"
+        for entry in attribute_interpretation:
+            if entry[0]._name == f._name:
+                R_I = entry
+                break
+        else: 
+            raise ValueError(f.get_name() + " must be in intepretation table")
+
 
     def bad_assign_truth_value(f, named_state, X, vocab, interpretation_table=None):
         """
@@ -662,6 +670,7 @@ def main():
     from AttributeSystem import AttributeSystem
     from AttributeInterpretation import AttributeInterpretation
     from ConstantAssignment import ConstantAssignment
+    from VariableAssignment import VariableAssignment
     from NamedState import NamedState
 
     a = Attribute('hour', [Interval(0, 23)])
@@ -691,9 +700,11 @@ def main():
     objects = ['s1', 's2']
     attribute_system = AttributeSystem(attribute_structure, objects)
     p = ConstantAssignment(vocabulary, attribute_system, {'C1': 's1', 'C2': 's2'})
-    NamedState(
-        attribute_system,
-        p, {('hour', 's1'): [9, 13], ('minute', 's1'): [12], ('hour', 's2'): [8], ('minute', 's2'): [27]})
+    ns = NamedState(attribute_system, p, {('hour', 's1'): [9, 13], ('minute', 's1'): [12], ('hour', 's2'): [8], ('minute', 's2'): [27]})
+
+    f = Formula(vocabulary, 'Ahead', 'C1', 'C2')
+    f.assign_truth_value(
+        ai, ns, VariableAssignment(vocabulary, attribute_system, {}, dummy=True))
 
 if __name__ == "__main__":
     main()

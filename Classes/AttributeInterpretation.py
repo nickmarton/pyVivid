@@ -154,6 +154,11 @@ class AttributeInterpretation(object):
             self._mapping,
             self._profiles)
 
+    def __iter__(self):
+        """Implement iterator for AttributeInterpretation."""
+        for entry in self._table:
+            yield entry
+
     def __str__(self):
         """Implement str(AttributeInterpretation)."""
         return '\n'.join([str(entry) for entry in self._table])
