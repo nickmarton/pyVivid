@@ -40,10 +40,15 @@ class Formula(object):
                 raise ValueError(
                     "all terms must be contained in vocabulary's C or V")
         
+        ordered_set_terms = []
+        for t in terms:
+            if t not in ordered_set_terms:
+                ordered_set_terms.append(t)
+
         from copy import deepcopy
         self._vocabulary = deepcopy(vocabulary)
         self._name = deepcopy(name)
-        self._terms = list(set(list(terms)))
+        self._terms = ordered_set_terms
         self._is_Formula = True
 
     def __eq__(self, other):
@@ -86,6 +91,15 @@ class Formula(object):
         arbitrary NamedState and VariableAssignment
         """
 
+        def get_relation_arguments(definition):
+            """Return the arguments provided in Relation definition."""
+
+            start_paren = definition.find('(')
+            end_paren = definition.find(')')
+
+            arg_string = definition[start_paren+1:end_paren]
+            return arg_string.split(',') 
+
         if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
             raise TypeError(
                 "named_state parameter must be a NamedState object")
@@ -103,14 +117,83 @@ class Formula(object):
                 "Vocabulry's of Formula, NamedState and VariableAssignment "
                 "must match")
 
-        print "passed"
+        
         for entry in attribute_interpretation:
-            if entry[0]._name == f._name:
+            if entry[0]._name == self._name:
                 R_I = entry
                 break
         else: 
-            raise ValueError(f.get_name() + " must be in intepretation table")
+            raise ValueError(f._name + " must be in intepretation table")
 
+        p = named_state._p
+        profile = list(R_I[3])
+        terms = self._terms
+        relation = named_state._attribute_system._attribute_structure[int(R_I[2][1:])]
+
+        if len(profile) != len(relation._DR):
+            raise ValueError(
+                    "number of profile pairs must be equal to the number "
+                    "of arguments the relation takes")
+
+        #compiling profile into attribute object pairs that will be substituted into the expression
+
+        #check if each index is valid in respect to list of terms
+        #i.e., j_x has corresponding (t^{p,X})_{j_x}
+        for index in [pair[1] for pair in profile]:
+            if index > len(terms): raise ValueError(
+                "each index corresponds to an index in formula's terms list; "
+                "indicies may not exceed the amount of terms") 
+
+        #for each pair in profile grab formula term corresponding to the
+        #pair's index; shifted down 1 as indexing starts at 0 and not 1 then
+        #rewrite that pair with the corresponding term instead of index
+        for i, pair in enumerate(profile):
+            term = terms[pair[1] - 1]
+            profile[i] = (pair[0], term)
+
+        #Replace Vocabulary C and V's with their respective objects
+        #according to p and X
+        for i, pair in enumerate(profile):
+            try: 
+                obj = p._mapping[pair[1]]
+            except KeyError:
+                try:
+                    obj = X._mapping[pair[1]]
+                except KeyError:
+                    return "unknown"
+
+            profile[i] = (pair[0], obj)
+
+
+        relation_args = get_relation_arguments(relation._definition)
+        print relation_args
+
+        value_sets = generate_value_sets(profile)                                       #generate all possible value_sets objects can take on
+
+        truth_values = []
+
+        for value_set in value_sets:                                                    #for each possible value set
+
+            subbed_definition = sub_value_set(                                          #substitute relation argument in definition with their corresponding values in value set
+                value_set, relation_args, definition)
+
+            rh_index = subbed_definition.find("<=> ") + 4                               #get index of where expression begins
+
+            expr = subbed_definition[rh_index:]                                         #get expression from definition
+
+            from truth_parser import LogicoMathematicalTruthParser 
+            lmtp=LogicoMathematicalTruthParser()                                        #create a parser object for relation definition
+            result=lmtp.eval(expr)                                                      #try to evaluate the logico-mathematical expression
+            truth_values.append(result)                                                 #append the result of the evaulation if successful
+
+        if all(truth_values):                                                           #if the formula holds in every world, return true
+            return True
+        elif not any(truth_values):                                                     #if the formula does not hold in any world, return False
+            return False
+        else:                                                                           #if the formula sometimes holds and sometimes doesn't, return unknown token
+            return "unknown"
+
+        
 
     def bad_assign_truth_value(f, named_state, X, vocab, interpretation_table=None):
         """

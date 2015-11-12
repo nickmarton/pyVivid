@@ -289,8 +289,8 @@ def test___getitem__():
     assert astr[R1] == R1
     assert astr["a"] == a
     assert astr["R1"] == R1
+    assert astr[1] == R1
     test_TypeError(astr, None)
-    test_TypeError(astr, 1)
     test_TypeError(astr, 1.0)
     test_TypeError(astr, [])
     test_TypeError(astr, object)

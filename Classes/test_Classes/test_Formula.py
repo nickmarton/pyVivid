@@ -121,7 +121,7 @@ def test___str__():
 
     f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
 
-    assert str(f) == "Ahead(V1, C1)"
+    assert str(f) == "Ahead(C1, V1)"
 
 def test___repr__():
     """Test repr(Formula)."""
@@ -132,4 +132,4 @@ def test___repr__():
 
     f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
 
-    assert repr(f) == "Ahead(V1, C1)"
+    assert repr(f) == "Ahead(C1, V1)"

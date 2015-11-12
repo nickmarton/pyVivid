@@ -261,7 +261,7 @@ class AttributeStructure(Attribute):
 
         return self.__sub__(other)
 
-    def __getitem__(self, obj):
+    def __getitem__(self, key):
         """
         Implement AttributeStructure[{Attribute,Relation}].
         
@@ -269,37 +269,42 @@ class AttributeStructure(Attribute):
         """
 
         #Handle index attempt with Attribute object
-        if hasattr(obj, "_is_Attribute"):
+        if hasattr(key, "_is_Attribute"):
             for attribute in self._attributes:
-                if attribute == obj:
+                if attribute == key:
                     return attribute
-            raise KeyError("No Attribute " + str(obj) + " found.")
+            raise KeyError("No Attribute " + str(key) + " found.")
         
         #Handle index attempt with Relation object
-        if hasattr(obj, "_is_Relation"):
+        if hasattr(key, "_is_Relation"):
             for subscript, relation in self._relations.iteritems():
-                if obj == relation:
+                if key == relation:
                     return relation
-            raise KeyError("No Attribute " + str(obj) + " found.")
+            raise KeyError("No Attribute " + str(key) + " found.")
 
         #Handle index attempt with string
-        if isinstance(obj, str):
+        if isinstance(key, str):
             for attribute in self._attributes:
-                if attribute._label == obj:
+                if attribute._label == key:
                     return attribute
             import re
-            if re.match(r'^R\d+$', obj):
-                subscript = int(obj[1:])
+            if re.match(r'^R\d+$', key):
+                subscript = int(key[1:])
                 try:
                     return self._relations[subscript]
                 except:
                     pass
             raise ValueError(
-                "No Attribute(Relation) found with label(Rsubscript): " + obj)
+                "No Attribute(Relation) found with label(Rsubscript): " + key)
+        elif isinstance(key, int):
+            try:
+                return self._relations[key]
+            except KeyError:
+                raise KeyError(str(key) + " is not a valid Relation subscript")
         else:
             raise TypeError(
-                "Only Attribute's, Relation's, and strings can be used as"
-                " an index.")
+                "Only Attribute's, Relation's, strings, and ints can be used "
+                "as an index")
 
     def __contains__(self, key):
         """
