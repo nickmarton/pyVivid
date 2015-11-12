@@ -95,7 +95,8 @@ class Formula(object):
 
         if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
             raise TypeError(
-                "named_state parameter must be a NamedState object")
+                "attribute_interpretation parameter must an "
+                "AttributeInterpretation object")
 
         if not hasattr(named_state, "_is_NamedState"):
             raise TypeError(
@@ -105,18 +106,25 @@ class Formula(object):
             raise TypeError(
                 "X parameter must be a VariableAssignment object")
 
-        if not self._vocabulary == X._vocabulary == named_state._p._vocabulary:
+        print self._vocabulary
+        print X._vocabulary
+        print named_state._p._vocabulary 
+        if self._vocabulary == attribute_interpretation._vocabulary == \
+                            named_state._p._vocabulary == X._vocabulary:
+            pass
+        else:
             raise ValueError(
-                "Vocabulry's of Formula, NamedState and VariableAssignment "
-                "must match")
+                "Vocabulry's of Formula, AttributeInterpretation, NamedState, "
+                "and VariableAssignment must match")
 
-        
+        #name should always be in interpretation table
         for entry in attribute_interpretation:
             if entry[0]._name == self._name:
                 R_I = entry
                 break
         else: 
-            raise ValueError(f._name + " must be in intepretation table")
+            raise ValueError(
+                "CRITICAL:" + f._name + " must be in intepretation table")
 
         p = named_state._p
         profile = list(R_I[3])
@@ -207,7 +215,6 @@ class Formula(object):
 
 def main():
     """Quick tests."""
-
     from Interval import Interval
     from Attribute import Attribute
     from Relation import Relation
