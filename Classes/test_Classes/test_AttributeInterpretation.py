@@ -96,7 +96,16 @@ def test___init__():
     assert AI._attribute_structure == attribute_structure
     assert AI._attribute_structure is not attribute_structure
     assert AI._vocabulary == vocabulary
-    assert AI._vocabulary is not vocabulary
+    assert AI._vocabulary is vocabulary
+
+    AI._vocabulary.add_constant('cx')
+    AI._vocabulary.add_variable('vx')
+    assert 'cx' in vocabulary._C
+    assert 'vx' in vocabulary._V
+    vocabulary.add_constant('cx2')
+    vocabulary.add_variable('vx2')
+    assert 'cx2' in AI._vocabulary._C
+    assert 'vx2' in AI._vocabulary._V
 
 def test___eq__():
     """Test == operator for AttributeInterpretation object."""

@@ -95,6 +95,8 @@ class NamedState(State):
         from copy import deepcopy
         State.__init__(self, attribute_system, ascriptions)
         self._p = deepcopy(p)
+        #reassign vocabulary to keep reference since Vocabulary's are mutable
+        self._p._vocabulary = p._vocabulary
         self._is_NamedState = True
 
     def __eq__(self, other):

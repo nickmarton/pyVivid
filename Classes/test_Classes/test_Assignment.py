@@ -32,10 +32,19 @@ def test___init__():
     test_TypeError(vocabulary, '')
     test_TypeError(vocabulary, object)
 
-    #test reference breaking
+    #test reference keeping and breaking
     A = Assignment(vocabulary, attribute_system)
-    assert vocabulary is not A._vocabulary
+    assert vocabulary is A._vocabulary
     assert attribute_system is not A._attribute_system
+
+    vocabulary.add_constant('cx')
+    vocabulary.add_variable('vx')
+    assert 'cx' in A._vocabulary._C
+    assert 'vx' in A._vocabulary._V
+    A._vocabulary.add_constant('cx2')
+    A._vocabulary.add_variable('vx2')
+    assert 'cx2' in vocabulary._C
+    assert 'vx2' in vocabulary._V
 
 def test___eq__():
     """Test == operator for Assignment object."""
@@ -57,10 +66,19 @@ def test___eq__():
     A4 = Assignment(vocabulary2, attribute_system1)
 
     assert A1 == A2
-    assert A1._vocabulary is not A2._vocabulary
+    assert A1._vocabulary is A2._vocabulary
     assert A1._attribute_system is not A2._attribute_system
     assert not A1 == A3
     assert not A1 == A4
+
+    A1._vocabulary.add_constant('cx')
+    A1._vocabulary.add_variable('vx')
+    assert 'cx' in A2._vocabulary._C
+    assert 'vx' in A2._vocabulary._V
+    A2._vocabulary.add_constant('cx2')
+    A2._vocabulary.add_variable('vx2')
+    assert 'cx2' in A1._vocabulary._C
+    assert 'vx2' in A1._vocabulary._V
 
 def test___ne__():
     """Test != operator for Assignment object."""
@@ -82,7 +100,16 @@ def test___ne__():
     A4 = Assignment(vocabulary2, attribute_system1)
 
     assert not A1 != A2
-    assert A1._vocabulary is not A2._vocabulary
+    assert A1._vocabulary is A2._vocabulary
     assert A1._attribute_system is not A2._attribute_system
     assert A1 != A3
     assert A1 != A4
+
+    A1._vocabulary.add_constant('cx')
+    A1._vocabulary.add_variable('vx')
+    assert 'cx' in A2._vocabulary._C
+    assert 'vx' in A2._vocabulary._V
+    A2._vocabulary.add_constant('cx2')
+    A2._vocabulary.add_variable('vx2')
+    assert 'cx2' in A1._vocabulary._C
+    assert 'vx2' in A1._vocabulary._V

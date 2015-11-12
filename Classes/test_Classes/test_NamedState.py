@@ -50,6 +50,7 @@ def test___init__():
     assert s._attribute_system is not attribute_system
     assert s._p == p
     assert s._p is not p
+    assert s._p._vocabulary is p._vocabulary
     
     s = NamedState(attribute_system, p, {
         ('color', 's1'): ['R'],

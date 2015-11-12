@@ -94,7 +94,7 @@ class AttributeInterpretation(object):
 
         #Save copy of all params for deepcopy implementation
         from copy import deepcopy
-        self._vocabulary = deepcopy(vocabulary)
+        self._vocabulary = vocabulary
         self._attribute_structure = deepcopy(attribute_structure)
         self._mapping = deepcopy(mapping)
         self._profiles = deepcopy(profiles)
@@ -148,8 +148,9 @@ class AttributeInterpretation(object):
 
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for AttributeInterpretation object."""
+        from copy import deepcopy
         return AttributeInterpretation(
-            self._vocabulary,
+            deepcopy(self._vocabulary),
             self._attribute_structure,
             self._mapping,
             self._profiles)

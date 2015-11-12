@@ -10,5 +10,4 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
     * is_named_entailment
     * satisfies_context
 * Finish NamedState unit tests
-* Vocabulary mutability needs to propogate to all references of the Vocabulary object
 * assign truth value needs to support more than just simple logic-math expressions

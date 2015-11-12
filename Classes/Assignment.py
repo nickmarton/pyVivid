@@ -26,7 +26,7 @@ class Assignment(object):
             raise TypeError(
                 "attribute_system parameter must be of type AttributeSystem")
 
-        self._vocabulary = deepcopy(vocabulary)
+        self._vocabulary = vocabulary
         self._attribute_system = deepcopy(attribute_system)
         self._is_Assignment = True
 
