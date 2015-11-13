@@ -179,6 +179,10 @@ class NamedState(State):
         NamedState object.
         """
 
+        if self.is_world():
+            from copy import deepcopy
+            return [deepcopy(self)]
+
         source = self._p._vocabulary._C
         target = self._attribute_system._objects
 
@@ -395,13 +399,11 @@ class NamedState(State):
 
         return named_alternate_extensions
 
-    def satisfies_formula(self, formula, attribute_interpretation, X):
+    def satisfies_formula(self, formula, X, attribute_interpretation):
         """
         Determine if NamedState object (which must be a world) satisfies given
         formula with respect to VariableAssignment X.
         """
-
-        from F_and_AB import Formula
 
         if not hasattr(formula, "_is_Formula"):
             raise TypeError(
@@ -479,7 +481,7 @@ class NamedState(State):
         #satisfy the Context
         for formula in assumption_base:
             truth_value = self.satisfies_formula(
-                formula, attribute_interpretation, X)
+                formula, X, attribute_interpretation)
 
             if truth_value == False or truth_value == "unknown":
                 return False

@@ -239,7 +239,7 @@ class State(object):
             new_valueset = []
             for value in valueset:
                 if hasattr(value, "_is_Interval"):
-                    new_valueset.extend(value.discrete())
+                    new_valueset.extend(value.discretize())
                 else:
                     new_valueset.append(value)
             #set ascription to discretized version
