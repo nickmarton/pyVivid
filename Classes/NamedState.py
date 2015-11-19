@@ -130,9 +130,9 @@ class NamedState(State):
         repeat_num = len(source) if len(source) < len(target) else len(target)
 
         from itertools import product
-
         #create all combinations of source and target elements
         combos = list(product(source, target, repeat=repeat_num))
+
         #remove combinations with duplicate source or target elements
         combos = [c for c in combos if len(set(c)) == len(source) + len(target)]
         #group the combinations into 2-tuples
@@ -455,7 +455,10 @@ class NamedState(State):
         bigger = V if len(V) >= len(unbound_objects) else unbound_objects
 
         import itertools
-        combos = [zip(x, smaller) for x in itertools.permutations(bigger,len(smaller))]
+        if smaller == V:
+            combos = [zip(smaller, x) for x in itertools.permutations(bigger,len(smaller))]
+        else:
+            combos = [zip(x, smaller) for x in itertools.permutations(bigger,len(smaller))]
         
         for combo in combos:
             mapping = {pair[0]: pair[1] for pair in combo}
@@ -497,7 +500,7 @@ class NamedState(State):
         vocabs_match = self._p._vocabulary == assumption_base._vocabulary == \
                                         attribute_interpretation._vocabulary
 
-        if not vocabs_match:
+        if vocabs_match:
             pass
         else:
             raise ValueError(
