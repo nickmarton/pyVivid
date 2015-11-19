@@ -38,7 +38,7 @@ class VariableAssignment(Assignment):
                     "are not allowed; mapping must be 1-to-1.")
 
             #total mapping so check for equality
-            source_condition = set(source) == set(vocabulary._V)
+            source_condition = set(source) <= set(vocabulary._V)
 
             target_condition = set(target) <= set(attribute_system._objects)
 
@@ -50,7 +50,7 @@ class VariableAssignment(Assignment):
                 self._is_VariableAssignment = True
             else:
                 raise ValueError(
-                    "VariableAssignment must be a total function from "
+                    "VariableAssignment must be a function from "
                     "vocabulary._V to attribute_system._objects")
 
     def __eq__(self, other):

@@ -6,8 +6,6 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 [paper]: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.466.4004&rep=rep1&type=pdf
 
 #TODO
-* Finish NamedState refactoring
-    * is_named_entailment
 * Finish NamedState unit tests
     * named_entailment stuff
     * satisfaction with objects

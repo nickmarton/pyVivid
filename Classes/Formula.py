@@ -413,7 +413,6 @@ class Formula(object):
                     #'V(' and suffix ')'
                     value = str(valueset)[2:-1]
                     definition = definition.replace(pattern, value)
-                
                 from TruthValueParser import TruthValueParser 
                 lmtp=TruthValueParser()
                 #trim the LHS of the definition to create evaluatable expression

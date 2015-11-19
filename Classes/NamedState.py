@@ -6,65 +6,6 @@ from Vocabulary import Vocabulary
 from ConstantAssignment import ConstantAssignment
 from VariableAssignment import VariableAssignment
 
-def generate_variable_assignments(variables, named_state):
-    """
-    Return a list of all possible VariableAssignments that can
-    be created from 
-        1. the variables in variables parameter and
-        2. the unmatched objects within Context object's
-    NamedState object.
-
-    note: this function is intended to be used internally from Context
-    for the purpose of determining entailment only.
-    """
-
-    if not named_state.get_vocabulary().get_V():
-        return []
-
-    c_target = named_state.get_p().get_target()
-    objects = named_state.get_attribute_system().get_objects()
-    unmatched_objects = [obj for obj in objects if obj not in c_target]
-
-    #get proper length of variable assignments
-    if len(variables) <= len(unmatched_objects):
-        smaller_length = len(variables)
-    else:
-        smaller_length = len(unmatched_objects)
-
-    from itertools import product
-
-    #get cartesian product of variables and objects such that the
-    #products created are of the smaller cardinality.
-    products = [
-    zip(variables, item) for item in product(
-            unmatched_objects, repeat=smaller_length)]
-
-    #filter out the products with duplicate targets.
-    mapping_list = []
-    for product in products:
-        product_objs = [p[1] for p in product]
-        if len(product_objs) == len(set(product_objs)):
-            mapping_list.append(dict(product))
-
-    for i in mapping_list:
-        print i
-
-    X_list = []
-    
-    #if there are variable terms and unmatched object, form all
-    #possible VariableAssignments and store them in X_list,
-    #otherwise return an empty list
-    if smaller_length > 0:
-        for mapping in mapping_list:
-            X = VariableAssignment(
-                named_state.get_vocabulary(),
-                named_state.get_attribute_system(),
-                mapping)
-
-            X_list.append(X)
-
-    return X_list
-
 class NamedState(State):
     """
     Class for named state;
@@ -219,15 +160,21 @@ class NamedState(State):
 
         self_worlds = State.get_worlds(self)
 
-                
         #create worlds for all constant assignment and world combos.
         worlds = []
-        for p in valid_constant_assignments:
+        if valid_constant_assignments:
+            for p in valid_constant_assignments:
+                for self_world in self_worlds:
+                    #construct world and save it
+                    world = NamedState(
+                        self._attribute_system, p, self_world._ascriptions)
+                    worlds.append(world)
+        else:
             for self_world in self_worlds:
-                #construct world and save it
-                world = NamedState(
-                    self._attribute_system, p, self_world._ascriptions)
-                worlds.append(world)
+                    #construct world and save it
+                    world = NamedState(
+                        self._attribute_system, self._p, self_world._ascriptions)
+                    worlds.append(world)
 
         return worlds
 
@@ -488,100 +435,87 @@ class NamedState(State):
 
         return True
     
-    def is_named_entailment(self, beta, interpretation_table=None, *named_states):
+    def _generate_variable_assignments(self):
+        """
+        Return a list of all possible VariableAssignments that can
+        be created from this NamedState object.
+        """
+
+        if not self._p._vocabulary._V:
+            yield VariableAssignment(
+                    self._p._vocabulary,
+                    self._attribute_system,
+                    {}, dummy=True)
+
+        V = self._p._vocabulary._V
+        objects = self._attribute_system._objects
+        bound_objects = self._p._target
+        unbound_objects = [obj for obj in objects if obj not in bound_objects]
+        smaller = V if len(V) <= len(unbound_objects) else unbound_objects
+        bigger = V if len(V) >= len(unbound_objects) else unbound_objects
+
+        import itertools
+        combos = [zip(x, smaller) for x in itertools.permutations(bigger,len(smaller))]
+        
+        for combo in combos:
+            mapping = {pair[0]: pair[1] for pair in combo}
+            X = VariableAssignment(self._p._vocabulary, self._attribute_system, mapping)
+            yield X
+
+    def is_named_entailment(self, assumption_base, attribute_interpretation, *named_states):
         """
         Determine if this NamedState entails NamedStates contained in
-        named_states parameter w.r.t. AssumptionBase beta.
-
-        Raise TypeError if beta parameter is not of type AssumptionBase.
-        Raise TypeError if any member of named_states parameter is not
-        of type NamedState.
-        Raise ValueError if any member of named_states does not share
-        the same Vocabulary or AttributeSystem as this NamedState.
-        Raise ValueError if any member of named_states parameter is
-        not a proper extension of this NamedState.
+        named_states parameter w.r.t. AssumptionBase assumption_base.
         """
 
-        #check for exceptions first.
-        from F_and_AB import AssumptionBase
-        if not isinstance(beta, AssumptionBase):
+        if not hasattr(assumption_base, "_is_AssumptionBase"):
             raise TypeError(
-                "beta parameter must be of type AssumptionBase")
-
-        vocabulary = self.get_p().get_vocabulary()
-        attribute_system = self.get_attribute_system()
+                "assumption_base parameter must be an AssumptionBase object")
+        if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
+            raise TypeError(
+                "attribute_interpretation parameter must be an "
+                "AssumptionBase object")
 
         for named_state in named_states:
-            if not isinstance(named_state, NamedState):
+            if not hasattr(named_state, "_is_NamedState"):
                 raise TypeError(
-                    "all optional positional arguments must be of "
-                    "type NamedState.")
-            if named_state.get_p().get_vocabulary() != vocabulary:
+                    "all optional positional arguments must be "
+                    "NamedState objects.")
+            if named_state._p._vocabulary != self._p._vocabulary:
                 raise ValueError(
                     "all vocabularies in this NamedState and optional "
                     "positional NamedStates must be equivalent.")
-            if named_state.get_attribute_system() != attribute_system:
+            if named_state._attribute_system != self._attribute_system:
                 raise ValueError(
                     "all AttributeSystems in this NamedState and optional "
                     "positional NamedStates must be equivalent.")
-            if not named_state.is_proper_extension(self):
+            if not named_state < self:
                 raise ValueError(
                     "all NamedStates provided must be proper "
-                    "subsets of this NamedState object.")
+                    "extensions of this NamedState object.")
+
+        vocabs_match = self._p._vocabulary == assumption_base._vocabulary == \
+                                        attribute_interpretation._vocabulary
+
+        if not vocabs_match:
+            pass
+        else:
+            raise ValueError(
+                "Vocabulary's of NamedState, AssumptionBase, and "
+                "AttributeInterpretation must all match")
+
 
         #Get all possible alternate extensions first.
         alternate_extensions = self.get_named_alternate_extensions(
-            *named_states)
+                                                    *named_states)
 
         for alternate_extension in alternate_extensions:
-            #make list to hold which formula have failed to evaluate to False for
-            #every possible VariableAssignment.
-            bad_formulae = []
-
-            for formula in beta:
-
-                #if a formula has already failed, we don't need to consider
-                #it again.
-                if formula in bad_formulae:
-                    continue
-
-                bad_formula = False
-
-                #get free variables in formula and generate all possible 
-                #VariableAssignments w.r.t. the free variable set.
-                c_source = self.get_p().get_source()
-                terms = formula.get_terms()
-                variables = [t for t in terms if t not in c_source]
-                
-                X_list = generate_variable_assignments(variables, self)
-
-                #if there are no possible VariableAssignments, add a dummy one.
-                if not X_list:
-                    X_list.append(VariableAssignment(
-                        vocabulary, attribute_system, {}, dummy=True))
-                
-                #determine if formula truth value is False for every 
-                #VariableAssignment and set flag if it isn't
-                for X in X_list:
-
-                    truth_value = assign_truth_value(
-                        formula, alternate_extension, X, vocabulary,
-                        interpretation_table)
-
+            for X in self._generate_variable_assignments():
+                for formula in assumption_base:
+                    truth_value = formula.assign_truth_value(
+                            attribute_interpretation, alternate_extension, X)
                     if truth_value != False:
-                        bad_formula = True
-                        break
-                
-                #Formula failed for some VariableAssignment; this formula is
-                #bad, add to bad list
-                if bad_formula:
-                    bad_formulae.append(formula)
-
-            #if there's not a single formula that always evaluates to False,
-            #then no entailment, return False.
-            if len(beta.get_formulae()) == len(bad_formulae):
-                return False
-
+                        return False
         return True
 
     def __str__(self):
@@ -594,50 +528,65 @@ class NamedState(State):
 
 def main():
     """quick dev tests."""
-    color = Attribute('color', ['R', 'G', 'B'])
-    size = Attribute('size', ['S', 'M', 'L'])
 
-    attribute_structure = AttributeStructure(color, size)
+    from Interval import Interval
+    from Formula import Formula
+    from AssumptionBase import AssumptionBase
+    from AttributeInterpretation import AttributeInterpretation
 
-    objects = ['s1', 's2', 's3']
+    a = Attribute('hour', [Interval(0, 23)])
+    a2 = Attribute('minute', [Interval(0, 59)])
+    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+    r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
+    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 3)
+    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 4)
+    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+    objects = ['s1', 's2', 's3', 's4']
     attribute_system = AttributeSystem(attribute_structure, objects)
 
-    
-    sigma = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
 
-    p = ConstantAssignment(sigma, attribute_system, {'a': 's1'})
-    ascr = {
-        ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
-        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
-    named_state = NamedState(attribute_system, p, ascr)
+    pm_rs = RelationSymbol('PM', 1)
+    am_rs = RelationSymbol('AM', 1)
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+    vocabulary = Vocabulary(['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V3', 'V2'])
+    p = ConstantAssignment(vocabulary, attribute_system, {'C1': 's1', 'C2': 's2'})
+    X = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
+
+    named_state = NamedState(attribute_system, p, 
+        {('minute', 's1'): [0], ('minute', 's2'): [0], ('minute', 's3'): [0], ('minute', 's4'): [0],
+         ('hour', 's1'): [9, 10, 11], ('hour', 's2'): [4, 5, 6, 8], ('hour', 's3'): [0], ('hour', 's4'): [0]
+        })
+
+    named_state_1 = NamedState(attribute_system, p, 
+        {('minute', 's1'): [0], ('minute', 's2'): [0], ('minute', 's3'): [0], ('minute', 's4'): [0],
+         ('hour', 's1'): [9, 11], ('hour', 's2'): [4, 5, 8], ('hour', 's3'): [0], ('hour', 's4'): [0]
+        })
+
+    named_state_2 = NamedState(attribute_system, p, 
+        {('minute', 's1'): [0], ('minute', 's2'): [0], ('minute', 's3'): [0], ('minute', 's4'): [0],
+         ('hour', 's1'): [9, 10], ('hour', 's2'): [4, 6], ('hour', 's3'): [0], ('hour', 's4'): [0]
+        })
 
 
-    p_1 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'b': 's2'})
-    ascr_1 = {
-        ('color', 's1'): ['B'], ('size', 's1'): ['S', 'M'],
-        ('color', 's2'): ['B', 'G'], ('size', 's2'): ['M', 'L']}
-    named_state_1 = NamedState(attribute_system, p_1, ascr_1)
+    profiles = [    
+        [pm_rs, ('hour', 1)],
+        [am_rs, ('hour', 1)],
+        [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
+        [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
 
+    attribute_interpretation = AttributeInterpretation(
+        vocabulary, attribute_structure, {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4}, profiles)
 
-    p_2 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'f': 's2', 'c': 's3'})
-    ascr_2 = {
-        ('color', 's1'): ['R', 'B'], ('size', 's1'): ['L'],
-        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['L']}
-    named_state_2 = NamedState(attribute_system, p_2, ascr_2)
+    f1 = Formula(vocabulary, 'PM', 'C1')
+    f2 = Formula(vocabulary, 'AM', 'C1')
+    f3 = Formula(vocabulary, 'Ahead', 'C1', 'C2')
+    f4 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
 
+    assumption_base = AssumptionBase(f1)
 
-    p_3 = ConstantAssignment(sigma, attribute_system, {'a': 's1', 'g': 's2', 'c': 's3'})
-    ascr_3 = {
-        ('color', 's1'): ['R'], ('size', 's1'): ['S', 'M', 'L'],
-        ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
-    named_state_3 = NamedState(attribute_system, p_3, ascr_3)
-
-    aes = named_state.get_named_alternate_extensions(named_state_1, named_state_2, named_state_3)
-
-    from copy import deepcopy
-    tester = deepcopy(aes[1])
-
-    print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
+    #print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
+    print named_state.is_named_entailment(assumption_base, attribute_interpretation, named_state_1, named_state_2)
 
 if __name__ == "__main__":
     main()
