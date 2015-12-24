@@ -1,10 +1,10 @@
 """This module intends to provide the rules of diagrammatic inference."""
 
 
-def widenning(context, named_state):
+def widening(context, named_state):
     """
     Verify that NamedState named_state can be obtained from Context context by
-    widenning.
+    widening.
     """
 
     if not hasattr(context, "_is_Context"):
