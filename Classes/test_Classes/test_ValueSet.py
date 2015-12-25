@@ -64,31 +64,6 @@ def test___eq__():
     assert VS1 != VS2
 
 
-def test___ne__():
-    """Test != operator."""
-    VS1, VS2 = ValueSet([]), ValueSet([])
-    assert not VS1 != VS2
-    VS1, VS2 = ValueSet(['1']), ValueSet([1])
-    assert VS1 != VS2
-    # Test out of order
-    VS1, VS2 = ValueSet([1, 3, 5]), ValueSet([5, 3, 1])
-    assert not VS1 != VS2
-    VS1 = ValueSet([1, 'b', 3, 'c', 'a', 5])
-    VS2 = ValueSet([5, 3, 1, 'a', 'b', 'c'])
-    assert not VS1 != VS2
-    VS1 = ValueSet([Point(1.0, 1.0)])
-    VS2 = ValueSet([Point(1.0)])
-    assert VS1 != VS2
-    VS1 = ValueSet([Point(1.0)])
-    VS2 = ValueSet([Point(2.0)])
-    assert VS1 != VS2
-    # test type mismatch for Interval
-    VS1, VS2 = ValueSet([Interval(1, 10)]), ValueSet([Interval(1.0, 10.0)])
-    assert VS1 != VS2
-    VS1, VS2 = ValueSet([Interval(1L, 10L)]), ValueSet([Interval(1, 10)])
-    assert VS1 != VS2
-
-
 def test___le__():
     """
     Test <, <=, >, >= total ordering operators for subset-superset relations.
@@ -140,6 +115,78 @@ def test___le__():
     assert VS4 <= VS5
     assert VS5 > VS4
     assert VS5 >= VS4
+
+
+def test___ne__():
+    """Test != operator."""
+    VS1, VS2 = ValueSet([]), ValueSet([])
+    assert not VS1 != VS2
+    VS1, VS2 = ValueSet(['1']), ValueSet([1])
+    assert VS1 != VS2
+    # Test out of order
+    VS1, VS2 = ValueSet([1, 3, 5]), ValueSet([5, 3, 1])
+    assert not VS1 != VS2
+    VS1 = ValueSet([1, 'b', 3, 'c', 'a', 5])
+    VS2 = ValueSet([5, 3, 1, 'a', 'b', 'c'])
+    assert not VS1 != VS2
+    VS1 = ValueSet([Point(1.0, 1.0)])
+    VS2 = ValueSet([Point(1.0)])
+    assert VS1 != VS2
+    VS1 = ValueSet([Point(1.0)])
+    VS2 = ValueSet([Point(2.0)])
+    assert VS1 != VS2
+    # test type mismatch for Interval
+    VS1, VS2 = ValueSet([Interval(1, 10)]), ValueSet([Interval(1.0, 10.0)])
+    assert VS1 != VS2
+    VS1, VS2 = ValueSet([Interval(1L, 10L)]), ValueSet([Interval(1, 10)])
+    assert VS1 != VS2
+
+
+def test___add__():
+    """Test + operator for ValueSet."""
+    def test_TypeError(valueset, object_type):
+        """Test TypeError raising in add_object_type."""
+        with pytest.raises(TypeError) as excinfo:
+            valueset + object_type
+
+    VSA = ValueSet([
+        -5,
+        15L,
+        167.4,
+        'c',
+        True,
+        Interval(1, 10),
+        Interval(10.0, 75.4)])
+
+    VSB = ValueSet([
+        -2,
+        33L,
+        555.679,
+        'e',
+        False,
+        Point(1.0, 1.0),
+        Interval(2L, 5L)])
+
+    VSC = VSA + VSB
+    assert VSC == ValueSet([-5, -2, 15L, 33L, 167.4, 555.679, 'c', 'e',
+                           True, False, Interval(1, 10), Interval(10.0, 75.4),
+                           Interval(2L, 5L), Point(1.0, 1.0)])
+    assert VSA == VSA + VSA
+
+    VSD = ValueSet([
+        -5, -100,
+        15L,
+        167.4,
+        'c',
+        True,
+        Interval(1, 10),
+        Interval(10.0, 75.4)])
+
+    assert VSD == VSA + -100
+    assert VSD == VSA + [-5, -100]
+
+    from vivid.Classes.Attribute import Attribute
+    test_TypeError(VSA, Attribute("l", ['s']))
 
 
 def test___sub__():

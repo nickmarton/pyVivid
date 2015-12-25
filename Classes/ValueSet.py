@@ -81,6 +81,24 @@ class ValueSet(object):
         """Implement != for ValueSet object."""
         return not self.__eq__(other)
 
+    def __add__(self, other):
+        """
+        Implement + operator for ValueSet.
+        Take the union of two ValueSets or add a single element to Valueset.
+        If adding an object, the object must be within _object_types.
+        """
+
+        if hasattr(other, "_is_ValueSet"):
+            return ValueSet(self._values + other._values)
+
+        try:
+            other_values = [v for v in iter(other)]
+            return ValueSet(self._values + other_values)
+        except:
+            new_values = self._values
+            new_values.append(other)
+            return ValueSet(new_values)
+
     def __sub__(self, other):
         """
         Implement - operator for ValueSet.
