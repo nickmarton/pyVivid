@@ -1,11 +1,12 @@
 """State object."""
 
-#from assistance_functions import *
 from copy import deepcopy
 from ValueSet import ValueSet
 from AttributeSystem import AttributeSystem
 from AttributeSystem import AttributeStructure
 from AttributeSystem import Attribute, Relation 
+
+#Join States operation
 
 class State(object): 
     """

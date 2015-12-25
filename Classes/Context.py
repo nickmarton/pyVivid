@@ -1,5 +1,9 @@
 """Context class."""
 
+
+from VariableAssignment import VariableAssignment
+
+
 def generate_variable_assignments(variables, context):
     """
     Return a list of all possible VariableAssignments that can
@@ -15,7 +19,7 @@ def generate_variable_assignments(variables, context):
     objects = context.get_named_state().get_attribute_system().get_objects()
     unmatched_objects = [obj for obj in objects if obj not in c_target]
 
-    #get proper length of variable assignments
+    # get proper length of variable assignments
     if len(variables) <= len(unmatched_objects):
         smaller_length = len(variables)
     else:
@@ -23,24 +27,24 @@ def generate_variable_assignments(variables, context):
 
     from itertools import product
 
-    #get cartesian product of variables and objects such that the
-    #products created are of the smaller cardinality.
+    # get cartesian product of variables and objects such that the
+    # products created are of the smaller cardinality.
     products = [
-    zip(variables, item) for item in product(
+        zip(variables, item) for item in product(
             unmatched_objects, repeat=smaller_length)]
 
-    #filter out the products with duplicate targets.
+    # filter out the products with duplicate targets.
     mapping_list = []
-    for product in products:
-        product_objs = [p[1] for p in product]
+    for prod in products:
+        product_objs = [p[1] for p in prod]
         if len(product_objs) == len(set(product_objs)):
-            mapping_list.append(dict(product))
+            mapping_list.append(dict(prod))
 
     X_list = []
 
-    #if there are variable terms and unmatched object, form all
-    #possible VariableAssignments and store them in X_list,
-    #otherwise return an empty list
+    # if there are variable terms and unmatched object, form all
+    # possible VariableAssignments and store them in X_list,
+    # otherwise return an empty list
     if smaller_length > 0:
         for mapping in mapping_list:
             X = VariableAssignment(
@@ -52,6 +56,7 @@ def generate_variable_assignments(variables, context):
 
     return X_list
 
+
 class Context(object):
     """
     This class represents a Context, that is, a pair composed of an
@@ -61,7 +66,7 @@ class Context(object):
     def __init__(self, assumption_base, named_state):
         """Construct a Context object."""
 
-        #Check for exceptions first.
+        # Check for exceptions first.
         if not hasattr(assumption_base, "_is_AssumptionBase"):
             raise TypeError(
                 "assumption_base parameter must be an AssumptionBase object")
@@ -84,9 +89,9 @@ class Context(object):
                 "Only Context object can be compared against another "
                 "Context object")
 
-        named_state_cond = self._named_state == other._named_state 
+        named_state_cond = self._named_state == other._named_state
         assumption_base_cond = self._assumption_base == other._assumption_base
-        
+
         if named_state_cond and assumption_base_cond:
             return True
         else:
@@ -134,8 +139,8 @@ class Context(object):
         Vocabulary embedded in this Context's NamedState.
         """
 
-        #Check for exceptions first.
-        if not isinstance(formula, Formula):
+        # Check for exceptions first.
+        if not hasattr(formula, "_is_Formula"):
             raise TypeError(
                 "formula parameter must be of type Formula")
 
@@ -147,26 +152,26 @@ class Context(object):
                 "Formula must be over the same vocabulary used to create"
                 "ConstantAssignment within this Context.")
 
-        #get list of variables from Formula terms
+        # get list of variables from Formula terms
         terms = formula.get_terms()
         c_source = self.get_named_state().get_p().get_source()
         variables = [t for t in terms if t not in c_source]
 
-        #get all possible worlds and variable assignments.
+        # get all possible worlds and variable assignments.
         possible_worlds = self.get_named_state().get_worlds()
         variable_assignments = generate_variable_assignments(variables, self)
 
-
-        #if there are no variable assignments possible, add a dummy one.
+        # if there are no variable assignments possible, add a dummy one.
         if not variable_assignments:
-            dummy_X = VariableAssignment(f_vocabulary,
+            dummy_X = VariableAssignment(
+                f_vocabulary,
                 self.get_named_state().get_attribute_system(), {},
                 dummy=True)
             variable_assignments.append(dummy_X)
 
-        #for every possible world and variable assignment, if the world
-        #satisfies the context, but not the formula, this Context does not
-        #entail the Formula, return False, otherwise return True aftewards.
+        # for every possible world and variable assignment, if the world
+        # satisfies the context, but not the formula, this Context does not
+        # entail the Formula, return False, otherwise return True aftewards.
         for X in variable_assignments:
             for world in possible_worlds:
 
@@ -209,8 +214,8 @@ class Context(object):
         Vocabulary embedded in this Context's NamedState.
         """
 
-        #Check for exceptions first.
-        if not isinstance(named_state, NamedState):
+        # Check for exceptions first.
+        if not hasattr(named_state, "_is_NamedState"):
             raise TypeError(
                 "named_state parameter must be of type NamedState")
 
@@ -223,23 +228,24 @@ class Context(object):
                 "ConstantAssignment as the Vocabulary of the "
                 "ConstantAssignment within this Context.")
 
-        #get list of variabels from vocabulary V list.
+        # get list of variabels from vocabulary V list.
         variables = ns_vocabulary.get_V()
 
-        #get all possible worlds and variable assignments.
+        # get all possible worlds and variable assignments.
         possible_worlds = self.get_named_state().get_worlds()
         variable_assignments = generate_variable_assignments(variables, self)
 
-        #if there are no variable assignments possible, add a dummy one.
+        # if there are no variable assignments possible, add a dummy one.
         if not variable_assignments:
-            dummy_X = VariableAssignment(ns_vocabulary,
+            dummy_X = VariableAssignment(
+                ns_vocabulary,
                 self.get_named_state().get_attribute_system(), {},
                 dummy=True)
             variable_assignments.append(dummy_X)
 
-        #for every possible world and variable assignment, if the world
-        #satisfies this Context, but not the NamedState, this Context does not
-        #entail the NamedState, return False, otherwise return True aftewards.
+        # for every possible world and variable assignment, if the world
+        # satisfies this Context, but not the NamedState, this Context does not
+        # entail the NamedState, return False, otherwise return True aftewards.
         for X in variable_assignments:
             for world in possible_worlds:
 

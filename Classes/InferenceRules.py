@@ -13,7 +13,23 @@ def widening(context, named_state):
     if not hasattr(named_state, "_is_NamedState"):
         raise TypeError("named_state parameter must be a NamedState object.")
 
-    return context.named_state <= named_state
+    return context._named_state <= named_state
+
+
+def diagram_reiteration(context, named_state=None):
+    """Perform Diagram Reiteration to retrieve the current diagram."""
+    if named_state:
+        if not hasattr(named_state, "_is_NamedState"):
+            raise TypeError(
+                "named_state parameter must be a NamedState object")
+            if context._named_state != named_state:
+                raise ValueError(
+                    "named_state parameter must match NamedState object "
+                    "within Context context")
+
+            return named_state
+
+    return context._named_state
 
 
 def main():
