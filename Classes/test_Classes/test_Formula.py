@@ -16,6 +16,7 @@ from vivid.Classes.VariableAssignment import VariableAssignment
 from vivid.Classes.Formula import Formula
 from vivid.Classes.AssumptionBase import AssumptionBase
 
+
 def test___init__():
     """Test Formula constructor."""
     def test_TypeError(vocabulary, name, *terms):
@@ -41,6 +42,7 @@ def test___init__():
 
     F = Formula(vocabulary, 'Ahead', 'C1', 'C1', 'C1')
     assert F._terms == ['C1']
+
 
 def test___eq__():
     """Test == operator for Formula object."""
@@ -72,6 +74,7 @@ def test___eq__():
     assert not f == f4
     assert not f == f5
 
+
 def test___ne__():
     """Test != operator for Formula object."""
     def test_TypeError(f1, f2):
@@ -102,6 +105,7 @@ def test___ne__():
     assert f != f4
     assert f != f5
 
+
 def test___add__():
     """Test + operator for Formula object."""
     ahead_rs = RelationSymbol('Ahead', 4)
@@ -126,6 +130,7 @@ def test___add__():
     assert hasattr(a, "_is_AssumptionBase")
     assert len(a) == 4
 
+
 def test___str__():
     """Test str(Formula)."""
     ahead_rs = RelationSymbol('Ahead', 4)
@@ -136,6 +141,7 @@ def test___str__():
     f = Formula(vocabulary, 'Ahead', 'C1', 'V1')
 
     assert str(f) == "Ahead(C1, V1)"
+
 
 def test___repr__():
     """Test repr(Formula)."""
@@ -148,6 +154,7 @@ def test___repr__():
 
     assert repr(f) == "Ahead(C1, V1)"
 
+
 def test__key():
     """Test key for hash function."""
     C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
@@ -155,6 +162,7 @@ def test__key():
 
     formula = Formula(vocabulary, 'R', 'C', 'V')
     assert (hash(vocabulary), 'R', ('C', 'V')) == formula._key()
+
 
 def test___hash__():
     """Test hash(Vocabulary)."""
@@ -165,6 +173,7 @@ def test___hash__():
     formula2 = Formula(vocabulary, 'R', 'V', 'C')
 
     assert hash(formula1) == hash(formula2)
+
 
 def test___deepcopy__():
     """Test Test copy.deepcopy for Formula object."""
@@ -185,6 +194,7 @@ def test___deepcopy__():
 
     f._name = "F"
     assert f._name != f_copy._name
+
 
 def test_assign_truth_value():
     """Test assign_truth_value() function of Formula object."""

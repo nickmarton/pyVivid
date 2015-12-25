@@ -9,6 +9,7 @@ from functools import total_ordering
 from Interval import Interval
 from Point import Point
 
+
 @total_ordering
 class ValueSet(object):
     """ValueSet object."""
@@ -19,25 +20,25 @@ class ValueSet(object):
     @classmethod
     def add_object_type(cls, object_identifier):
         """Add compatibility for object."""
-        #Ensure object identifiers are strings
+        # Ensure object identifiers are strings
         if not isinstance(object_identifier, str):
             raise TypeError("Object identifier's must be strings")
         import re
-        
-        #Ensure they have the correct form
+
+        # Ensure they have the correct form
         if not re.match("_is_[A-Za-z]", object_identifier):
             raise ValueError(
                 "object identifier must be of form _is_[object name]")
-        
-        #Add id to list of id's if it's not a duplicate
+
+        # Add id to list of id's if it's not a duplicate
         if object_identifier not in cls._object_types:
             cls._object_types.append(object_identifier)
 
     def __init__(self, valueset):
         """Construct a ValueSet object."""
         if not isinstance(valueset, list) and not isinstance(valueset, set):
-            raise TypeError("valueset parameter must be of type list")
-        #Save parsed output
+            raise TypeError("valueset parameter must be of type list or set")
+        # Save parsed output
         self._values = ValueSet._parse(valueset)
         self._is_ValueSet = True
 
@@ -53,7 +54,7 @@ class ValueSet(object):
         self_dict = ValueSet._split_by_types(self)
         other_dict = ValueSet._split_by_types(other)
 
-        #filter out ints, floats, or longs contained in any Interval in other
+        # filter out ints, floats, or longs contained in any Interval in other
         filtered_self_values = []
         for _type, values in self_dict.iteritems():
             if _type == int or _type == float or _type == long or _type == "_is_Interval":
@@ -71,8 +72,8 @@ class ValueSet(object):
         if len(new_self_values) > len(other._values):
             return False
 
-        #if the intersection of both ValueSets is the same as this ValueSet
-        #then this ValueSet is contained in other and is a subset.
+        # if the intersection of both ValueSets is the same as this ValueSet
+        # then this ValueSet is contained in other and is a subset.
         intersection = set(new_self_values) & set(other._values)
         return intersection == set(new_self_values)
 
@@ -82,19 +83,19 @@ class ValueSet(object):
 
     def __sub__(self, other):
         """
-        Implement - operator for ValueSet. 
+        Implement - operator for ValueSet.
 
         Overloaded to be set theoretic difference.
         """
 
-        #Split the members of ValueSet's into lists defined by their
-        #respective types
+        # Split the members of ValueSet's into lists defined by their
+        # respective types
         self_type_lists = ValueSet._split_by_types(self._values)
         other_type_lists = ValueSet._split_by_types(other._values)
 
         from collections import defaultdict
         std_type_lists = defaultdict(list)
-        
+
         for type_key, values in self_type_lists.iteritems():
             try:
                 other_values = other_type_lists[type_key]
@@ -104,7 +105,7 @@ class ValueSet(object):
                 std_type_lists[type_key] = values
 
         output_set = []
-        #reconstruct list, sorting when possible
+        # reconstruct list, sorting when possible
         for base_type in ValueSet._base_types:
             output_set += sorted(std_type_lists[base_type])
         for object_type in ValueSet._object_types:
@@ -145,16 +146,16 @@ class ValueSet(object):
         """Implement mutability (assignment) for ValueSet object."""
         if type(key) != int:
             raise TypeError("indicies must be of type int")
-        #ensure value is not a duplicate
+        # ensure value is not a duplicate
         if value in self:
             raise ValueError("Duplicate values not permitted in ValueSet.")
         if key in range(len(self._values)):
-            #if simple type, replace item at index with value
+            # if simple type, replace item at index with value
             if type(value) in ValueSet._base_types:
                 self._values[key] = value
                 return
-            
-            #not simple type, check if it's a valid object type
+
+            # not simple type, check if it's a valid object type
             identifier = None
             for object_identifier in ValueSet._object_types:
                 if hasattr(value, object_identifier):
@@ -191,32 +192,32 @@ class ValueSet(object):
     @staticmethod
     def _split_by_types(values):
         """Split valueset by types of elements within it."""
-        #initialize a dictionary to separate types
+        # initialize a dictionary to separate types
         from collections import defaultdict
         type_lists = defaultdict(list)
 
-        #for each value provided
+        # for each value provided
         for value in values:
-            #if it's a base type, simply add to it's corresponding list
-            #while rejecting duplicates.
+            # if it's a base type, simply add to it's corresponding list
+            # while rejecting duplicates.
             if type(value) in ValueSet._base_types:
                 if value not in type_lists[type(value)]:
                     type_lists[type(value)].append(value)
                 continue
-            
-            #if it's an object type, check to see if it is in supported
-            #object types
+
+            # if it's an object type, check to see if it is in supported
+            # object types
             identifier = None
             for object_identifier in ValueSet._object_types:
                 if hasattr(value, object_identifier):
-                    #Ensure no object has 2 identifiers
+                    # Ensure no object has 2 identifiers
                     if identifier:
                         raise AttributeError(
                             "Any object passed must have only 1 "
                             "supported identifier")
                     identifier = object_identifier
 
-            #store object in its corresponding list if it's not a duplicate
+            # store object in its corresponding list if it's not a duplicate
             if identifier:
                 if value not in type_lists[identifier]:
                     type_lists[identifier].append(value)
@@ -232,7 +233,7 @@ class ValueSet(object):
 
         def _filter_numerics(type_lists):
             """Filter out numeric values subsumed by some Interval."""
-            #filter out the ints, floats, and longs, subsumed by some Interval.
+            # filter out the ints, floats, and longs, subsumed by some Interval
             bad_ints, bad_floats, bad_longs = [], [], []
             for i in type_lists[int]:
                 for interval in type_lists["_is_Interval"]:
@@ -264,27 +265,27 @@ class ValueSet(object):
             for bl in bad_longs:
                 type_lists[long].remove(bl)
 
-        #only accept sets and lists for valueset parameter
+        # only accept sets and lists for valueset parameter
         if not isinstance(values, list) and not isinstance(values, set):
             raise TypeError("values paramter must be a list or set")
 
-        #make copy of input before processing
+        # make copy of input before processing
         input_set = deepcopy(values)
 
-        #convert set to list
+        # convert set to list
         if isinstance(input_set, set):
             input_set = list(input_set)
 
         type_lists = ValueSet._split_by_types(values)
 
-        #If intervals are within this valueset
+        # If intervals are within this valueset
         if type_lists["_is_Interval"]:
             type_lists["_is_Interval"] = Interval.collapse_intervals(
-                                            type_lists["_is_Interval"])
+                type_lists["_is_Interval"])
             _filter_numerics(type_lists)
 
         output_set = []
-        #reconstruct list, sorting when possible
+        # reconstruct list, sorting when possible
         for base_type in ValueSet._base_types:
             output_set += sorted(type_lists[base_type])
         for object_type in ValueSet._object_types:
@@ -292,15 +293,21 @@ class ValueSet(object):
 
         return output_set
 
+
 def main():
     """."""
-    v = ValueSet(
-        [Interval(0, 2), Interval(1, 4), 
-        Interval(10, 20), Interval(9, 24),
-        Interval(30, 35), Interval(31, 34), 
-        Interval(60, 144), Interval(77, 150),
-        Interval(9, 25), Interval(25, 30), "f", -1])
-    
+    v = ValueSet([Interval(0, 2),
+                  Interval(1, 4),
+                  Interval(10, 20),
+                  Interval(9, 24),
+                  Interval(30, 35),
+                  Interval(31, 34),
+                  Interval(60, 144),
+                  Interval(77, 150),
+                  Interval(9, 25),
+                  Interval(25, 30),
+                  "f", -1])
+
     v1 = ValueSet([-1, 'f', Point(1.0, 1.0)])
     v2 = ValueSet([Point(1.0, 1.0)])
 

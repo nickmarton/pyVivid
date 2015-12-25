@@ -15,11 +15,13 @@ from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.Vocabulary import Vocabulary
 
 from vivid.Classes.State import State
-from vivid.Classes.State import AttributeSystem
-from vivid.Classes.State import AttributeStructure
-from vivid.Classes.State import Attribute, Relation
+from vivid.Classes.AttributeSystem import AttributeSystem
+from vivid.Classes.AttributeStructure import AttributeStructure
+from vivid.Classes.Attribute import Attribute
+from vivid.Classes.Relation import Relation
 from vivid.Classes.ValueSet import ValueSet
 from vivid.Classes.Interval import Interval
+
 
 def test___init__():
     """Test NamedState constructor."""
@@ -27,6 +29,7 @@ def test___init__():
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             NamedState(attribute_system, p, ascriptions)
+
     def test_ValueError(attribute_system, p, ascriptions={}):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
@@ -38,16 +41,16 @@ def test___init__():
     o = ['s1', 's2']
     attribute_system = AttributeSystem(a, o)
     attribute_system_bad = AttributeSystem(a, o[0:1])
-    
-    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
+
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'], [], [])
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
     p_bad = ConstantAssignment(vocabulary, attribute_system_bad, {'a': 's1'})
 
-    #Test bad p types
+    # Test bad p types
     test_TypeError(attribute_system, [])
     test_TypeError(attribute_system, None)
     test_TypeError(attribute_system, object)
-    #test mismatched AttributeSystem's
+    # test mismatched AttributeSystem's
     test_ValueError(attribute_system_bad, p)
     test_ValueError(attribute_system, p_bad)
 
@@ -57,7 +60,7 @@ def test___init__():
     assert s._p == p
     assert s._p is not p
     assert s._p._vocabulary is p._vocabulary
-    
+
     s = NamedState(attribute_system, p, {
         ('color', 's1'): ['R'],
         ('color', 's2'): ['B', 'G'],
@@ -68,6 +71,7 @@ def test___init__():
     assert s[(('color', 's2'))] == ValueSet(['G', 'B'])
     assert s[(('size', 's1'))] == ValueSet(['M'])
     assert s[(('size', 's2'))] == ValueSet(['L', 'S'])
+
 
 def test___eq__():
     """Test == operator for NamedState object."""
@@ -81,24 +85,24 @@ def test___eq__():
     attribute_structure = AttributeStructure(color, size)
     objects = ['s1', 's2', 's3']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
-
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'], [], [])
 
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    
+    p_1 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's1', 'b': 's2'})
+
     ascr = {
         ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
         ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
     ascr_1 = {
         ('color', 's1'): ['B'], ('size', 's1'): ['S', 'M'],
         ('color', 's2'): ['B', 'G'], ('size', 's2'): ['M', 'L']}
-    
+
     named_state = NamedState(attribute_system, p, ascr)
     named_state_copy = NamedState(attribute_system, p, ascr)
     named_state_1 = NamedState(attribute_system, p_1, ascr_1)
     named_state_2 = NamedState(attribute_system, p, ascr_1)
-
 
     test_TypeError(named_state, None)
     test_TypeError(named_state, object)
@@ -113,6 +117,7 @@ def test___eq__():
     named_state.set_ascription(('color', 's2'), ['B', 'G'])
     assert named_state == named_state_2
 
+
 def test___ne__():
     """Test != operator for NamedState object."""
     def test_TypeError(self, other):
@@ -125,24 +130,24 @@ def test___ne__():
     attribute_structure = AttributeStructure(color, size)
     objects = ['s1', 's2', 's3']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
-
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'], [], [])
 
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    
+    p_1 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's1', 'b': 's2'})
+
     ascr = {
         ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
         ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
     ascr_1 = {
         ('color', 's1'): ['B'], ('size', 's1'): ['S', 'M'],
         ('color', 's2'): ['B', 'G'], ('size', 's2'): ['M', 'L']}
-    
+
     named_state = NamedState(attribute_system, p, ascr)
     named_state_copy = NamedState(attribute_system, p, ascr)
     named_state_1 = NamedState(attribute_system, p_1, ascr_1)
     named_state_2 = NamedState(attribute_system, p, ascr_1)
-
 
     test_TypeError(named_state, None)
     test_TypeError(named_state, object)
@@ -157,6 +162,7 @@ def test___ne__():
     named_state.set_ascription(('color', 's2'), ['B', 'G'])
     assert not named_state != named_state_2
 
+
 def test___deepcopy__():
     """Test copy.deepcopy for NamedState object."""
     from copy import deepcopy
@@ -166,16 +172,17 @@ def test___deepcopy__():
     attribute_structure = AttributeStructure(color, size)
     objects = ['s1', 's2', 's3']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
-
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'], [], [])
 
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    
+    p_1 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's1', 'b': 's2'})
+
     ascr = {
         ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
         ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
-    
+
     named_state = NamedState(attribute_system, p, ascr)
     named_state_copy = deepcopy(named_state)
     assert named_state == named_state_copy
@@ -184,6 +191,7 @@ def test___deepcopy__():
     assert named_state._attribute_system is not named_state_copy._attribute_system
     assert named_state._p is not named_state_copy._p
     assert named_state._ascriptions is not named_state_copy._ascriptions
+
 
 def test___lt__():
     """Test < operator for NamedState; overloaded for proper extension."""
@@ -197,12 +205,13 @@ def test___lt__():
     attribute_structure = AttributeStructure(color, size)
     objects = ['s1', 's2', 's3']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
-
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'], [], [])
 
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    
+    p_1 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's1', 'b': 's2'})
+
     ascr = {
         ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
         ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
@@ -212,7 +221,7 @@ def test___lt__():
     ascr_2 = {
         ('color', 's1'): ['B'], ('size', 's1'): ['S'],
         ('color', 's2'): ['B'], ('size', 's2'): ['L']}
-    
+
     named_state = NamedState(attribute_system, p, ascr)
     named_state_1 = NamedState(attribute_system, p_1, ascr)
     named_state_2 = NamedState(attribute_system, p, ascr_1)
@@ -224,13 +233,14 @@ def test___lt__():
     test_TypeError(named_state, None)
 
     assert not named_state < named_state
-    #test superset p
+    # test superset p
     assert named_state_1 < named_state
-    #test subset ascriptions
+    # test subset ascriptions
     assert named_state_2 < named_state
-    #test both and chaining
+    # test both and chaining
     assert named_state_4 < named_state_3 < named_state_1 < named_state
     assert named_state_4 < named_state_3 < named_state_2 < named_state
+
 
 def test___le__():
     """Test <= operator for NamedState; overloaded for proper extension."""
@@ -244,12 +254,13 @@ def test___le__():
     attribute_structure = AttributeStructure(color, size)
     objects = ['s1', 's2', 's3']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'],[],[])
-
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd', 'e', 'f', 'g'], [], [])
 
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    
+    p_1 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's1', 'b': 's2'})
+
     ascr = {
         ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
         ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
@@ -259,7 +270,7 @@ def test___le__():
     ascr_2 = {
         ('color', 's1'): ['B'], ('size', 's1'): ['S'],
         ('color', 's2'): ['B'], ('size', 's2'): ['L']}
-    
+
     named_state = NamedState(attribute_system, p, ascr)
     named_state_1 = NamedState(attribute_system, p_1, ascr)
     named_state_2 = NamedState(attribute_system, p, ascr_1)
@@ -271,13 +282,14 @@ def test___le__():
     test_TypeError(named_state, None)
 
     assert named_state <= named_state
-    #test superset p
+    # test superset p
     assert named_state_1 <= named_state
-    #test subset ascriptions
+    # test subset ascriptions
     assert named_state_2 <= named_state
-    #test both and chaining
+    # test both and chaining
     assert named_state_4 <= named_state_3 <= named_state_1 <= named_state
     assert named_state_4 <= named_state_3 <= named_state_2 <= named_state
+
 
 def test_is_world():
     """Test is_world() function for NamedState."""
@@ -288,10 +300,11 @@ def test_is_world():
     attribute_system = AttributeSystem(attribute_structure, objects)
     vocabulary = Vocabulary(['a', 'b'], [], [])
 
-
     p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
-    p_total = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    
+    p_total = ConstantAssignment(vocabulary,
+                                 attribute_system,
+                                 {'a': 's1', 'b': 's2'})
+
     ascr = {
         ('color', 's1'): ['R', 'B'], ('size', 's1'): ['S', 'M', 'L'],
         ('color', 's2'): ['R', 'B', 'G'], ('size', 's2'): ['M', 'L']}
@@ -308,6 +321,7 @@ def test_is_world():
     assert not named_state_3.is_world()
     assert world.is_world()
 
+
 def test_get_worlds():
     """Test get_worlds() function for NamedState."""
     color = Attribute('color', ['R', 'G'])
@@ -317,43 +331,113 @@ def test_get_worlds():
     attribute_system = AttributeSystem(attribute_structure, objects)
     vocabulary = Vocabulary(['a', 'b'], [], [])
 
-
     p = ConstantAssignment(vocabulary, attribute_system, {})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
-    p_2 = ConstantAssignment(vocabulary, attribute_system, {'a': 's2', 'b': 's1'})
-    
+    p_1 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's1', 'b': 's2'})
+    p_2 = ConstantAssignment(vocabulary,
+                             attribute_system,
+                             {'a': 's2', 'b': 's1'})
+
     ascr = {('color', 's1'): ['R']}
 
     ns = NamedState(attribute_system, p, ascr)
     worlds = ns.get_worlds()
 
     worlds_manual = [
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_1, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['G'], ('size', 's1'): ['S'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['L'], ('size', 's2'): ['S']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['L']}),
-        NamedState(attribute_system, p_2, {('color', 's1'): ['R'], ('color', 's2'): ['R'], ('size', 's1'): ['S'], ('size', 's2'): ['S']})]
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['G'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['L'],
+                   ('size', 's2'): ['S']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['L']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('size', 's1'): ['S'],
+                   ('size', 's2'): ['S']})]
 
     assert worlds == worlds_manual
+
 
 def test_is_named_alternate_extension():
     """Test is_named_alternate_extension() function for NamedState."""
     pass
 
+
 def test_get_named_alternate_extensions():
     """Test get_named_alternate_extensions() function for NamedState."""
     pass
+
 
 def test_satisfies_formula():
     """Test satisfies_formula() function for NamedState."""
@@ -361,6 +445,7 @@ def test_satisfies_formula():
         """Test TypeError catching in satisfies_formula()."""
         with pytest.raises(TypeError) as excinfo:
             world.satisfies_formula(formula, attribute_interpretation, X)
+
     def test_ValueError(world, formula, attribute_interpretation, X):
         """Test ValueError catching in satisfies_formula()."""
         with pytest.raises(ValueError) as excinfo:
@@ -370,24 +455,31 @@ def test_satisfies_formula():
     a2 = Attribute('minute', [Interval(0, 59)])
     r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
     r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                       ['hour', 'minute', 'hour', 'minute'], 3)
+    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                        ['hour', 'minute', 'hour', 'minute'], 4)
+    attribute_structure = AttributeStructure(
+        a, a2, r_ahead, r_behind, r_pm, r_am)
 
     pm_rs = RelationSymbol('PM', 1)
     am_rs = RelationSymbol('AM', 1)
     ahead_rs = RelationSymbol('Ahead', 4)
     behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
 
-    profiles = [    
+    profiles = [
         [pm_rs, ('hour', 1)],
         [am_rs, ('hour', 1)],
         [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
         [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
 
     attribute_interpretation = AttributeInterpretation(
-        vocabulary, attribute_structure, {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4}, profiles)
+        vocabulary,
+        attribute_structure,
+        {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4},
+        profiles)
 
     objs = ['c1', 'c2', 'x1', 'x2']
     asys = AttributeSystem(attribute_structure, objs)
@@ -429,7 +521,7 @@ def test_satisfies_formula():
     from copy import deepcopy
     world2 = deepcopy(world)
     world2.set_ascription(('hour', 'c1'), [1])
-    
+
     test_TypeError(world, None, attribute_interpretation, X)
     test_TypeError(world, object, attribute_interpretation, X)
     test_TypeError(world, f1, None, X)
@@ -450,12 +542,14 @@ def test_satisfies_formula():
     assert world2.satisfies_formula(f4, X, attribute_interpretation)
     assert not world2.satisfies_formula(f5, X, attribute_interpretation)
 
+
 def test_satisfies_named_state():
     """Test satisfies_named_state() function for NamedState."""
     def test_TypeError(world, named_state):
         """Test TypeError catching in satisfies_named_state()."""
         with pytest.raises(TypeError) as excinfo:
             world.satisfies_named_state(named_state)
+
     def test_ValueError(world, named_state):
         """Test ValueError catching in satisfies_named_state()."""
         with pytest.raises(ValueError) as excinfo:
@@ -465,15 +559,19 @@ def test_satisfies_named_state():
     a2 = Attribute('minute', [Interval(0, 59)])
     r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
     r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                       ['hour', 'minute', 'hour', 'minute'], 3)
+    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                        ['hour', 'minute', 'hour', 'minute'], 4)
+    attribute_structure = AttributeStructure(
+        a, a2, r_ahead, r_behind, r_pm, r_am)
 
     pm_rs = RelationSymbol('PM', 1)
     am_rs = RelationSymbol('AM', 1)
     ahead_rs = RelationSymbol('Ahead', 4)
     behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
 
     objs = ['c1', 'c2']
     asys = AttributeSystem(attribute_structure, objs)
@@ -501,12 +599,14 @@ def test_satisfies_named_state():
     test_TypeError(worlds[0], object)
     test_ValueError(named_state, named_state)
 
+
 def test_satisfies_context():
     """Test satisfies_context() function for NamedState."""
     def test_TypeError(world, context, X, attribute_interpretation):
         """Test TypeError catching in satisfies_context()."""
         with pytest.raises(TypeError) as excinfo:
             world.satisfies_context(context, X, attribute_interpretation)
+
     def test_ValueError(world, context, X, attribute_interpretation):
         """Test ValueError catching in satisfies_context()."""
         with pytest.raises(ValueError) as excinfo:
@@ -516,24 +616,31 @@ def test_satisfies_context():
     a2 = Attribute('minute', [Interval(0, 59)])
     r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
     r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                       ['hour', 'minute', 'hour', 'minute'], 3)
+    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                        ['hour', 'minute', 'hour', 'minute'], 4)
+    attribute_structure = AttributeStructure(
+        a, a2, r_ahead, r_behind, r_pm, r_am)
 
     pm_rs = RelationSymbol('PM', 1)
     am_rs = RelationSymbol('AM', 1)
     ahead_rs = RelationSymbol('Ahead', 4)
     behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
 
-    profiles = [    
+    profiles = [
         [pm_rs, ('hour', 1)],
         [am_rs, ('hour', 1)],
         [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
         [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
 
     attribute_interpretation = AttributeInterpretation(
-        vocabulary, attribute_structure, {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4}, profiles)
+        vocabulary,
+        attribute_structure,
+        {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4},
+        profiles)
 
     objs = ['c1', 'c2', 'x1', 'x2']
     asys = AttributeSystem(attribute_structure, objs)
@@ -589,9 +696,12 @@ def test_satisfies_context():
     assert world.satisfies_context(good_context, X, attribute_interpretation)
     assert world.satisfies_context(good_context2, X, attribute_interpretation)
     assert world.satisfies_context(good_context3, X, attribute_interpretation)
-    assert not world.satisfies_context(bad_context, X, attribute_interpretation)
-    assert not world.satisfies_context(bad_context2, X, attribute_interpretation)
-    assert not world.satisfies_context(bad_context3, X, attribute_interpretation)
+    assert not world.satisfies_context(
+        bad_context, X, attribute_interpretation)
+    assert not world.satisfies_context(
+        bad_context2, X, attribute_interpretation)
+    assert not world.satisfies_context(
+        bad_context3, X, attribute_interpretation)
 
     from copy import deepcopy
     world2 = deepcopy(world)
@@ -611,9 +721,12 @@ def test_satisfies_context():
 
     assert world2.satisfies_context(good_context, X, attribute_interpretation)
     assert world2.satisfies_context(good_context2, X, attribute_interpretation)
-    assert not world2.satisfies_context(bad_context, X, attribute_interpretation)
-    assert not world2.satisfies_context(bad_context2, X, attribute_interpretation)
-    assert not world2.satisfies_context(bad_context3, X, attribute_interpretation)
+    assert not world2.satisfies_context(
+        bad_context, X, attribute_interpretation)
+    assert not world2.satisfies_context(
+        bad_context2, X, attribute_interpretation)
+    assert not world2.satisfies_context(
+        bad_context3, X, attribute_interpretation)
 
     test_TypeError(world, None, attribute_interpretation, X)
     test_TypeError(world, object, attribute_interpretation, X)
@@ -623,9 +736,11 @@ def test_satisfies_context():
     test_TypeError(world, good_context, attribute_interpretation, object)
     test_ValueError(named_state, good_context, X, attribute_interpretation)
 
+
 def test_is_named_entailment():
     """Test is_named_entailment() function for NamedState."""
     pass
+
 
 def test___str__():
     """Test str(NamedState)."""
@@ -636,9 +751,9 @@ def test___str__():
     attribute_system = AttributeSystem(attribute_structure, objects)
     vocabulary = Vocabulary(['a', 'b'], [], [])
 
-
     p = ConstantAssignment(vocabulary, attribute_system, {})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
+    p_1 = ConstantAssignment(
+        vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
 
     ascr = {('color', 's1'): ['R']}
 
@@ -646,6 +761,7 @@ def test___str__():
     ns1 = NamedState(attribute_system, p_1, ascr)
     assert str(ns) == "color(s1): {V(R)}\ncolor(s2): {V(G, R)}\nsize(s1): {V(L, S)}\nsize(s2): {V(L, S)}\nCA{}"
     assert str(ns1) == "color(s1): {V(R)}\ncolor(s2): {V(G, R)}\nsize(s1): {V(L, S)}\nsize(s2): {V(L, S)}\nCA{'a': 's1', 'b': 's2'}"
+
 
 def test___repr__():
     """Test repr(NamedState)."""
@@ -656,9 +772,9 @@ def test___repr__():
     attribute_system = AttributeSystem(attribute_structure, objects)
     vocabulary = Vocabulary(['a', 'b'], [], [])
 
-
     p = ConstantAssignment(vocabulary, attribute_system, {})
-    p_1 = ConstantAssignment(vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
+    p_1 = ConstantAssignment(
+        vocabulary, attribute_system, {'a': 's1', 'b': 's2'})
 
     ascr = {('color', 's1'): ['R']}
 

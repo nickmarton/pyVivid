@@ -4,6 +4,7 @@ from Vocabulary import Vocabulary
 from RelationSymbol import RelationSymbol
 from AttributeStructure import Attribute, Relation, AttributeStructure
 
+
 class AttributeInterpretation(object):
     """AttributeInterpretation class to build an interpretation table."""
 
@@ -13,7 +14,7 @@ class AttributeInterpretation(object):
             raise TypeError("vocabulary parameter must be a Vocabulary object")
         if not hasattr(attribute_structure, "_is_AttributeStructure"):
             raise TypeError(
-                "attribute_structure parameter must be an " 
+                "attribute_structure parameter must be an "
                 "AttributeStructure object")
         if type(mapping) != dict:
             raise TypeError(
@@ -27,13 +28,12 @@ class AttributeInterpretation(object):
         if not all(hasattr(i, "_is_RelationSymbol") for i in source):
             raise ValueError(
                 "All keys provided to mapping parameter must be "
-                "RelationSymbol objects")            
+                "RelationSymbol objects")
 
         if not all(type(i) == int for i in target):
             raise ValueError(
                 "All values provided to mapping parameter must be integer "
                 "subscripts")
-
 
         valid_subscripts = attribute_structure._relations.keys()
         valid_r_symbols = vocabulary._R
@@ -43,14 +43,13 @@ class AttributeInterpretation(object):
             raise ValueError(
                 "Duplicate profiles not permitted.")
 
-        #only need to do this for subscripts; dictionaries can't have
-        #duplicate keys
+        # only need to do this for subscripts; dictionaries can't have
+        # duplicate keys
         if len(target) != len(set(target)):
             raise ValueError(
                 "Duplicate subscripts; Mapping must be 1-to-1")
 
-
-        #Ensure source and target elements are valid
+        # Ensure source and target elements are valid
         if not set(source) == set(valid_r_symbols) == set(profile_r_symbols):
             raise ValueError(
                 "The set of RelationSymbol's provided in mapping and the set "
@@ -66,10 +65,10 @@ class AttributeInterpretation(object):
 
         valid_labels = attribute_structure.get_labels()
         for profile in profiles:
-            #split profile
+            # split profile
             R, prof = profile[0], profile[1:]
 
-            #extract relevant fields
+            # extract relevant fields
             n = R._arity
             R_prime_subscript = mapping[R]
             for relation in attribute_structure._relations.values():
@@ -78,29 +77,32 @@ class AttributeInterpretation(object):
 
             labels = [pair[0] for pair in prof]
             j_x = [pair[1] for pair in prof]
-            
-            #ensure all labels in profile exist in AttributeStructure
+
+            # ensure all labels in profile exist in AttributeStructure
             if not set(labels) <= set(valid_labels):
                 raise ValueError(
                     "Invalid label provided in profile: " + str(profile))
 
-            #Ensure 1 <= j_x <= n for all j_x in profile where n is the
-            #RelationSymbol's arity
+            # Ensure 1 <= j_x <= n for all j_x in profile where n is the
+            # RelationSymbol's arity
             if not all([1 <= j_i <= n for j_i in j_x]):
-                raise ValueError("1 <= j_x <= n must be true for all j_x in profile")
+                raise ValueError(
+                    "1 <= j_x <= n must be true for all j_x in profile")
 
-            entry = [R, R_prime.get_arity(), 'R' + str(R_prime._subscript), prof]
+            entry = [R, R_prime.get_arity(),
+                     'R' + str(R_prime._subscript),
+                     prof]
             interpretation_table.append(entry)
 
-        #Save copy of all params for deepcopy implementation
+        # Save copy of all params for deepcopy implementation
         from copy import deepcopy
         self._vocabulary = vocabulary
         self._attribute_structure = deepcopy(attribute_structure)
         self._mapping = deepcopy(mapping)
         self._profiles = deepcopy(profiles)
-        
+
         self._table = interpretation_table
-        self._relation_symbols = [entry[0] for entry in interpretation_table]
+        self._relation_symbols = [e[0] for e in interpretation_table]
         self._is_AttributeInterpretation = True
 
     def __eq__(self, other):
@@ -110,24 +112,24 @@ class AttributeInterpretation(object):
                 "Can only compare an AttributeInterpretation object with "
                 "another AttributeInterpretation object")
 
-        #No duplicates so just checking set equality works
+        # No duplicates so just checking set equality works
         if self._attribute_structure != other._attribute_structure:
             return False
 
         if self._vocabulary != other._vocabulary:
             return False
-            
+
         rs_cond = set(self._relation_symbols) == set(other._relation_symbols)
         if not rs_cond:
             return False
 
-        #easy look up table to determine if set of rows are equal
+        # easy look up table to determine if set of rows are equal
         self_dict = {entry[0]: entry[1:] for entry in self._table}
         other_dict = {entry[0]: entry[1:] for entry in other._table}
 
-        #for every row, compare
+        # for every row, compare
         for key in self_dict.keys():
-            #Pull the rows from the lookup table
+            # Pull the rows from the lookup table
             self_row = self_dict[key]
             other_row = other_dict[key]
 
@@ -135,8 +137,8 @@ class AttributeInterpretation(object):
             r_cond = self_row[1] == other_row[1]
             profile_cond = self_row[2] == other_row[2]
 
-            #if some pair of entries on the rows are unequal,
-            #AttributeInterpretation's are not equal
+            # if some pair of entries on the rows are unequal,
+            # AttributeInterpretation's are not equal
             if not arity_cond or not r_cond or not profile_cond:
                 return False
 
@@ -168,21 +170,26 @@ class AttributeInterpretation(object):
         """Implement repr(AttributeInterpretation)."""
         return '\n'.join([str(entry) for entry in self._table])
 
+
 def main():
     """Quick tests."""
-    
+
     a = Attribute('hour', ['0,...,23'])
     a2 = Attribute('minute', ['0,...,59'])
-    r_ahead = Relation('R1(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 1)
-    r_behind = Relation('R2(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 2)
+    r_ahead = Relation('R1(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                       ['hour', 'minute', 'hour', 'minute'], 1)
+    r_behind = Relation('R2(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                        ['hour', 'minute', 'hour', 'minute'], 2)
     r_pm = Relation('R3(h1) <=> h1 > 12', ['hour'], 3)
     r_am = Relation('R4(h1) <=> h1 < 12', ['hour'], 4)
-    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+    attribute_structure = AttributeStructure(
+        a, a2, r_ahead, r_behind, r_pm, r_am)
 
     ahead_rs = RelationSymbol('Ahead', 4)
     behind_rs = RelationSymbol('Behind', 4)
     pm_rs = RelationSymbol('PM', 1)
-    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
 
     profiles = [
         [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
@@ -192,7 +199,8 @@ def main():
 
     mapping = {ahead_rs: 1, behind_rs: 2, pm_rs: 3}
 
-    ai = AttributeInterpretation(vocabulary, attribute_structure, mapping, profiles)
+    ai = AttributeInterpretation(
+        vocabulary, attribute_structure, mapping, profiles)
     print ai == ai
 
 if __name__ == "__main__":

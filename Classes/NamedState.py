@@ -1,10 +1,12 @@
 """Named State class."""
 
-from State import Attribute, Relation, AttributeStructure, AttributeSystem, State
+from State import Attribute, AttributeStructure, AttributeSystem, State
+from Relation import Relation
 from RelationSymbol import RelationSymbol
 from Vocabulary import Vocabulary
 from ConstantAssignment import ConstantAssignment
 from VariableAssignment import VariableAssignment
+
 
 class NamedState(State):
     """
@@ -24,7 +26,7 @@ class NamedState(State):
         Raise ValueError if AttributeSystem of p doesn't match
         AttributeSystem object provided in attribute_system.
         """
-        
+
         if not hasattr(p, "_is_ConstantAssignment"):
             raise TypeError("p parameter must be a ConstantAssignment object")
 
@@ -36,7 +38,7 @@ class NamedState(State):
         from copy import deepcopy
         State.__init__(self, attribute_system, ascriptions)
         self._p = deepcopy(p)
-        #reassign vocabulary to keep reference since Vocabulary's are mutable
+        # reassign vocabulary to keep reference since Vocabulary's are mutable
         self._p._vocabulary = p._vocabulary
         self._is_NamedState = True
 
@@ -49,7 +51,7 @@ class NamedState(State):
             return True
         else:
             return False
-    
+
     def __ne__(self, other):
         """Implement != operator for NamedState object."""
         return not self.__eq__(other)
@@ -57,7 +59,7 @@ class NamedState(State):
     def __deepcopy__(self, memo):
         """Return a deep copy of this NamedState."""
         from copy import deepcopy
-        
+
         return NamedState(
             deepcopy(self._attribute_system),
             deepcopy(self._p),
@@ -71,19 +73,19 @@ class NamedState(State):
         same_attr_systems = self._attribute_system == other._attribute_system
         same_vocabularies = self._p._vocabulary == other._p._vocabulary
 
-        #not same AttributeSystem or Vocabulary, not an extension
+        # not same AttributeSystem or Vocabulary, not an extension
         if not same_attr_systems or not same_vocabularies:
             return False
 
-        #if this State is an extension of other State
+        # if this State is an extension of other State
         if self <= other:
             self_state = State(self._attribute_system, self._ascriptions)
             other_state = State(other._attribute_system, other._ascriptions)
 
-            #if this State is a proper extension of other State or this
-            #ConstantAssignment is a proper superset of other
-            #ConstantAssignment, this NamedState is a proper extension of other
-            #NamedState
+            # if this State is a proper extension of other State or this
+            # ConstantAssignment is a proper superset of other
+            # ConstantAssignment, this NamedState is a proper extension of
+            # other NamedState
             if self_state < other_state or self._p > other._p:
                 return True
 
@@ -97,7 +99,7 @@ class NamedState(State):
         same_attr_systems = self._attribute_system == other._attribute_system
         same_vocabularies = self._p._vocabulary == other._p._vocabulary
 
-        #not same AttributeSystem or Vocabulary, not an extension
+        # not same AttributeSystem or Vocabulary, not an extension
         if not same_attr_systems or not same_vocabularies:
             return False
 
@@ -111,12 +113,12 @@ class NamedState(State):
 
     def is_world(self):
         """Determine if this NamedState is a world."""
-        #if state is a world and p is total, this NamedState is a world
+        # if state is a world and p is total, this NamedState is a world
         return State.is_world(self) and self._p.is_total()
 
     def get_worlds(self):
         """
-        Return a list of all possible worlds derivable from this 
+        Return a list of all possible worlds derivable from this
         NamedState object.
         """
 
@@ -130,24 +132,27 @@ class NamedState(State):
         repeat_num = len(source) if len(source) < len(target) else len(target)
 
         from itertools import product
-        #create all combinations of source and target elements
+        # create all combinations of source and target elements
         combos = list(product(source, target, repeat=repeat_num))
 
-        #remove combinations with duplicate source or target elements
-        combos = [c for c in combos if len(set(c)) == len(source) + len(target)]
-        #group the combinations into 2-tuples
-        combos = [[combo[i:i+2] for i, item in enumerate(combo) if i%2 == 0] for combo in combos]
-        #sort the combinations by vocabulary elements
+        # remove combinations with duplicate source or target elements
+        combos = [
+            c for c in combos if len(set(c)) == len(source) + len(target)]
+        # group the combinations into 2-tuples
+        combos = [
+            [combo[i:i + 2] for i, item in enumerate(combo) if i % 2 == 0]
+            for combo in combos]
+        # sort the combinations by vocabulary elements
         combos = [sorted(combo, key=lambda x: x[0]) for combo in combos]
 
-        #remove duplcate combinations
+        # remove duplcate combinations
         unique_combos = []
 
         for combo in combos:
             if combo not in unique_combos:
                 unique_combos.append(combo)
 
-        #remove combinations in conflict with this NamedState
+        # remove combinations in conflict with this NamedState
         valid_constant_assignments = []
         for combo in unique_combos:
             CA = ConstantAssignment(
@@ -160,32 +165,34 @@ class NamedState(State):
 
         self_worlds = State.get_worlds(self)
 
-        #create worlds for all constant assignment and world combos.
+        # create worlds for all constant assignment and world combos.
         worlds = []
         if valid_constant_assignments:
             for p in valid_constant_assignments:
                 for self_world in self_worlds:
-                    #construct world and save it
+                    # construct world and save it
                     world = NamedState(
                         self._attribute_system, p, self_world._ascriptions)
                     worlds.append(world)
         else:
             for self_world in self_worlds:
-                    #construct world and save it
+                    # construct world and save it
                     world = NamedState(
-                        self._attribute_system, self._p, self_world._ascriptions)
+                        self._attribute_system,
+                        self._p,
+                        self_world._ascriptions)
                     worlds.append(world)
 
         return worlds
 
     def is_named_alternate_extension(self, ns_prime, *named_states):
         """
-        Return True if ns_prime is an alternate extension of this 
-        NamedState w.r.t. named_states provided in named_states 
+        Return True if ns_prime is an alternate extension of this
+        NamedState w.r.t. named_states provided in named_states
         parameter.
 
         Raise TypeError if ns_prime parameter is not of type NamedState.
-        Raise ValueError if ns_prime is not a proper extension of this 
+        Raise ValueError if ns_prime is not a proper extension of this
         NamedState object.
         Raise ValueError if named_states parameter is empty.
         Raise TypeError if any item in named_states parameter is not of type
@@ -199,7 +206,7 @@ class NamedState(State):
             raise ValueError(
                 "at least one NamedState object must be "
                 "provided as an argument")
-        
+
         for named_state in list(named_states) + [ns_prime]:
             if not hasattr(named_state, "_is_NamedState"):
                 raise TypeError(
@@ -211,7 +218,7 @@ class NamedState(State):
                     "all NamedStates provided must be proper "
                     "subsets of this NamedState object.")
 
-        aes = self.get_named_alternate_extensions(*named_states)        
+        aes = self.get_named_alternate_extensions(*named_states)
         return True if ns_prime in aes else False
 
     def get_named_alternate_extensions(self, *named_states):
@@ -234,20 +241,20 @@ class NamedState(State):
             of this NamedState object's p.
             """
 
-            #grab the system objects for convenience.
+            # grab the system objects for convenience.
             system_objects = self._attribute_system._objects
             n = len(system_objects)
 
-            #Get the union of all domains of provided NamedState objects
+            # Get the union of all domains of provided NamedState objects
             domain_union = []
             for named_state in named_states:
                 domain_union.extend(named_state._p.get_domain())
             domain_union = list(set(domain_union))
-            
-            #create set of all cartesian products of domain list and system
-            #object list where each product is of length arity, that is,
-            #the minimum number to match the smaller list with exactly one
-            #member of the bigger list.
+
+            # create set of all cartesian products of domain list and system
+            # object list where each product is of length arity, that is,
+            # the minimum number to match the smaller list with exactly one
+            # member of the bigger list.
             from itertools import product
 
             arity = len(domain_union) if len(domain_union) < n else n
@@ -256,36 +263,37 @@ class NamedState(State):
             supersets_list = []
 
             for combo in combos:
-                #bundle the combo elements into 2-tuples representing
-                #domain-object pairs, then remove duplicates.
-                combo = [combo[i:i+2] for i, item in enumerate(combo) if i%2 == 0]
+                # bundle the combo elements into 2-tuples representing
+                # domain-object pairs, then remove duplicates.
+                combo = [
+                    combo[i:i + 2] for i, item in enumerate(combo)
+                    if i % 2 == 0]
                 combo = list(set(combo))
-                
-                #ensure that individual combos do not contain duplicate
-                #domain elemens or duplicate objects.
+
+                # ensure that individual combos do not contain duplicate
+                # domain elemens or duplicate objects.
                 domain = [pair[0] for pair in combo]
                 objects = [pair[1] for pair in combo]
                 domain_duplicates = len(domain) != len(set(domain))
                 object_duplicates = len(objects) != len(set(objects))
 
                 if not domain_duplicates and not object_duplicates:
-                    #if this combo is a superset of this NamedState's p, and
-                    #hasn't already been saved in supersets_list, save it.
+                    # if this combo is a superset of this NamedState's p, and
+                    # hasn't already been saved in supersets_list, save it.
                     if set(self._p._mapping.items()) <= set(combo):
                         for superset in supersets_list:
                             if set(superset) == set(combo):
                                 break
                         else:
                             supersets_list.append(combo)
-            
-            #create a ConstantAssignment for each superset; easily transform
-            #each superset (list of 2-tuples) into mapping by casting to dict
+
+            # create a ConstantAssignment for each superset; easily transform
+            # each superset (list of 2-tuples) into mapping by casting to dict
             supersets = []
             for superset in supersets_list:
-                p_prime = ConstantAssignment(
-                            self._p._vocabulary,
-                            self._attribute_system,
-                            dict(superset))
+                p_prime = ConstantAssignment(self._p._vocabulary,
+                                             self._attribute_system,
+                                             dict(superset))
                 supersets.append(p_prime)
 
             return supersets
@@ -306,38 +314,37 @@ class NamedState(State):
                     "all NamedStates provided must be proper "
                     "subsets of this NamedState object.")
 
-        #get supsets of this NamedState's ConstantAssignment and create an
-        #empty list to hold all alternate extensions.
+        # get supsets of this NamedState's ConstantAssignment and create an
+        # empty list to hold all alternate extensions.
         supersets = get_supersets()
         named_alternate_extensions = []
 
-
         for p_prime in supersets:
-            
-            #get the list of provided NamedStates not in conflict with each
-            #superset of this NamedState's ConstantAssignment, i.e., the
-            #NamedState's where the p'_i >= p_j and sigma_j < sigma.
+
+            # get the list of provided NamedStates not in conflict with each
+            # superset of this NamedState's ConstantAssignment, i.e., the
+            # NamedState's where the p'_i >= p_j and sigma_j < sigma.
             Sigma_i = [ns for ns in named_states if p_prime >= ns._p]
 
-            #if there are such states, get the alternate extensions of this
-            #NamedState's State component w.r.t. the list of non-conflicted
-            #States in Sigma_i.
-            if Sigma_i: 
+            # if there are such states, get the alternate extensions of this
+            # NamedState's State component w.r.t. the list of non-conflicted
+            # States in Sigma_i.
+            if Sigma_i:
                 phi_i = self.get_alternate_extensions(*Sigma_i)
-                #for each alternate extension, create a new NamedState with
-                #that alternate extensions ascriptions and the superset 
-                #p_prime and add to named_alternate_extensions if not already
-                #in named_alternate_extensions.
+                # for each alternate extension, create a new NamedState with
+                # that alternate extensions ascriptions and the superset
+                # p_prime and add to named_alternate_extensions if not already
+                # in named_alternate_extensions.
                 for s_prime in phi_i:
                     nae = NamedState(
                         self._attribute_system, p_prime, s_prime._ascriptions)
 
                     if nae not in named_alternate_extensions:
                         named_alternate_extensions.append(nae)
-            #There is no provided NamedState not in conflict with this
-            #NamedState's ConstantAssignment, so create a new NamedState with
-            #this NamedState's ascriptions and p_prime and add to 
-            #named_alternate_extensions.
+            # There is no provided NamedState not in conflict with this
+            # NamedState's ConstantAssignment, so create a new NamedState with
+            # this NamedState's ascriptions and p_prime and add to
+            # named_alternate_extensions.
             else:
                 from copy import deepcopy
                 nae = deepcopy(self)
@@ -364,9 +371,9 @@ class NamedState(State):
             raise ValueError('this NamedState object must be a world')
 
         truth_value = formula.assign_truth_value(
-                            attribute_interpretation, self, X)
+            attribute_interpretation, self, X)
 
-        if truth_value == True:
+        if truth_value is True:
             return True
         else:
             return False
@@ -380,7 +387,7 @@ class NamedState(State):
         Raise ValueError if this NamedState object is not a world.
         """
 
-        #check for exceptions first.
+        # check for exceptions first.
         if not isinstance(named_state, NamedState):
             raise TypeError(
                 "named_state parameter must be of type NamedState")
@@ -393,7 +400,7 @@ class NamedState(State):
             raise ValueError(
                 "this NamedState object must be a world")
 
-        #simply return truth value of extension
+        # simply return truth value of extension
         return self <= named_state
 
     def satisfies_context(self, context, X, attribute_interpretation):
@@ -401,8 +408,6 @@ class NamedState(State):
         Determine if this NamedState object (which is a world) satisfies a
         given context w.r.t. some VariableAssignment X.
         """
-
-        from Context import Context
 
         if not hasattr(context, "_is_Context"):
             raise TypeError(
@@ -418,23 +423,23 @@ class NamedState(State):
 
         named_state = context._named_state
         assumption_base = context._assumption_base
-        
-        #if this world doesn't satisfy Context's NamedState, doesn't satisfy
-        #Context
+
+        # if this world doesn't satisfy Context's NamedState, doesn't satisfy
+        # Context
         if not self <= named_state:
             return False
-        
-        #If there's some formula for which the world does not satisfy, doesn't
-        #satisfy the Context
+
+        # If there's some formula for which the world does not satisfy, doesn't
+        # satisfy the Context
         for formula in assumption_base:
             truth_value = self.satisfies_formula(
                 formula, X, attribute_interpretation)
 
-            if truth_value == False or truth_value == "unknown":
+            if truth_value is False or truth_value == "unknown":
                 return False
 
         return True
-    
+
     def _generate_variable_assignments(self):
         """
         Return a list of all possible VariableAssignments that can
@@ -442,10 +447,9 @@ class NamedState(State):
         """
 
         if not self._p._vocabulary._V:
-            yield VariableAssignment(
-                    self._p._vocabulary,
-                    self._attribute_system,
-                    {}, dummy=True)
+            yield VariableAssignment(self._p._vocabulary,
+                                     self._attribute_system,
+                                     {}, dummy=True)
 
         V = self._p._vocabulary._V
         objects = self._attribute_system._objects
@@ -456,16 +460,21 @@ class NamedState(State):
 
         import itertools
         if smaller == V:
-            combos = [zip(smaller, x) for x in itertools.permutations(bigger,len(smaller))]
+            combos = [zip(smaller, x)
+                      for x in itertools.permutations(bigger, len(smaller))]
         else:
-            combos = [zip(x, smaller) for x in itertools.permutations(bigger,len(smaller))]
-        
+            combos = [zip(x, smaller)
+                      for x in itertools.permutations(bigger, len(smaller))]
+
         for combo in combos:
             mapping = {pair[0]: pair[1] for pair in combo}
-            X = VariableAssignment(self._p._vocabulary, self._attribute_system, mapping)
+            X = VariableAssignment(self._p._vocabulary,
+                                   self._attribute_system,
+                                   mapping)
             yield X
 
-    def is_named_entailment(self, assumption_base, attribute_interpretation, *named_states):
+    def is_named_entailment(self, assumption_base, attribute_interpretation,
+                            *named_states):
         """
         Determine if this NamedState entails NamedStates contained in
         named_states parameter w.r.t. AssumptionBase assumption_base.
@@ -474,7 +483,8 @@ class NamedState(State):
         if not hasattr(assumption_base, "_is_AssumptionBase"):
             raise TypeError(
                 "assumption_base parameter must be an AssumptionBase object")
-        if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
+        if not hasattr(attribute_interpretation,
+                       "_is_AttributeInterpretation"):
             raise TypeError(
                 "attribute_interpretation parameter must be an "
                 "AssumptionBase object")
@@ -498,7 +508,7 @@ class NamedState(State):
                     "extensions of this NamedState object.")
 
         vocabs_match = self._p._vocabulary == assumption_base._vocabulary == \
-                                        attribute_interpretation._vocabulary
+            attribute_interpretation._vocabulary
 
         if vocabs_match:
             pass
@@ -507,17 +517,16 @@ class NamedState(State):
                 "Vocabulary's of NamedState, AssumptionBase, and "
                 "AttributeInterpretation must all match")
 
-
-        #Get all possible alternate extensions first.
+        # Get all possible alternate extensions first.
         alternate_extensions = self.get_named_alternate_extensions(
-                                                    *named_states)
+            *named_states)
 
         for alternate_extension in alternate_extensions:
             for X in self._generate_variable_assignments():
                 for formula in assumption_base:
                     truth_value = formula.assign_truth_value(
-                            attribute_interpretation, alternate_extension, X)
-                    if truth_value != False:
+                        attribute_interpretation, alternate_extension, X)
+                    if truth_value is not False:
                         return False
         return True
 
@@ -528,6 +537,7 @@ class NamedState(State):
     def __repr__(self):
         """Implement repr(NamedState)."""
         return self.__str__()
+
 
 def main():
     """quick dev tests."""
@@ -541,45 +551,64 @@ def main():
     a2 = Attribute('minute', [Interval(0, 59)])
     r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
     r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)', ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)', ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(a, a2, r_ahead, r_behind, r_pm, r_am)
+    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                       ['hour', 'minute', 'hour', 'minute'], 3)
+    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                        ['hour', 'minute', 'hour', 'minute'], 4)
+    attribute_structure = AttributeStructure(
+        a, a2, r_ahead, r_behind, r_pm, r_am)
     objects = ['s1', 's2', 's3', 's4']
     attribute_system = AttributeSystem(attribute_structure, objects)
-
 
     pm_rs = RelationSymbol('PM', 1)
     am_rs = RelationSymbol('AM', 1)
     ahead_rs = RelationSymbol('Ahead', 4)
     behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V3', 'V2'])
-    p = ConstantAssignment(vocabulary, attribute_system, {'C1': 's1', 'C2': 's2'})
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V3', 'V2'])
+    p = ConstantAssignment(
+        vocabulary, attribute_system, {'C1': 's1', 'C2': 's2'})
     X = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
 
-    named_state = NamedState(attribute_system, p, 
-        {('minute', 's1'): [0], ('minute', 's2'): [0], ('minute', 's3'): [0], ('minute', 's4'): [0],
-         ('hour', 's1'): [9, 10, 11], ('hour', 's2'): [4, 5, 6, 8], ('hour', 's3'): [0], ('hour', 's4'): [0]
-        })
+    named_state = NamedState(attribute_system, p, {
+                            ('minute', 's1'): [0],
+                            ('minute', 's2'): [0],
+                            ('minute', 's3'): [0],
+                            ('minute', 's4'): [0],
+                            ('hour', 's1'): [9, 10, 11],
+                            ('hour', 's2'): [4, 5, 6, 8],
+                            ('hour', 's3'): [0],
+                            ('hour', 's4'): [0]})
 
-    named_state_1 = NamedState(attribute_system, p, 
-        {('minute', 's1'): [0], ('minute', 's2'): [0], ('minute', 's3'): [0], ('minute', 's4'): [0],
-         ('hour', 's1'): [9, 11], ('hour', 's2'): [4, 5, 8], ('hour', 's3'): [0], ('hour', 's4'): [0]
-        })
+    named_state_1 = NamedState(attribute_system, p, {
+                              ('minute', 's1'): [0],
+                              ('minute', 's2'): [0],
+                              ('minute', 's3'): [0],
+                              ('minute', 's4'): [0],
+                              ('hour', 's1'): [9, 11],
+                              ('hour', 's2'): [4, 5, 8],
+                              ('hour', 's3'): [0],
+                              ('hour', 's4'): [0]})
 
-    named_state_2 = NamedState(attribute_system, p, 
-        {('minute', 's1'): [0], ('minute', 's2'): [0], ('minute', 's3'): [0], ('minute', 's4'): [0],
-         ('hour', 's1'): [9, 10], ('hour', 's2'): [4, 6], ('hour', 's3'): [0], ('hour', 's4'): [0]
-        })
+    named_state_2 = NamedState(attribute_system, p, {
+                              ('minute', 's1'): [0],
+                              ('minute', 's2'): [0],
+                              ('minute', 's3'): [0],
+                              ('minute', 's4'): [0],
+                              ('hour', 's1'): [9, 10],
+                              ('hour', 's2'): [4, 6],
+                              ('hour', 's3'): [0],
+                              ('hour', 's4'): [0]})
 
-
-    profiles = [    
+    profiles = [
         [pm_rs, ('hour', 1)],
         [am_rs, ('hour', 1)],
         [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
         [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
 
     attribute_interpretation = AttributeInterpretation(
-        vocabulary, attribute_structure, {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4}, profiles)
+        vocabulary, attribute_structure,
+        {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4}, profiles)
 
     f1 = Formula(vocabulary, 'PM', 'C1')
     f2 = Formula(vocabulary, 'AM', 'C1')
@@ -588,8 +617,14 @@ def main():
 
     assumption_base = AssumptionBase(f1)
 
-    #print named_state.is_named_alternate_extension(tester, named_state_1, named_state_2, named_state_3)
-    print named_state.is_named_entailment(assumption_base, attribute_interpretation, named_state_1, named_state_2)
+    # print named_state.is_named_alternate_extension(tester,
+    #                                                named_state_1,
+    #                                                named_state_2,
+    #                                                named_state_3)
+    print named_state.is_named_entailment(assumption_base,
+                                          attribute_interpretation,
+                                          named_state_1,
+                                          named_state_2)
 
 if __name__ == "__main__":
     main()
