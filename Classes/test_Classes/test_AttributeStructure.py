@@ -5,6 +5,7 @@ from vivid.Classes.Attribute import Attribute
 from vivid.Classes.Relation import Relation
 from vivid.Classes.AttributeStructure import AttributeStructure
 
+
 def test___init__():
     """Test AttributeStructure construction."""
     def test_TypeError(*ops):
@@ -17,7 +18,7 @@ def test___init__():
         with pytest.raises(ValueError) as excinfo:
             AttributeStructure(*ops)
 
-    #Test bad optional param
+    # Test bad optional param
     test_TypeError("a")
     test_TypeError(object)
 
@@ -27,14 +28,15 @@ def test___init__():
     R2 = Relation("R2(a) <=> ", ["b"], 2)
     R3 = Relation("R3(a) <=> ", ["a"], 3)
 
-    #Test no duplicate labels
+    # Test no duplicate labels
     test_ValueError(a, a)
-    #Test no duplicate subscripts
+    # Test no duplicate subscripts
     test_ValueError(R1, R1)
-    #Test D(R) subset of labels
+    # Test D(R) subset of labels
     test_ValueError(a, R1)
-    #Test out of order construction
+    # Test out of order construction
     AttributeStructure(R2, R3, b, a)
+
 
 def test___eq__():
     """Test == operator for AttributeStructure."""
@@ -49,14 +51,15 @@ def test___eq__():
     astr4 = AttributeStructure()
     astr5 = AttributeStructure()
 
-    #Test identity
+    # Test identity
     assert astr1 == astr1
-    #Test regular equality
+    # Test regular equality
     assert astr1 == astr2
-    #Test out of order constuctions
+    # Test out of order constuctions
     assert astr1 == astr3
-    #Test empty equality
-    assert astr4 ==astr5
+    # Test empty equality
+    assert astr4 == astr5
+
 
 def test___le__():
     """Test total ordering."""
@@ -69,7 +72,7 @@ def test___le__():
     astr_a_R1 = AttributeStructure(a, R1)
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
-    #Test subsets and strict subsets
+    # Test subsets and strict subsets
     assert not astr_empty < astr_empty
     assert astr_empty <= astr_empty
     assert astr_empty < astr_a_b_R1_R2
@@ -81,7 +84,7 @@ def test___le__():
     assert not astr_a_b_R1_R2 < astr_a_b_R1_R2
     assert astr_a_b_R1_R2 <= astr_a_b_R1_R2
 
-    #Test supersets and strict supersets
+    # Test supersets and strict supersets
     assert not astr_empty > astr_empty
     assert astr_empty >= astr_empty
     assert astr_a_b_R1_R2 > astr_empty
@@ -93,6 +96,7 @@ def test___le__():
     assert not astr_a_b_R1_R2 > astr_a_b_R1_R2
     assert astr_a_b_R1_R2 >= astr_a_b_R1_R2
 
+
 def test___ne__():
     """!= operator for AttributeStructure."""
     a1 = Attribute("a1", [])
@@ -102,14 +106,15 @@ def test___ne__():
 
     astr1 = AttributeStructure(a1, a2, R1, R2)
     astr2 = AttributeStructure(a1, R2)
-    astr3 =AttributeStructure()
-    
-    #strict subset-superset tests
+    astr3 = AttributeStructure()
+
+    # strict subset-superset tests
     assert astr1 != astr2
     assert astr2 != astr1
-    #empty comparison test
+    # empty comparison test
     assert astr1 != astr3
     assert astr3 != astr1
+
 
 def test___add__():
     """Test + operator for AttributeStructure."""
@@ -122,14 +127,14 @@ def test___add__():
     astr_a_R1 = AttributeStructure(a, R1)
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
-    #test empty addition and identities after
+    # test empty addition and identities after
     assert astr_a == astr_empty + a
     assert astr_a is not astr_empty
-    #test simplest chained addition
+    # test simplest chained addition
     assert astr_a_R1 == astr_empty + a + R1
     assert astr_a_R1 is not astr_empty
     assert astr_a_R1 is not R1
-    #test chained addition
+    # test chained addition
     assert astr_a_b_R1_R2 == astr_empty + a + b + R1 + R2
     assert astr_a_b_R1_R2 == astr_empty + b + a + R1 + R2
     assert astr_a_b_R1_R2 == astr_empty + a + b + R2 + R1
@@ -143,10 +148,11 @@ def test___add__():
     assert astr_a_b_R1_R2 is not R1
     assert astr_a_b_R1_R2 is not R2
 
-    #Duplicates raise ValueError test
+    # Duplicates raise ValueError test
     with pytest.raises(ValueError) as excinfo:
         astr_a + a
         astr_a_R1 + R1
+
 
 def test___sub__():
     """Test - operator for AttributeStructure."""
@@ -174,7 +180,7 @@ def test___sub__():
     astr_a_R1 = AttributeStructure(a, R1)
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
-    #Test invalid subtraction error catching
+    # Test invalid subtraction error catching
     test_ValueError(astr_empty, a)
     test_KeyError(astr_empty, R1)
     test_TypeError(astr_empty, None)
@@ -182,20 +188,21 @@ def test___sub__():
     test_TypeError(astr_empty, object)
     test_ValueError(astr_empty, astr_a)
     test_ValueError(astr_empty, astr_a_R1)
-    
+
     astr_a_copy = AttributeStructure(a)
     test_ValueError(astr_a, astr_a_R1)
     assert astr_a_copy == astr_a
 
-    #Test attribute removal
+    # Test attribute removal
     assert astr_empty == astr_a - a
     assert astr_a == astr_a_R1 - R1
     assert astr_empty == astr_a_R1 - R1 - a
-    #Test invalid remaining Relation's D(R)s
+    # Test invalid remaining Relation's D(R)s
     with pytest.raises(ValueError) as excinfo:
         astr_a_R1 - a
-    #Test chained subtraction
+    # Test chained subtraction
     assert astr_empty == astr_a_b_R1_R2 - R1 - R2 - a - b
+
 
 def test___iadd__():
     """Test += operator for AttributeStructure."""
@@ -217,6 +224,7 @@ def test___iadd__():
     assert astr_a_b_R1 == astr_empty
     astr_empty += R2
     assert astr_a_b_R1_R2 == astr_empty
+
 
 def test___isub__():
     """Test -= operator for AttributeStructure."""
@@ -246,7 +254,7 @@ def test___isub__():
     astr_a_b_R1 = AttributeStructure(a, b, R1)
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
-    #Test invalid subtraction error catching
+    # Test invalid subtraction error catching
     test_ValueError(astr_empty, a)
     test_KeyError(astr_empty, R1)
     test_TypeError(astr_empty, None)
@@ -254,12 +262,12 @@ def test___isub__():
     test_TypeError(astr_empty, object)
     test_ValueError(astr_empty, astr_a)
     test_ValueError(astr_empty, astr_a_R1)
-    
+
     astr_a_copy = AttributeStructure(a)
     test_ValueError(astr_a, astr_a_R1)
     assert astr_a_copy == astr_a
 
-    #Test attribute removal
+    # Test attribute removal
     astr_a_b_R1_R2 -= R2
     assert astr_a_b_R1 == astr_a_b_R1_R2
     astr_a_b_R1_R2 -= R1
@@ -268,6 +276,7 @@ def test___isub__():
     assert astr_a == astr_a_b_R1_R2
     astr_a_b_R1_R2 -= a
     assert astr_empty == astr_a_b_R1_R2
+
 
 def test___getitem__():
     """Test indexing of AttributeStructure."""
@@ -296,6 +305,7 @@ def test___getitem__():
     test_TypeError(astr, object)
     test_ValueError(astr, "")
 
+
 def test___contains__():
     """Test "in" operator for AttributeStructure."""
     def test_TypeError(astr, member):
@@ -318,6 +328,7 @@ def test___contains__():
     test_TypeError(astr, [])
     test_TypeError(astr, object)
 
+
 def test___deepcopy__():
     """Test copy.deepcopy for AttributeStructure object."""
     import copy
@@ -333,6 +344,7 @@ def test___deepcopy__():
     assert astr_copy._relations is not astr_a_b_R1_R2._relations
     assert astr_copy is not astr_a_b_R1_R2
 
+
 def test_get_labels():
     """Test get_labels function."""
     a = Attribute("a", [])
@@ -341,6 +353,7 @@ def test_get_labels():
 
     astr = AttributeStructure(a, b, c)
     assert astr.get_labels() == ['a', 'b', 'c']
+
 
 def test_get_subscripts():
     """Test retrieval of subscripts from Relation's in AttributeStructure."""
@@ -352,6 +365,7 @@ def test_get_subscripts():
     astr = AttributeStructure(a, R1, R2, R3, R4)
     assert astr.get_subscripts() == [1, 2, 3, 4]
 
+
 def test_get_cardinality():
     """Test get cardinality of this AttributeStructure."""
     a = Attribute("a", [])
@@ -360,6 +374,7 @@ def test_get_cardinality():
     d = Attribute("d", [])
     astr = AttributeStructure(a, b, c, d)
     assert astr.get_cardinality() == 4
+
 
 def test___str__():
     """Test str(AttributeStructure)."""
@@ -372,6 +387,7 @@ def test___str__():
 
     assert str(astr) == "(a: {}, b: {} ; R1,R2)"
     assert str(astr2) == "(a: {}, b: {} ; R1,R2)"
+
 
 def test___repr__():
     """Test repr(AttributeStructure)."""

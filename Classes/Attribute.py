@@ -3,24 +3,25 @@
 from copy import deepcopy
 from ValueSet import ValueSet
 
+
 class Attribute(object):
     """
     Class for Attribute i.e., set containing single elements, subsets
     or containuous ranges of integers or decimals.
-    
+
     attributes:
     label: name of Attribute (e.g. size), always a string
-    value_set: set of values that the attribute can take on 
+    value_set: set of values that the attribute can take on
     (e.g {small,large}) taken as a list and parsed into the standard
     format defined by ValueSet class.
     """
 
     def __init__(self, label, value_set):
         """Initialize an Attribute object."""
-        #type checking before anything
+        # type checking before anything
         if not isinstance(label, str):
             raise TypeError("l parameter must be a string")
-        
+
         self._label = label
         self._is_Attribute = True
 
@@ -37,43 +38,42 @@ class Attribute(object):
         Determine if self Attribute object is equivalent to other
         Attribute object.
         """
-        
+
         label_condition = self._label == other._label
         value_condition = self._value_set == other._value_set
-        
+
         if label_condition and value_condition:
             return True
         else:
             return False
-    
+
     def __ne__(self, other):
         """Determine if this Attribute is not equivalent to other Attribute."""
         return not self.__eq__(other)
 
     def __add__(self, other):
         """
-        Overloaded + operator. 
-        
+        Overloaded + operator.
+
         Combine this Attribute and another Attribute, Relation,
         AttributeStructure into an AttributeStructure or combine it with an
         AttributeSystem.
         """
 
-        from Relation import Relation
         from AttributeStructure import AttributeStructure
         from AttributeSystem import AttributeSystem
-        #handle Attribute and Attribute addition
+        # handle Attribute and Attribute addition
         if hasattr(other, "_is_Attribute"):
             return AttributeStructure(self, other)
-        #handle Attribute and Relation addition
+        # handle Attribute and Relation addition
         elif hasattr(other, "_is_Relation"):
             return AttributeStructure(self, other)
-        #handle Attribute and AttributeStructure addition
+        # handle Attribute and AttributeStructure addition
         elif hasattr(other, "_is_AttributeStructure"):
             params = other._attributes + other._relations.values()
             params.append(deepcopy(self))
             return AttributeStructure(*params)
-        #handle Attribute and AttributeSystem addition
+        # handle Attribute and AttributeSystem addition
         elif hasattr(other, "_is_AttributeSystem"):
             astr = deepcopy(other._attribute_structure)
             astr += deepcopy(self)
@@ -98,12 +98,13 @@ class Attribute(object):
 
     def _key(self):
         """Private key function for hashing."""
-        #Tuple key; not a permanent solution
+        # Tuple key; not a permanent solution
         return (self._label, str(self._value_set))
 
     def __hash__(self):
         """Hash implementation for set comparison of Attributes."""
         return hash(self._key())
+
 
 def main():
     """Main method; quick testing."""
