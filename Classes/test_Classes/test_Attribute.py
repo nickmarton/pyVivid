@@ -71,27 +71,6 @@ def test___add__():
         r1 + a2 + a1
 
 
-def test___iadd__():
-    """Test += operator."""
-    from ..Relation import Relation
-    from ..AttributeStructure import AttributeStructure
-
-    a1 = Attribute("a1", [])
-    r1 = Relation("R1(a) <=> ", ["a1"], 1)
-    astr = AttributeStructure()
-    astr_a1 = AttributeStructure(a1)
-    astr_a1_r1 = AttributeStructure(a1, r1)
-
-    # add AttributeStructure and Relation
-    astr_a1 += r1
-    assert astr_a1_r1 == astr_a1
-    # add Relation to Attribute implicitly converting a1 to AttributeStructure
-    a1 += r1
-    assert a1 == astr_a1
-    assert not hasattr(a1, "_is_Attribute")
-    assert hasattr(a1, "_is_AttributeStructure")
-
-
 def test___deepcopy__():
     """Test copy.deepcopy functionality of Attribute object."""
     from copy import deepcopy

@@ -1,14 +1,13 @@
-"""Assignment unit tests."""
+"""VariableAssignment unit tests."""
 
 import pytest
 from vivid.Classes.Attribute import Attribute
 from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.AttributeStructure import AttributeStructure
 from vivid.Classes.AttributeSystem import AttributeSystem
-from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.Vocabulary import Vocabulary
-from vivid.Classes.Assignment import Assignment
 from vivid.Classes.VariableAssignment import VariableAssignment
+
 
 def test___init__():
     """Test VariableAssignment constructor."""
@@ -16,6 +15,7 @@ def test___init__():
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             VariableAssignment(vocabulary, attribute_system, mapping)
+
     def test_ValueError(vocabulary, attribute_system, mapping):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
@@ -35,6 +35,7 @@ def test___init__():
     test_ValueError(vocabulary, attribute_system, {'bad': 'a'})
 
     VA = VariableAssignment(vocabulary, attribute_system, {'V': 'a'})
+
 
 def test___eq__():
     """Test == operator for VariableAssignment object."""
@@ -61,6 +62,7 @@ def test___eq__():
     assert A1 == A2
     assert not A1 == A3
 
+
 def test___ne__():
     """Test != operator for VariableAssignment object."""
     vocabulary1 = Vocabulary(['C'], [RelationSymbol('R', 1)], ['V'])
@@ -86,12 +88,14 @@ def test___ne__():
     assert not A1 != A2
     assert A1 != A3
 
+
 def test___getitem__():
     """Test indexing for VariableAssignment object."""
     def test_TypeError(variable_assignment, key):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             variable_assignment[key]
+
     def test_KeyError(variable_assignment, key):
         """Test constructor for KeyErrors with given params."""
         with pytest.raises(KeyError) as excinfo:
@@ -116,6 +120,7 @@ def test___getitem__():
 
     assert VA['V'] == 'a'
 
+
 def test___deepcopy__():
     """Test copy.deepcopy for VariableAssignment object."""
     from copy import deepcopy
@@ -139,6 +144,7 @@ def test___deepcopy__():
     assert VA._attribute_system is not VA_copy._attribute_system
     assert VA._mapping is not VA_copy._mapping
 
+
 def test___str__():
     """Test str(VariableAssignment)."""
     vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
@@ -154,6 +160,7 @@ def test___str__():
     VA = VariableAssignment(vocabulary, attribute_system, mapping)
 
     assert VA.__str__() == "VA{'V': 'a'}"
+
 
 def test___repr__():
     """Test repr(VariableAssignment)."""

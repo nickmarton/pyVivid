@@ -3,17 +3,19 @@
 import pytest
 from vivid.Classes.Point import Point
 
+
 def test___init__():
     """Test Point constructor."""
     def test_TypeError(*dimension_values):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             Point(*dimension_values)
+
     def test_ValueError(*dimension_values):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
             Point(*dimension_values)
-    
+
     test_ValueError()
     test_TypeError(1)
     test_TypeError('')
@@ -24,6 +26,7 @@ def test___init__():
     p = Point(*coords)
 
     assert p._coordinate is not coords
+
 
 def test___eq__():
     """Test == operator for Point object."""
@@ -40,6 +43,7 @@ def test___eq__():
     assert p3 == p4
     assert p5 == p6
     assert p7 == p8
+
 
 def test___ne__():
     """Test != operator for Point object."""
@@ -68,10 +72,11 @@ def test___ne__():
     assert p3 != p4
     assert p5 != p6
 
+
 def test___deepcopy__():
     """Test copy.deepcopy for Point object."""
     from copy import deepcopy
-    
+
     p1 = Point(1.0)
     p2 = Point(1.0, 2.0)
 
@@ -83,11 +88,13 @@ def test___deepcopy__():
     assert p2 == p2_copy
     assert p2 is not p2_copy
 
+
 def test__key():
     """Test key of Point used for hashing."""
     coords = (1.0, 2.0, 3.0)
     p = Point(*coords)
     assert p._key() == coords
+
 
 def test___hash__():
     """Test hash of Point."""
@@ -95,10 +102,12 @@ def test___hash__():
     p = Point(*coords)
     assert hash(p) == 2528502973977326415
 
+
 def test___str__():
     """Test str(Point)."""
     assert Point(1.0, 2.0, 3.0).__str__() == "P(1.0,2.0,3.0)"
     assert Point('x', 'x', 'x').__str__() == "P(x,x,x)"
+
 
 def test___repr__():
     """Test repr(Point)."""

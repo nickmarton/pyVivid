@@ -7,10 +7,11 @@ sentences that involve mathematical expressions
 e.g. '(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)'
  """
 from __future__ import division
-from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group, Optional,
-                       ZeroOrMore, Forward, nums, alphas, oneOf)
+from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group,
+                       Optional, ZeroOrMore, Forward, nums, alphas, oneOf)
 import math
 import operator
+
 
 class TruthValueParser(object):
     """
@@ -40,10 +41,10 @@ class TruthValueParser(object):
 
         point = Literal(".")
         e = CaselessLiteral("E")
-        fnumber = Combine(Word("+-"+nums, nums) +
-            Optional(point + Optional(Word(nums))) +
-            Optional(e + Word("+-" + nums, nums)))
-        ident = Word(alphas, alphas+nums+"_$")
+        fnumber = Combine(Word("+-" + nums, nums) +
+                          Optional(point + Optional(Word(nums))) +
+                          Optional(e + Word("+-" + nums, nums)))
+        ident = Word(alphas, alphas + nums + "_$")
 
         true = Literal("True")
         false = Literal("False")
@@ -68,54 +69,58 @@ class TruthValueParser(object):
         expop = Literal("^")
         pi = CaselessLiteral("PI")
         sentence = Forward()
-        atom = ((Optional(oneOf("- +")) +
-            (pi|e|true|false|fnumber|ident+lpar+sentence+rpar).setParseAction(self.pushFirst)) |
-            Optional(oneOf("- +")) + Group(lpar+sentence+rpar)
-            ).setParseAction(self.pushUMinus)
+        atom = (
+            (Optional(oneOf("- +")) +
+                (pi | e | true | false | fnumber | ident + lpar + sentence + rpar).setParseAction(self.pushFirst)) |
+            Optional(oneOf("- +")) + Group(lpar + sentence + rpar)).setParseAction(self.pushUMinus)
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
-        # "atom [ ^ atom ]...", we get right-to-left exponents, instead of left-to-right
-        # that is, 2^3^2 = 2^(3^2), not (2^3)^2.
+        # "atom [ ^ atom ]...", we get right-to-left exponents, instead of
+        # left-to-right that is, 2^3^2 = 2^(3^2), not (2^3)^2.
         factor = Forward()
-        factor << atom + ZeroOrMore((expop + factor).setParseAction(self.pushFirst))
+        factor << atom + ZeroOrMore((expop + factor).setParseAction(
+            self.pushFirst))
 
-        term = factor + ZeroOrMore((multop + factor).setParseAction(self.pushFirst))
-        expr = Group(term + ZeroOrMore((addop + term).setParseAction(self.pushFirst)))
+        term = factor + ZeroOrMore((multop + factor).setParseAction(
+            self.pushFirst))
+        expr = Group(term + ZeroOrMore((addop + term).setParseAction(
+            self.pushFirst)))
 
-        relation = Group(expr + ZeroOrMore((relop + expr).setParseAction(self.pushRel)))
+        relation = Group(expr + ZeroOrMore((relop + expr).setParseAction(
+            self.pushRel)))
 
         negation = ZeroOrMore(negop.setParseAction(self.pushNeg)) + relation
 
-        sentence << Group(negation + ZeroOrMore((logop + negation).setParseAction(self.pushFirst)))
+        sentence << Group(negation + ZeroOrMore(
+            (logop + negation).setParseAction(self.pushFirst)))
 
         self.bnf = sentence
 
         # map operator symbols to corresponding arithmetic operations
         epsilon = 1e-12
         self.opn = {"+": operator.add,
-                "-": operator.sub,
-                "*": operator.mul,
-                "/": operator.truediv,
-                "^": operator.pow}
+                    "-": operator.sub,
+                    "*": operator.mul,
+                    "/": operator.truediv,
+                    "^": operator.pow}
 
-        self.fn  = {"sin" : math.sin,
-                "cos": math.cos,
-                "tan": math.tan,
-                "abs": abs,
-                "trunc": lambda a: int(a),
-                "round": round,
-                "sgn": lambda a: abs(a) > epsilon and cmp(a, 0) or 0}
-        
+        self.fn = {"sin": math.sin,
+                   "cos": math.cos,
+                   "tan": math.tan,
+                   "abs": abs,
+                   "trunc": lambda a: int(a),
+                   "round": round,
+                   "sgn": lambda a: abs(a) > epsilon and cmp(a, 0) or 0}
+
         self.rel = {"=": operator.eq,
-                ">": operator.gt,
-                "<": operator.lt,
-                ">=": operator.ge,
-                "<=": operator.le}
+                    ">": operator.gt,
+                    "<": operator.lt,
+                    ">=": operator.ge,
+                    "<=": operator.le}
 
-        self.neg = {"!": lambda a: False if a == True else True
-        }
+        self.neg = {"!": lambda a: False if a is True else True}
 
         self.log = {"and": all,
-                "or": any}
+                    "or": any}
 
     def pushFirst(self, strg, loc, toks):
         """Push first token onto the stack."""
@@ -163,7 +168,7 @@ class TruthValueParser(object):
         elif op == "False":
             return False
         elif op == "PI":
-            return math.pi # 3.1415926535
+            return math.pi  # 3.1415926535
         elif op == "E":
             return math.e  # 2.718281828
         elif op in self.fn:
@@ -179,13 +184,14 @@ class TruthValueParser(object):
         val = self.evaluate_stack(self.exprStack[:])
         return val
 
+
 def main():
     import time
     start_time = time.time()
 
     lmtp = TruthValueParser()
-    #result = lmtp.eval(
-    #'(!!(((-cos(2*pi) + 44^2) + (-cos(2*pi) + 44^2) ^ 1.5) > 1) and !!True) or 7>5^2')
+    # result = lmtp.eval(
+    # '(!!(((-cos(2*pi) + 44^2) + (-cos(2*pi) + 44^2) ^ 1.5) > 1) and !!True) or 7>5^2')
     result = lmtp.eval(
         '(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)')
     print result
@@ -195,5 +201,5 @@ def main():
     print
     print str(end_time - start_time) + " seconds"
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     main()

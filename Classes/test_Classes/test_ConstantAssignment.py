@@ -1,14 +1,13 @@
-"""Assignment unit tests."""
+"""ConstantAssignment unit tests."""
 
 import pytest
 from vivid.Classes.Attribute import Attribute
 from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.AttributeStructure import AttributeStructure
 from vivid.Classes.AttributeSystem import AttributeSystem
-from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.Vocabulary import Vocabulary
-from vivid.Classes.Assignment import Assignment
 from vivid.Classes.ConstantAssignment import ConstantAssignment
+
 
 def test___init__():
     """Test ConstantAssignment constructor."""
@@ -16,6 +15,7 @@ def test___init__():
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             ConstantAssignment(vocabulary, attribute_system, mapping)
+
     def test_ValueError(vocabulary, attribute_system, mapping):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
@@ -36,6 +36,7 @@ def test___init__():
     test_ValueError(vocabulary, attribute_system, {'bad': 'a'})
 
     C = ConstantAssignment(vocabulary, attribute_system, {'C': 'a'})
+
 
 def test___eq__():
     """Test == operator for ConstantAssignment object."""
@@ -66,6 +67,7 @@ def test___eq__():
     assert not A1 == A4
     assert not A1 == A5
 
+
 def test___ne__():
     """Test != operator for ConstantAssignment object."""
     vocabulary1 = Vocabulary(['C'], [RelationSymbol('R', 1)], ['V'])
@@ -95,9 +97,11 @@ def test___ne__():
     assert A1 != A4
     assert A1 != A5
 
+
 def test___lt__():
     """Test overloaded < subset operator for ConstantAssignment."""
-    vocabulary1 = Vocabulary(['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
+    vocabulary1 = Vocabulary(
+        ['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
     vocabulary2 = Vocabulary(['C\''], [RelationSymbol('R\'', 1)], ['V\''])
 
     a = Attribute("a", [])
@@ -128,9 +132,11 @@ def test___lt__():
     assert not CA4 < CA1
     assert not CA5 < CA2
 
+
 def test___le__():
     """Test overloaded <= subset operator for ConstantAssignment."""
-    vocabulary1 = Vocabulary(['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
+    vocabulary1 = Vocabulary(
+        ['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
     vocabulary2 = Vocabulary(['C\''], [RelationSymbol('R\'', 1)], ['V\''])
 
     a = Attribute("a", [])
@@ -161,12 +167,14 @@ def test___le__():
     assert not CA4 <= CA1
     assert not CA5 <= CA2
 
+
 def test___getitem__():
     """Test indexing for ConstantAssignment object."""
     def test_TypeError(constant_assignment, key):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             constant_assignment[key]
+
     def test_KeyError(constant_assignment, key):
         """Test constructor for KeyErrors with given params."""
         with pytest.raises(KeyError) as excinfo:
@@ -191,6 +199,7 @@ def test___getitem__():
 
     assert CA['C'] == 'a'
 
+
 def test___deepcopy__():
     """Test copy.deepcopy for ConstantAssignment object."""
     from copy import deepcopy
@@ -214,6 +223,7 @@ def test___deepcopy__():
     assert CA._attribute_system is not CA_copy._attribute_system
     assert CA._mapping is not CA_copy._mapping
 
+
 def test_is_total():
     """Test is_total function for ConstantAssignment object."""
     vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
@@ -236,6 +246,7 @@ def test_is_total():
     assert not CA.is_total()
     assert CA_total.is_total()
 
+
 def test_get_domain():
     """Test get_domain function for ConstantAssignment object."""
     vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
@@ -254,6 +265,7 @@ def test_get_domain():
 
     assert CA.get_domain() == ['C']
     assert CA2.get_domain() == ['C', "C'"]
+
 
 def test_in_conflict():
     """Test in_conflict function for ConstantAssignment object."""
@@ -277,6 +289,7 @@ def test_in_conflict():
     assert not ConstantAssignment.in_conflict(CA, CA2)
     assert ConstantAssignment.in_conflict(CA, CA3)
 
+
 def test___str__():
     """Test str(ConstantAssignment)."""
     vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])
@@ -295,6 +308,7 @@ def test___str__():
 
     assert CA.__str__() == "CA{'C': 'a'}"
     assert CA2.__str__() == "CA{'C': 'a', \"C\'\": 'b'}"
+
 
 def test___repr__():
     """Test repr(ConstantAssignment)."""

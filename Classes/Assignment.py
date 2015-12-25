@@ -1,7 +1,5 @@
 """Assignment base class."""
 
-from Vocabulary import Vocabulary
-from AttributeSystem import AttributeSystem
 
 class Assignment(object):
     """This is a superclass for generic assignments."""
@@ -34,7 +32,7 @@ class Assignment(object):
         """Implement == for Assignment object."""
         vocabulary_cond = self._vocabulary == other._vocabulary
         objects_cond = self._attribute_system._objects == \
-                                            other._attribute_system._objects
+            other._attribute_system._objects
 
         if vocabulary_cond and objects_cond:
             return True

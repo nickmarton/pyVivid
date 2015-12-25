@@ -4,18 +4,20 @@ import pytest
 from vivid.Classes.Vocabulary import Vocabulary
 from vivid.Classes.RelationSymbol import RelationSymbol
 
+
 def test___init__():
     """Test Vocabulary constructor."""
     def test_TypeError(C, R, V):
         """Test constructor for TypeErrors with given params."""
         with pytest.raises(TypeError) as excinfo:
             Vocabulary(C, R, V)
+
     def test_ValueError(C, R, V):
         """Test constructor for ValueErrors with given params."""
         with pytest.raises(ValueError) as excinfo:
             Vocabulary(C, R, V)
 
-    #test bad types
+    # test bad types
     test_TypeError(None, [], [])
     test_TypeError([], None, [])
     test_TypeError([], [], None)
@@ -27,7 +29,7 @@ def test___init__():
     test_TypeError([], [''], [])
     test_TypeError([], [], [1])
 
-    #test C and V overlap
+    # test C and V overlap
     test_ValueError(['O'], [], ['O'])
 
     C = ['C']
@@ -58,7 +60,8 @@ def test___eq__():
     assert vocab == vocab
     assert vocab == vocab_copy
     assert vocab is not vocab_copy
-    assert not vocab == vocab_prime    
+    assert not vocab == vocab_prime
+
 
 def test___ne__():
     """Test != operator for Vocabulary."""
@@ -78,6 +81,7 @@ def test___ne__():
     assert vocab is not vocab_copy
     assert vocab != vocab_prime
 
+
 def test___deepcopy__():
     """Test copy.deepcopy for Vocabulary."""
     from copy import deepcopy
@@ -94,12 +98,14 @@ def test___deepcopy__():
     assert vocab._R is not vocab_copy._R
     assert vocab._V is not vocab_copy._V
 
+
 def test_add_constant():
     """Test add_constant() function for Vocabulary object."""
     def test_TypeError(vocabulary, c):
         """Test TypeErrors in add_constant."""
         with pytest.raises(TypeError) as excinfo:
             vocabulary.add_constant(c)
+
     def test_ValueError(vocabulary, c):
         """Test ValueErrors in add constant."""
         with pytest.raises(ValueError) as excinfo:
@@ -117,12 +123,14 @@ def test_add_constant():
     vocab.add_constant('a')
     assert vocab._C == ['a', 'C', 'x']
 
+
 def test_add_variable():
     """Test add_variable() function for Vocabulary object."""
     def test_TypeError(vocabulary, v):
         """Test TypeErrors in add_constant."""
         with pytest.raises(TypeError) as excinfo:
             vocabulary.add_variable(v)
+
     def test_ValueError(vocabulary, v):
         """Test ValueErrors in add constant."""
         with pytest.raises(ValueError) as excinfo:
@@ -140,19 +148,13 @@ def test_add_variable():
     vocab.add_variable('a')
     assert vocab._V == ['a', 'V', 'x']
 
-def test_constant_assignment():
-    """Test constant assignment mapping."""
-    pass
-
-def test_variable_assignment():
-    """Test Test constant assignment mapping."""
-    pass
 
 def test__key():
     """Test key for hash function."""
     C, R, V = ['C'], [RelationSymbol('R', 1)], ['V']
     vocabulary = Vocabulary(C, R, V)
     assert (('C',), (RelationSymbol('R', 1),), ('V',)) == vocabulary._key()
+
 
 def test___hash__():
     """Test hash(Vocabulary)."""
@@ -162,6 +164,7 @@ def test___hash__():
     vocabulary2 = Vocabulary(C, R, V)
 
     assert hash(vocabulary) == hash(vocabulary2)
+
 
 def test___str__():
     """Test str(Vocabulary)."""
@@ -173,6 +176,7 @@ def test___str__():
 
     vocab_empty = Vocabulary([], [], [])
     assert vocab_empty.__str__() == "([], [], [])"
+
 
 def test___repr__():
     """Test repr(Vocabulary)."""

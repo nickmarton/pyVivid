@@ -5,9 +5,9 @@ from vivid.Classes.Attribute import Attribute
 from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.AttributeStructure import AttributeStructure
 from vivid.Classes.AttributeSystem import AttributeSystem
-from vivid.Classes.RelationSymbol import RelationSymbol
 from vivid.Classes.Vocabulary import Vocabulary
 from vivid.Classes.Assignment import Assignment
+
 
 def test___init__():
     """Test Assignment constructor."""
@@ -24,7 +24,7 @@ def test___init__():
     objs = ['a', 'b', 'c']
     attribute_system = AttributeSystem(astr, objs)
 
-    #test type errors
+    # test type errors
     test_TypeError(None, attribute_system)
     test_TypeError('', attribute_system)
     test_TypeError(object, attribute_system)
@@ -32,7 +32,7 @@ def test___init__():
     test_TypeError(vocabulary, '')
     test_TypeError(vocabulary, object)
 
-    #test reference keeping and breaking
+    # test reference keeping and breaking
     A = Assignment(vocabulary, attribute_system)
     assert vocabulary is A._vocabulary
     assert attribute_system is not A._attribute_system
@@ -45,6 +45,7 @@ def test___init__():
     A._vocabulary.add_variable('vx2')
     assert 'cx2' in vocabulary._C
     assert 'vx2' in vocabulary._V
+
 
 def test___eq__():
     """Test == operator for Assignment object."""
@@ -79,6 +80,7 @@ def test___eq__():
     A2._vocabulary.add_variable('vx2')
     assert 'cx2' in A1._vocabulary._C
     assert 'vx2' in A1._vocabulary._V
+
 
 def test___ne__():
     """Test != operator for Assignment object."""

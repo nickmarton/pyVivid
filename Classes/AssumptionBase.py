@@ -2,11 +2,12 @@
 
 from Formula import Formula
 
+
 class AssumptionBase(object):
     """
     Assumption base object.
 
-    Essentially this class is a container for a finite set of Formulae 
+    Essentially this class is a container for a finite set of Formulae
     over the same Vocabulary.
     """
 
@@ -15,15 +16,14 @@ class AssumptionBase(object):
         self._formulae = []
 
         if formulae:
-            #Ensure all optional positional args are of type Formula.
-            for f in formulae: 
-                if not hasattr(f, "_is_Formula"): 
+            # Ensure all optional positional args are of type Formula.
+            for f in formulae:
+                if not hasattr(f, "_is_Formula"):
                     raise TypeError(
                         "all arguments passed to constructor must be a "
                         "Formula object")
 
-
-            #check for same vocabulary condition and add formula to list
+            # check for same vocabulary condition and add formula to list
             vocabulary = formulae[0]._vocabulary
             names = [f._name for f in formulae]
 
@@ -36,7 +36,7 @@ class AssumptionBase(object):
                         "all formulae provided to constructor must share the "
                         "same Vocabulary")
 
-                #ensure no duplicates
+                # ensure no duplicates
                 if f not in self._formulae:
                     self._formulae.append(f)
         else:
@@ -49,35 +49,36 @@ class AssumptionBase(object):
     def __eq__(self, other):
         """Implement != operator for AssumptionBase objects."""
         if not hasattr(other, "_is_AssumptionBase"):
-            raise TypeError("Can only compare an AssumptionBase object with "
+            raise TypeError(
+                "Can only compare an AssumptionBase object with "
                 "another AssumptionBase object")
 
-        #Cardinalities must be the same.
-        if len(self._formulae) != len(other._formulae): 
+        # Cardinalities must be the same.
+        if len(self._formulae) != len(other._formulae):
             return False
-        
-        #check if each formula in self has a match in other.
+
+        # check if each formula in self has a match in other.
         intersection = set(self._formulae) & set(other._formulae)
         union = set(self._formulae) | set(other._formulae)
         return intersection == union
-    
+
     def __ne__(self, other):
         """Implement != operator for AssumptionBase objects."""
         return not self.__eq__(other)
 
     def __add__(self, other):
-        """Implement + operator for AssumptionBase.""" 
+        """Implement + operator for AssumptionBase."""
         from copy import deepcopy
         self_copy = deepcopy(self)
 
-        #Handle adding an AssumptionBase
+        # Handle adding an AssumptionBase
         if hasattr(other, "_is_AssumptionBase"):
-            #Edge cases
+            # Edge cases
             if len(self) == 0:
                 return deepcopy(other)
             if len(other) == 0:
                 return self_copy
-            
+
             names = [formula._name for formula in self._formulae]
             vocabulary = self._formulae[0]._vocabulary
 
@@ -88,14 +89,14 @@ class AssumptionBase(object):
                         "Vocabulary's")
                 if other_formula._name in names:
                     raise ValueError("Duplicate Formula objects not permitted")
-                
+
                 self_copy._formulae.append(deepcopy(other_formula))
 
             return self_copy
 
-        #Handle adding a Formula
+        # Handle adding a Formula
         if hasattr(other, "_is_Formula"):
-            #Edge cases
+            # Edge cases
             if len(self) == 0:
                 return AssumptionBase(*deepcopy([other]))
 
@@ -148,7 +149,7 @@ class AssumptionBase(object):
 
         if type(key) == int:
             try:
-                return self._formulae[key] 
+                return self._formulae[key]
             except IndexError:
                 raise IndexError(
                     str(key) + " not a valid index in AssumptionBase")
@@ -162,13 +163,13 @@ class AssumptionBase(object):
 
     def __contains__(self, item):
         """Implement 'in' and 'not in' operator for AssumptionBase."""
-        #Handle if item provided is a string; assume it's a Formula name
+        # Handle if item provided is a string; assume it's a Formula name
         if type(item) == str:
             names = [f._name for f in self._formulae]
             if item in names:
                 return True
 
-        #Handle if Formula object is provided
+        # Handle if Formula object is provided
         if hasattr(item, "_is_Formula"):
             for formula in self._formulae:
                 if item == formula:
@@ -181,6 +182,7 @@ class AssumptionBase(object):
         from copy import deepcopy
         return AssumptionBase(*deepcopy(self._formulae))
 
+
 def main():
     """Quick tests."""
     from RelationSymbol import RelationSymbol
@@ -189,7 +191,8 @@ def main():
     ahead_rs = RelationSymbol('Ahead', 4)
     behind_rs = RelationSymbol('Behind', 4)
     pm_rs = RelationSymbol('PM', 1)
-    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [ahead_rs, behind_rs, pm_rs], ['V1', 'V2'])
 
     f1 = Formula(vocabulary, 'Ahead', 'C1', 'V1')
     f2 = Formula(vocabulary, 'Behind', 'C1')

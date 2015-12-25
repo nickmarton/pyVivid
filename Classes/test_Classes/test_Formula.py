@@ -2,7 +2,6 @@
 
 import pytest
 
-
 from vivid.Classes.Interval import Interval
 from vivid.Classes.Attribute import Attribute
 from vivid.Classes.Relation import Relation

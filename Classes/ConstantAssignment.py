@@ -2,6 +2,7 @@
 
 from Assignment import Assignment
 
+
 class ConstantAssignment(Assignment):
     """
     Class to represent a constant assignment from Assignment's
@@ -32,10 +33,10 @@ class ConstantAssignment(Assignment):
             raise ValueError(
                 "duplicate values in mapping parameter "
                 "are not allowed; mapping must be 1-to-1.")
-        
-        #note: Vocabularies prevent duplicates as do dictionary keys
+
+        # note: Vocabularies prevent duplicates as do dictionary keys
         source_condition = set(source) <= set(vocabulary._C)
-        #note: AttributeSystems prevent duplicate objects
+        # note: AttributeSystems prevent duplicate objects
         target_condition = set(target) <= set(attribute_system._objects)
 
         if source_condition and target_condition:
@@ -107,7 +108,7 @@ class ConstantAssignment(Assignment):
     def __deepcopy__(self, memo):
         """Return a deep copy of this ConstantAssignment object."""
         from copy import deepcopy
-        
+
         return ConstantAssignment(
             deepcopy(self._vocabulary),
             deepcopy(self._attribute_system),

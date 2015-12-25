@@ -1,9 +1,10 @@
 """Relation Symbol class."""
 
+
 class RelationSymbol(object):
     """
-    Class for Relation Symbols consisting of a name and an arity; 
-    
+    Class for Relation Symbols consisting of a name and an arity;
+
     this class is intended to be a helper class for Vocabulary as later
     on airty is required in addition to a name of a relation in Vocabulary
 
@@ -32,7 +33,7 @@ class RelationSymbol(object):
         """Implement == operator for RelationSymbol object."""
         name_cond = self._name == other._name
         arity_cond = self._arity == other._arity
-        
+
         if name_cond and arity_cond:
             return True
         else:
@@ -46,7 +47,7 @@ class RelationSymbol(object):
         """Implement copy.deepcopy for RelationSymbol object."""
         from copy import deepcopy
         return RelationSymbol(deepcopy(self._name), deepcopy(self._arity))
-    
+
     def _key(self):
         """Tuple key for hash function."""
         return (self._name, self._arity)
@@ -55,11 +56,11 @@ class RelationSymbol(object):
         """Hash so sets can use RelationSymbol's."""
         return hash(self._key())
 
-    def __str__(self): 
+    def __str__(self):
         """Implement str(RelationSymbol)."""
         name_str = self._name
         return name_str
 
-    def __repr__(self): 
+    def __repr__(self):
         """Implement str(RelationSymbol)."""
         return self.__str__()
