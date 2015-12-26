@@ -535,6 +535,48 @@ def test_get_alternate_extensions():
     assert ae_s3 == s3
 
 
+def test_join():
+    """Test join function for States."""
+    def test_ValueError(s1, s2):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            State.join(s1, s2)
+
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    a = AttributeStructure(color, size)
+    o = ['s1', 's2']
+    asys = AttributeSystem(a, o)
+
+    ascr1 = {('color', 's1'): ['R'],
+             ('color', 's2'): ['B'],
+             ('size', 's1'): ['M'],
+             ('size', 's2'): ['L', 'S']}
+    ascr2 = {('color', 's1'): ['G'],
+             ('color', 's2'): ['G'],
+             ('size', 's1'): ['L'],
+             ('size', 's2'): ['M', 'S']}
+    ascr3 = {('color', 's1'): ['R', 'G'],
+             ('color', 's2'): ['B', 'G'],
+             ('size', 's1'): ['L', 'M'],
+             ('size', 's2'): ['M', 'S', 'L']}
+
+    s1 = State(asys, ascr1)
+    s2 = State(asys, ascr2)
+    s3 = State(asys, ascr3)
+
+    assert s3 == State.join(s1, s2)
+
+    length = Attribute("length", [1, 3, 5])
+    shape = Attribute("shape", ['circle', 'triangle', 'rectangle'])
+    a = AttributeStructure(length, shape)
+    o = ['s1', 's2']
+    bad_asys = AttributeSystem(a, o)
+    bad_state = State(bad_asys)
+
+    test_ValueError(s1, bad_state)
+
+
 def test___str__():
     """Test str(State)"""
     color = Attribute("color", ['R', 'G', 'B'])

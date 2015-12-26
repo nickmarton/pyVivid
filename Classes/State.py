@@ -455,6 +455,7 @@ class State(object):
         # Directly assign ascriptions so it doesn't pass through
         # set_ascriptions for optimization
         join_state._ascriptions = join_ascriptions
+        return join_state
 
     def __str__(self):
         """Implement str() for State object."""
