@@ -106,6 +106,217 @@ class ValueSet(object):
         Overloaded to be set theoretic difference.
         """
 
+        def resolve_intervals(intervals, other_type_lists):
+            """
+            Break intervals up according to corresponding types of
+            non-iterables (int, long, float) in other.
+            """
+
+            def resolve_interval_interval(self, other, self_danglers,
+                                          other_danglers, diff):
+                """
+                Break down a set of intervals according to another set of
+                intervals.
+                Use differential diff provided when splitting intervals.
+                """
+
+                for i, self_interval in enumerate(self):
+                    for j, other_interval in enumerate(other):
+
+                        other_inf = other_interval[0]
+                        other_sup = other_interval[1]
+                        self_inf = self_interval[0]
+                        self_sup = self_interval[1]
+
+                        if other_interval <= self_interval:
+                            # split both,removing overlap
+                            try:
+                                new_self = Interval(other_sup + diff, self_sup)
+                                self.append(new_self)
+                            except ValueError:
+                                self_danglers.append(self_sup)
+                            try:
+                                new_other = Interval(other_inf,
+                                                     self_inf - diff)
+                                other.append(new_other)
+                            except ValueError:
+                                other_danglers.append(other_inf)
+                            del self[i]
+                            del other[j]
+                            return True
+                        elif self_interval <= other_interval:
+                            # split both, removing overlap
+                            try:
+                                new_self = Interval(self_inf, other_inf - diff)
+                                self.append(new_self)
+                            except ValueError:
+                                self_danglers.append(self_inf)
+                            try:
+                                new_other = Interval(self_sup + diff,
+                                                     other_sup)
+                                other.append(new_other)
+                            except ValueError:
+                                other_danglers.append(other_sup)
+                            del self[i]
+                            del other[j]
+                            return True
+                        elif other_interval in self_interval:
+                            # split self_interval and destroy other
+                            try:
+                                new_l_self = Interval(self_inf,
+                                                      other_inf - diff)
+                                self.append(new_l_self)
+                            except ValueError:
+                                self_danglers.append(self_inf)
+                            try:
+                                new_h_self = Interval(other_sup + diff,
+                                                      self_sup)
+                                self.append(new_h_self)
+                            except ValueError:
+                                self_danglers.append(self_sup)
+                            del self[i]
+                            del other[j]
+                            return True
+
+                return False
+
+            def resolve_interval_singletons(self, other, danglers, diff):
+                """
+                Break down a set of intervals according to a set of singletons.
+                Use differential diff provided when splitting intervals.
+                """
+
+                for i, self_interval in enumerate(self):
+                    for j, other_signleton in enumerate(other):
+
+                        self_inf = self_interval[0]
+                        self_sup = self_interval[1]
+
+                        if other_signleton in self_interval:
+                            if other_signleton == self_inf:
+                                try:
+                                    new_self = Interval(self_inf + diff, self_sup)
+                                    self.append(new_self)
+                                except ValueError:
+                                    danglers.append(self_sup)
+                                del self[i]
+                                del other[j]
+                                return True
+                            elif other_signleton == self_sup:
+                                try:
+                                    new_self = Interval(self_inf, self_sup - diff)
+                                    self.append(new_self)
+                                except ValueError:
+                                    danglers.append(self_inf)
+                                del self[i]
+                                del other[j]
+                                return True
+                            else:
+                                try:
+                                    new_l_self = Interval(
+                                        self_inf, other_signleton - diff)
+                                    self.append(new_l_self)
+                                except ValueError:
+                                    danglers.append(self_inf)
+                                try:
+                                    new_h_self = Interval(
+                                        other_signleton + diff, self_sup)
+                                    self.append(new_h_self)
+                                except ValueError:
+                                    danglers.append(self_sup)
+                                del self[i]
+                                del other[j]
+                                return True
+
+                return False
+
+            self_danglers, other_danglers = [], []
+
+            if intervals:
+                # Split intervals by types
+                int_Intervals = [i for i in intervals if i._type is int]
+                long_Intervals = [i for i in intervals if i._type is long]
+                float_Intervals = [i for i in intervals if i._type is float]
+
+                # Split other type list into numerics and intervals
+                other_ints = other_type_lists[int]
+                other_longs = other_type_lists[long]
+                other_floats = other_type_lists[float]
+                other_intervals = other_type_lists["_is_Interval"]
+                other_int_Intervals = [
+                    i for i in other_intervals if i._type is int]
+                other_long_Intervals = [
+                    i for i in other_intervals if i._type is long]
+                other_float_Intervals = [
+                    i for i in other_intervals if i._type is float]
+
+                # Note: at this point, all intervals are guarenteed to be
+                # disjoint from collapse_intervals.
+
+                # Break intervals apart until its impossible to keep breaking
+                # them, then remove any singletons
+                if int_Intervals:
+                    while resolve_interval_interval(int_Intervals,
+                                                    other_int_Intervals,
+                                                    self_danglers,
+                                                    other_danglers,
+                                                    diff=1):
+                            pass
+
+                    # push dangling ints in other into other_ints, then reset
+                    # other_danglers
+                    other_ints.extend(other_danglers)
+                    other_danglers = []
+
+                    while resolve_interval_singletons(
+                            int_Intervals, other_ints, self_danglers, diff=1):
+                            pass
+
+                if long_Intervals:
+                    while resolve_interval_interval(long_Intervals,
+                                                    other_long_Intervals,
+                                                    self_danglers,
+                                                    other_danglers,
+                                                    diff=1L):
+                            pass
+
+                    # push dangling longs in other into other_longs, then reset
+                    # other_danglers
+                    other_longs.extend(other_danglers)
+                    other_danglers = []
+
+                    while resolve_interval_singletons(long_Intervals,
+                                                      other_longs,
+                                                      self_danglers,
+                                                      diff=1L):
+                            pass
+
+                f_min = 0.00000000001
+                if float_Intervals:
+                    while resolve_interval_interval(float_Intervals,
+                                                    other_float_Intervals,
+                                                    self_danglers,
+                                                    other_danglers,
+                                                    diff=f_min):
+                            pass
+
+                    # push dangling floats in other into other_floats, then
+                    # reset other_danglers
+                    other_floats.extend(other_danglers)
+                    other_danglers = []
+
+                    while resolve_interval_singletons(float_Intervals,
+                                                      other_floats,
+                                                      self_danglers,
+                                                      diff=f_min):
+                            pass
+
+                intervals = int_Intervals + long_Intervals + float_Intervals
+
+                return intervals, self_danglers
+            else:
+                return intervals, self_danglers
+
         # Split the members of ValueSet's into lists defined by their
         # respective types
         self_type_lists = ValueSet._split_by_types(self._values)
@@ -123,6 +334,12 @@ class ValueSet(object):
                 std_type_lists[type_key] = values
 
         output_set = []
+
+        # Break intervals if necessary and add any danglers to output_set
+        std_type_lists["_is_Interval"], danglers = resolve_intervals(
+            std_type_lists["_is_Interval"], other_type_lists)
+        output_set.extend(danglers)
+
         # reconstruct list, sorting when possible
         for base_type in ValueSet._base_types:
             output_set += sorted(std_type_lists[base_type])

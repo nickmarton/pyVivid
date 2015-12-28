@@ -248,6 +248,65 @@ def test___sub__():
                                   Interval(20, 100),
                                   Point(3.4)])
 
+    VSF = ValueSet([Interval(1, 10)])
+    VSG = ValueSet([1, 5, 10])
+    assert VSF - VSG == ValueSet([Interval(2, 4), Interval(6, 9)])
+    VSH = ValueSet([2, 9])
+    assert VSF - VSH == ValueSet([1, 10, Interval(3, 8)])
+    VSI = ValueSet([2, 4, 6])
+    assert VSF - VSI == ValueSet([1, 3, 5, Interval(7, 10)])
+
+    VSJ = ValueSet([Interval(1L, 10L)])
+    VSK = ValueSet([1L, 5L, 10L])
+    assert VSJ - VSK == ValueSet([Interval(2L, 4L), Interval(6L, 9L)])
+    VSL = ValueSet([2L, 9L])
+    assert VSJ - VSL == ValueSet([1L, 10L, Interval(3L, 8L)])
+    VSM = ValueSet([2L, 4L, 6L])
+    assert VSJ - VSM == ValueSet([1L, 3L, 5L, Interval(7L, 10L)])
+
+    VSN = ValueSet([Interval(1.0, 10.0)])
+    VSO = ValueSet([1.0, 5.0, 10.0])
+    assert VSN - VSO == ValueSet([Interval(1.00000000001, 4.99999999999),
+                                  Interval(5.00000000001, 9.99999999999)])
+    VSP = ValueSet([2.0, 9.0])
+    assert VSN - VSP == ValueSet([Interval(1.0, 1.99999999999),
+                                  Interval(2.00000000001, 8.99999999999),
+                                  Interval(9.00000000001, 10.0)])
+    VSQ = ValueSet([2.0, 4.0, 6.0])
+    assert VSN - VSQ == ValueSet([Interval(1.0, 1.99999999999),
+                                  Interval(2.00000000001, 3.99999999999),
+                                  Interval(4.00000000001, 5.99999999999),
+                                  Interval(6.00000000001, 10.0)])
+    VSR = ValueSet([1.00000000001])
+    assert VSN - VSR == ValueSet([1.0, Interval(1.00000000002, 10.0)])
+
+    VSS = VSF + VSJ + VSN
+    VST = VSG + VSK + VSO
+    VSU = VSH + VSL + VSP
+    VSV = VSI + VSM + VSQ
+
+    assert VSS - VST == ValueSet([Interval(2, 4),
+                                  Interval(6, 9),
+                                  Interval(1.00000000001, 4.99999999999),
+                                  Interval(5.00000000001, 9.99999999999),
+                                  Interval(2L, 4L),
+                                  Interval(6L, 9L)])
+
+    assert VSS - VSU == ValueSet([1, 10, Interval(3, 8),
+                                  1L, 10L, Interval(3L, 8L),
+                                  Interval(1.0, 1.99999999999),
+                                  Interval(2.00000000001, 8.99999999999),
+                                  Interval(9.00000000001, 10.0)])
+
+    assert VSS - VSV == ValueSet([1, 3, 5, Interval(7, 10),
+                                  1L, 3L, 5L, Interval(7L, 10L),
+                                  Interval(1.0, 1.99999999999),
+                                  Interval(2.00000000001, 3.99999999999),
+                                  Interval(4.00000000001, 5.99999999999),
+                                  Interval(6.00000000001, 10.0)])
+
+    # assert False
+
 
 def test___getitem__():
     """Test indexing for ValueSet object."""
