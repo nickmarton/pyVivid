@@ -161,19 +161,21 @@ class ValueSet(object):
                             del other[j]
                             return True
                         elif other_interval in self_interval:
-                            # split self_interval and destroy other
+
+                            # split self_interval and destroy other, this is
+                            # the only case where we don't keep danglers
                             try:
                                 new_l_self = Interval(self_inf,
                                                       other_inf - diff)
                                 self.append(new_l_self)
                             except ValueError:
-                                self_danglers.append(self_inf)
+                                pass
                             try:
                                 new_h_self = Interval(other_sup + diff,
                                                       self_sup)
                                 self.append(new_h_self)
                             except ValueError:
-                                self_danglers.append(self_sup)
+                                pass
                             del self[i]
                             del other[j]
                             return True
@@ -195,7 +197,8 @@ class ValueSet(object):
                         if other_signleton in self_interval:
                             if other_signleton == self_inf:
                                 try:
-                                    new_self = Interval(self_inf + diff, self_sup)
+                                    new_self = Interval(self_inf + diff,
+                                                        self_sup)
                                     self.append(new_self)
                                 except ValueError:
                                     danglers.append(self_sup)
@@ -204,7 +207,8 @@ class ValueSet(object):
                                 return True
                             elif other_signleton == self_sup:
                                 try:
-                                    new_self = Interval(self_inf, self_sup - diff)
+                                    new_self = Interval(self_inf,
+                                                        self_sup - diff)
                                     self.append(new_self)
                                 except ValueError:
                                     danglers.append(self_inf)

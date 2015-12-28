@@ -305,7 +305,47 @@ def test___sub__():
                                   Interval(4.00000000001, 5.99999999999),
                                   Interval(6.00000000001, 10.0)])
 
-    # assert False
+    VS1 = ValueSet([Interval(1, 10)])
+    VS2 = ValueSet([Interval(1, 3), Interval(8, 10)])
+    assert VS1 - VS2 == ValueSet([Interval(4, 7)])
+    VS3 = ValueSet([Interval(-5, 3), Interval(8, 12)])
+    assert VS1 - VS3 == ValueSet([Interval(4, 7)])
+    VS4 = ValueSet([Interval(-5, 1), Interval(10, 12)])
+    assert VS1 - VS4 == ValueSet([Interval(2, 9)])
+    VS5 = ValueSet([Interval(4, 7)])
+    assert VS1 - VS5 == ValueSet([Interval(1, 3), Interval(8, 10)])
+
+    VS6 = ValueSet([Interval(1L, 10L)])
+    VS7 = ValueSet([Interval(1L, 3L), Interval(8L, 10L)])
+    assert VS6 - VS7 == ValueSet([Interval(4L, 7L)])
+    VS8 = ValueSet([Interval(-5L, 3L), Interval(8L, 12L)])
+    assert VS6 - VS8 == ValueSet([Interval(4L, 7L)])
+    VS9 = ValueSet([Interval(-5L, 1L), Interval(10L, 12L)])
+    assert VS6 - VS9 == ValueSet([Interval(2L, 9L)])
+    VS10 = ValueSet([Interval(4L, 7L)])
+    assert VS6 - VS10 == ValueSet([Interval(1L, 3L), Interval(8L, 10L)])
+
+    VS11 = ValueSet([Interval(1.0, 10.0)])
+    VS12 = ValueSet([Interval(1.0, 3.0), Interval(8.0, 10.0)])
+    assert VS11 - VS12 == ValueSet([Interval(3.00000000001, 7.99999999999)])
+    VS13 = ValueSet([Interval(-5.0, 3.0), Interval(8.0, 12.0)])
+    assert VS11 - VS13 == ValueSet([Interval(3.00000000001, 7.99999999999)])
+    VS14 = ValueSet([Interval(-5.0, 1.0), Interval(10.0, 12.0)])
+    assert VS11 - VS14 == ValueSet([Interval(1.00000000001, 9.99999999999)])
+    VS15 = ValueSet([Interval(4.0, 7.0)])
+    assert VS11 - VS15 == ValueSet([Interval(1.0, 3.99999999999),
+                                    Interval(7.00000000001, 10.0)])
+
+    VS01 = ValueSet([Interval(1, 10)])
+    VS02 = ValueSet([Interval(1, 3), 5, Interval(8, 10)])
+    assert VS01 - VS02 == ValueSet([4, Interval(6, 7)])
+    VS06 = ValueSet([Interval(1L, 10L)])
+    VS07 = ValueSet([Interval(1L, 3L), 5L, Interval(8L, 10L)])
+    assert VS06 - VS07 == ValueSet([4L, Interval(6L, 7L)])
+    VS011 = ValueSet([Interval(1.0, 10.0)])
+    VS012 = ValueSet([Interval(1.0, 3.0), 5.0, Interval(8.0, 10.0)])
+    assert VS011 - VS012 == ValueSet([Interval(3.00000000001, 4.99999999999),
+                                      Interval(5.00000000001, 7.99999999999)])
 
 
 def test___getitem__():
