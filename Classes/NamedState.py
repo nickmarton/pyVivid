@@ -320,7 +320,6 @@ class NamedState(State):
         named_alternate_extensions = []
 
         for p_prime in supersets:
-
             # get the list of provided NamedStates not in conflict with each
             # superset of this NamedState's ConstantAssignment, i.e., the
             # NamedState's where the p'_i >= p_j and sigma_j < sigma.
@@ -617,10 +616,6 @@ def main():
 
     assumption_base = AssumptionBase(f1)
 
-    # print named_state.is_named_alternate_extension(tester,
-    #                                                named_state_1,
-    #                                                named_state_2,
-    #                                                named_state_3)
     print named_state.is_named_entailment(assumption_base,
                                           attribute_interpretation,
                                           named_state_1,

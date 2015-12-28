@@ -21,6 +21,7 @@ from vivid.Classes.Attribute import Attribute
 from vivid.Classes.Relation import Relation
 from vivid.Classes.ValueSet import ValueSet
 from vivid.Classes.Interval import Interval
+from vivid.Classes.Point import Point
 
 
 def test___init__():
@@ -431,12 +432,624 @@ def test_get_worlds():
 
 def test_is_named_alternate_extension():
     """Test is_named_alternate_extension() function for NamedState."""
-    pass
+    def test_paper_example():
+        """Test for the example provided in the paper."""
+        color = Attribute("color", ['R', 'B', 'G'])
+        size = Attribute("size", ['S', 'M', 'L'])
+        objects = ['s1', 's2']
+        attribute_system = AttributeSystem(
+            AttributeStructure(color, size), objects)
+        vocabulary = Vocabulary([], [], [])
+        p = ConstantAssignment(vocabulary, attribute_system, {})
+
+        state = NamedState(attribute_system, p, {
+                           ("color", "s1"): ['R', 'B'],
+                           ("size", "s2"): ['M', 'L']})
+
+        state_1 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['S', 'M'],
+                             ("color", "s2"): ['B', 'G'],
+                             ("size", "s2"): ['M', 'L']})
+
+        state_2 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['R', 'B'],
+                             ("size", "s1"): ['L'],
+                             ("color", "s2"): ['R', 'B', 'G'],
+                             ("size", "s2"): ['L']})
+
+        state_3 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['R'],
+                             ("size", "s1"): ['S', 'M', 'L'],
+                             ("color", "s2"): ['R', 'B', 'G'],
+                             ("size", "s2"): ['M', 'L']})
+
+        state_4 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['L'],
+                             ("color", "s2"): ['R', 'B', 'G'],
+                             ("size", "s2"): ['M']})
+
+        state_5 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['S', 'M'],
+                             ("color", "s2"): ['R'],
+                             ("size", "s2"): ['M', 'L']})
+
+        state_6 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['S', 'M', 'L'],
+                             ("color", "s2"): ['R'],
+                             ("size", "s2"): ['M']})
+
+        extensions = [state_1, state_2, state_3]
+
+        assert state.is_named_alternate_extension(state_4, *extensions)
+        assert state.is_named_alternate_extension(state_5, *extensions)
+        assert state.is_named_alternate_extension(state_6, *extensions)
+
+    def test_objects_simple():
+        """Do a test using Point and Interval object."""
+        attr_1 = Attribute("attr_1", [Point(1.0), Interval(1, 4)])
+        attr_2 = Attribute("attr_2", [10L, 65.4, True, False])
+        objects = ['s1']
+        attribute_system = AttributeSystem(
+            AttributeStructure(attr_1, attr_2), objects)
+        vocabulary = Vocabulary([], [], [])
+        p = ConstantAssignment(vocabulary, attribute_system, {})
+
+        state = NamedState(attribute_system, p, {})
+
+        state_1 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 1],
+                             ("attr_2", "s1"): [10L, True]})
+
+        state_2 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 2],
+                             ("attr_2", "s1"): [False]})
+
+        state_3 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Interval(3, 4)],
+                             ("attr_2", "s1"): [65.4, 10L, False, True]})
+
+        state_4 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Interval(2, 4)],
+                             ("attr_2", "s1"): [65.4, 10L, True]})
+
+        state_5 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [1, Interval(3, 4)],
+                             ("attr_2", "s1"): [65.4, False]})
+
+        state_6 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), Interval(1, 4)],
+                             ("attr_2", "s1"): [65.4]})
+
+        extensions = [state_1, state_2]
+
+        assert state.is_named_alternate_extension(state_3, *extensions)
+        assert state.is_named_alternate_extension(state_4, *extensions)
+        assert state.is_named_alternate_extension(state_5, *extensions)
+        assert state.is_named_alternate_extension(state_6, *extensions)
+
+    def test_objects_complex():
+        """Do a complex test using all inherent types including objects."""
+        attr_1 = Attribute("attr_1",
+                           [Point(1.0), Interval(1, 10), Point(2.0, 2.0)])
+        attr_2 = Attribute("attr_2",
+                           [10L, 65.4, True, False, Interval(5.0, 17.0)])
+        objects = ["s1", "s2"]
+        attribute_system = AttributeSystem(
+            AttributeStructure(attr_1, attr_2), objects)
+        vocabulary = Vocabulary([], [], [])
+        p = ConstantAssignment(vocabulary, attribute_system, {})
+
+        state = NamedState(attribute_system, p, {
+                           ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                           ("attr_2", "s1"): [10L, 65.4, True, False],
+                           ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                           ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]
+                           })
+
+        state_1 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 4, 7],
+                             ("attr_2", "s1"): [10L, True, False],
+                             ("attr_1", "s2"): [Point(2.0, 2.0)],
+                             ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        state_2 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Interval(1, 10)],
+                             ("attr_2", "s1"): [10L, 65.4, True, False],
+                             ("attr_1", "s2"): [Point(1.0)],
+                             ("attr_2", "s2"): [True]})
+
+        state_3 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 5],
+                             ("attr_2", "s1"): [10L],
+                             ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                             ("attr_2", "s2"): [False]})
+
+        extensions = [state_1, state_2, state_3]
+
+        l_4 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), 6, Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_5 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [65.4, True, False],
+                         ("attr_1", "s2"): [Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_6 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_7 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), 6, Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_8 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [65.4, True, False],
+                         ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_9 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        l_11 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_12 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_13 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_14 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_15 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_16 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_17 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_18 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        l_20 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_21 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_25 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_26 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_27 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        l_29 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False]})
+
+        l_30 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True]})
+
+        l_31 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False]})
+
+        l_32 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False]})
+
+        l_33 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True]})
+
+        l_34 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False]})
+
+        l_35 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False]})
+
+        for i in [l_4, l_5, l_6, l_7, l_8, l_9, l_11, l_12,
+                  l_13, l_14, l_15, l_16, l_17, l_18, l_20,
+                  l_21, l_25, l_26, l_27, l_29, l_30, l_31,
+                  l_32, l_33, l_34, l_35]:
+            assert state.is_named_alternate_extension(i, *extensions)
+
+    test_paper_example()
+    test_objects_simple()
+    test_objects_complex()
 
 
 def test_get_named_alternate_extensions():
     """Test get_named_alternate_extensions() function for NamedState."""
-    pass
+    def test_paper_example():
+        """Test for the example provided in the paper."""
+        color = Attribute("color", ['R', 'B', 'G'])
+        size = Attribute("size", ['S', 'M', 'L'])
+        objects = ['s1', 's2']
+        attribute_system = AttributeSystem(
+            AttributeStructure(color, size), objects)
+
+        vocabulary = Vocabulary([], [], [])
+        p = ConstantAssignment(vocabulary, attribute_system, {})
+
+        state = NamedState(attribute_system, p, {
+                           ("color", "s1"): ['R', 'B'],
+                           ("size", "s2"): ['M', 'L']})
+
+        state_1 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['S', 'M'],
+                             ("color", "s2"): ['B', 'G'],
+                             ("size", "s2"): ['M', 'L']})
+
+        state_2 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['R', 'B'],
+                             ("size", "s1"): ['L'],
+                             ("color", "s2"): ['R', 'B', 'G'],
+                             ("size", "s2"): ['L']})
+
+        state_3 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['R'],
+                             ("size", "s1"): ['S', 'M', 'L'],
+                             ("color", "s2"): ['R', 'B', 'G'],
+                             ("size", "s2"): ['M', 'L']})
+
+        state_4 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['L'],
+                             ("color", "s2"): ['R', 'B', 'G'],
+                             ("size", "s2"): ['M']})
+
+        state_5 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['S', 'M'],
+                             ("color", "s2"): ['R'],
+                             ("size", "s2"): ['M', 'L']})
+
+        state_6 = NamedState(attribute_system, p, {
+                             ("color", "s1"): ['B'],
+                             ("size", "s1"): ['S', 'M', 'L'],
+                             ("color", "s2"): ['R'],
+                             ("size", "s2"): ['M']})
+
+        alternate_extensions = state.get_named_alternate_extensions(
+            state_1, state_2, state_3)
+
+        assert state_4 in alternate_extensions
+        assert state_5 in alternate_extensions
+        assert state_6 in alternate_extensions
+
+    def test_objects_simple():
+        """Do a test using Point and Interval object."""
+        attr_1 = Attribute("attr_1", [Point(1.0), Interval(1, 4)])
+        attr_2 = Attribute("attr_2", [10L, 65.4, True, False])
+        objects = ['s1']
+        attribute_system = AttributeSystem(
+            AttributeStructure(attr_1, attr_2), objects)
+        vocabulary = Vocabulary([], [], [])
+        p = ConstantAssignment(vocabulary, attribute_system, {})
+
+        state = NamedState(attribute_system, p, {})
+
+        state_1 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 1],
+                             ("attr_2", "s1"): [10L, True]})
+
+        state_2 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 2],
+                             ("attr_2", "s1"): [False]})
+
+        state_3 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Interval(3, 4)],
+                             ("attr_2", "s1"): [65.4, 10L, False, True]})
+
+        state_4 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Interval(2, 4)],
+                             ("attr_2", "s1"): [65.4, 10L, True]})
+
+        state_5 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [1, Interval(3, 4)],
+                             ("attr_2", "s1"): [65.4, False]})
+
+        state_6 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), Interval(1, 4)],
+                             ("attr_2", "s1"): [65.4]})
+
+        extensions = [state_1, state_2]
+
+        alternate_extensions = state.get_named_alternate_extensions(
+            *extensions)
+
+        assert state_3 in alternate_extensions
+        assert state_4 in alternate_extensions
+        assert state_5 in alternate_extensions
+        assert state_6 in alternate_extensions
+
+    def test_objects_complex():
+        """Do a complex test using all inherent types including objects."""
+        attr_1 = Attribute("attr_1",
+                           [Point(1.0), Interval(1, 10), Point(2.0, 2.0)])
+        attr_2 = Attribute("attr_2",
+                           [10L, 65.4, True, False, Interval(5.0, 17.0)])
+        objects = ["s1", "s2"]
+        attribute_system = AttributeSystem(
+            AttributeStructure(attr_1, attr_2), objects)
+        vocabulary = Vocabulary([], [], [])
+        p = ConstantAssignment(vocabulary, attribute_system, {})
+
+        state = NamedState(attribute_system, p, {
+                           ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                           ("attr_2", "s1"): [10L, 65.4, True, False],
+                           ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                           ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]
+                           })
+
+        state_1 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 4, 7],
+                             ("attr_2", "s1"): [10L, True, False],
+                             ("attr_1", "s2"): [Point(2.0, 2.0)],
+                             ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        state_2 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Interval(1, 10)],
+                             ("attr_2", "s1"): [10L, 65.4, True, False],
+                             ("attr_1", "s2"): [Point(1.0)],
+                             ("attr_2", "s2"): [True]})
+
+        state_3 = NamedState(attribute_system, p, {
+                             ("attr_1", "s1"): [Point(1.0), 5],
+                             ("attr_2", "s1"): [10L],
+                             ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                             ("attr_2", "s2"): [False]})
+
+        extensions = [state_1, state_2, state_3]
+
+        alternate_extensions = state.get_named_alternate_extensions(*extensions)
+        assert len(alternate_extensions) == 26
+
+        l_4 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), 6, Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_5 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [65.4, True, False],
+                         ("attr_1", "s2"): [Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_6 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_7 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), 6, Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_8 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [65.4, True, False],
+                         ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_9 = NamedState(attribute_system, p, {
+                         ("attr_1", "s1"): [Interval(1, 3), Interval(5, 6), Interval(8, 10)],
+                         ("attr_2", "s1"): [10L, 65.4, True, False],
+                         ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                         ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        l_11 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_12 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_13 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_14 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_15 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_16 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_17 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_18 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        l_20 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [True, False, Interval(5.0, 15.0)]})
+
+        l_21 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [True, Interval(5.0, 15.0)]})
+
+        l_25 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_26 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [False, Interval(5.0, 15.0)]})
+
+        l_27 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0)],
+                          ("attr_2", "s2"): [Interval(5.0, 15.0)]})
+
+        l_29 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False]})
+
+        l_30 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True]})
+
+        l_31 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False]})
+
+        l_32 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True, False]})
+
+        l_33 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [True]})
+
+        l_34 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Interval(1, 4), Interval(6, 10)],
+                          ("attr_2", "s1"): [10L, 65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False]})
+
+        l_35 = NamedState(attribute_system, p, {
+                          ("attr_1", "s1"): [Point(1.0), Interval(1, 10)],
+                          ("attr_2", "s1"): [65.4, True, False],
+                          ("attr_1", "s2"): [Point(1.0), Point(2.0, 2.0)],
+                          ("attr_2", "s2"): [False]})
+
+        for i in [l_4, l_5, l_6, l_7, l_8, l_9, l_11, l_12,
+                  l_13, l_14, l_15, l_16, l_17, l_18, l_20,
+                  l_21, l_25, l_26, l_27, l_29, l_30, l_31,
+                  l_32, l_33, l_34, l_35]:
+            assert i in alternate_extensions
+
+    test_paper_example()
+    test_objects_simple()
+    test_objects_complex()
 
 
 def test_satisfies_formula():
