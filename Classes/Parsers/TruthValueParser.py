@@ -122,6 +122,8 @@ class TruthValueParser(object):
         self.log = {"and": all,
                     "or": any}
 
+        self._is_Parser = True
+
     def __call__(self, *args):
         """Implement callable for TruthValueParser object."""
         return self._eval(*args)

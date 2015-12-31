@@ -1,6 +1,9 @@
 """Parser for Point object related operations."""
 
-from vivid.Classes.Point import Point
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from Point import Point
 
 
 class PointParser(object):
@@ -8,11 +11,16 @@ class PointParser(object):
 
     def __init__(self):
         """Initialize a PointParser object."""
-        pass
+        self._is_Parser = True
 
-    def eval(self, string):
+    def __call__(self, *args):
+        """Implement callable for PointParser object."""
+        return self._eval(*args)
+
+    def _eval(self, string):
         """Try to evaluate given string."""
-        pass
+        print string
+
 
 def main():
     """."""

@@ -423,9 +423,6 @@ class Formula(object):
                 # trim the LHS of the definition to create evaluatable expression
                 expression = definition[definition.find(" <=> ") + 5:]
 
-                print expression
-                # return
-
                 # Try each parser in ParserSet; raise ValueError if no parser
                 # can successfully parse formula
                 for parser in parser_set:

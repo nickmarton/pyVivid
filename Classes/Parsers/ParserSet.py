@@ -1,6 +1,7 @@
 """A sequence class for Parsers."""
 
 from TruthValueParser import TruthValueParser
+from PointParser import PointParser
 
 
 class ParserSet(object):
@@ -8,7 +9,17 @@ class ParserSet(object):
 
     def __init__(self):
         """Construct ParserSet object."""
-        self._parsers = [TruthValueParser()]
+        self._parsers = [TruthValueParser(), PointParser()]
+
+    def __len__(self):
+        """Implement len(ParserSet)."""
+        return len(self._parsers)
+
+    def __getitem__(self, key):
+        """Implement ParserSet[index]."""
+        if type(key) is not int:
+            raise TypeError("Indexing of ParserSet requires type int")
+        return self._parsers[key]
 
     def __iter__(self):
         """Implement iterator for ParserSet."""
@@ -18,7 +29,7 @@ class ParserSet(object):
 
 def main():
     """."""
-    pass
+    ParserSet()
 
 if __name__ == "__main__":
     main()
