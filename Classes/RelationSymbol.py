@@ -8,8 +8,8 @@ class RelationSymbol(object):
     this class is intended to be a helper class for Vocabulary as later
     on airty is required in addition to a name of a relation in Vocabulary
 
-    name: a string designating the name of the relation symbol.
-    arity: an integer designating the arity of the relation symbol.
+    name:   a string designating the name of the relation symbol.
+    arity:  an integer designating the arity of the relation symbol.
     """
 
     def __init__(self, name, arity):

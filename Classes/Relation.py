@@ -18,7 +18,7 @@ class Relation(object):
     def __init__(self, definition, D_of_r, subscript=0):
         """Initialize a Relation object."""
 
-        #type enforcement
+        # type enforcement
         if not isinstance(definition, str):
             raise TypeError("definition parameter must be of type str")
         if not isinstance(D_of_r, list):
@@ -26,30 +26,30 @@ class Relation(object):
         if not isinstance(subscript, int): 
             raise TypeError("s must be of type int")
 
-        #enforce that definition of relation is valid; this becomes important
-        #when assign_truth_value() is called as the cardinality of the
-        #arguments of R provided in the definition (e.g. R(x1,x2)) are compared
-        #to the cardinality of the pairs in a profile; thus these arguments
-        #must be provided.
+        # enforce that definition of relation is valid; this becomes important
+        # when assign_truth_value() is called as the cardinality of the
+        # arguments of R provided in the definition (e.g. R(x1,x2)) are compared
+        # to the cardinality of the pairs in a profile; thus these arguments
+        # must be provided.
         if not Relation.is_valid_definition(definition):
             raise ValueError(
                 "definition parameter must be of form 'R(x1,x2,...,xn) <=> ' "
                 "(with arbitrary whitespace allowed")
 
-        #we have a valid definition, so grab the arguments from the definition
-        #and count them
+        # we have a valid definition, so grab the arguments from the definition
+        # and count them
         params = definition[definition.find('(')+1: definition.find(')')]
         param_count = params.split(',')
 
-        #if cardinality of parameters of definition provided doesn't match the
-        #cardinality of D(R) raise a ValueError
+        # if cardinality of parameters of definition provided doesn't match the
+        # cardinality of D(R) raise a ValueError
         if len(param_count) != len(D_of_r):
             raise ValueError(
                     "number of parameters provided in definition must match "
                     "the cardinality of D(R), that is, the length of the "
                     "D_of_r parameter")
 
-        #ensure D_of_R has nothing but strings in it
+        # ensure D_of_R has nothing but strings in it
         for label in D_of_r:
             if not isinstance(label, str):
                 raise TypeError("D_of_R must contain only strings.")
@@ -93,15 +93,15 @@ class Relation(object):
         from Attribute import Attribute
         from AttributeStructure import AttributeStructure
         from AttributeSystem import AttributeSystem
-        #handle Relation and Attribute addition     
+        # handle Relation and Attribute addition     
         if hasattr(other, "_is_Attribute"):
             return AttributeStructure(self, other)
-        #handle Relation and AttributeStructure addition     
+        # handle Relation and AttributeStructure addition     
         elif hasattr(other, "_is_AttributeStructure"):
             params = other._attributes + other._relations.values()
             params.append(deepcopy(self))
             return AttributeStructure(*params)
-        #handle Relation and AttributeSystem addition
+        # handle Relation and AttributeSystem addition
         elif hasattr(other, "_is_AttributeSystem"):
             astr = deepcopy(other._attribute_structure)
             astr += deepcopy(self)
@@ -167,11 +167,11 @@ class Relation(object):
             if not isinstance(label, str):
                 raise TypeError('D(R) must contain only strings')
 
-        #get start and end parentheses
+        # get start and end parentheses
         start_paren = self._definition.find('(')
         end_paren = self._definition.find(')')
 
-        #get arguments within definition e.g. R(a,b,c) -> [a, b, c]
+        # get arguments within definition e.g. R(a,b,c) -> [a, b, c]
         arg_string = self._definition[start_paren+1:end_paren]
         r_args = arg_string.split(',')
 
@@ -197,39 +197,38 @@ class Relation(object):
 
             definition must be a string.
         '''
-        wsf_definiton = "".join(definition.split())    #create whitespace free definition
-        
-        import re                                      #we will handle checking validity with regular expression
+        wsf_definiton = "".join(definition.split())    # create whitespace free definition
 
-        matchObj = re.match(                           #we use match as it matches only the beginning of a string
+        import re                                      # we will handle checking validity with regular expression
 
-            r'R' +                                     #begin with 'R'                             e.g. 'R'
-            '\d+' +                                    #followed by any whole numbers              e.g. 'R1'
-            '\(' +                                     #then a '('                                 e.g. 'R1('
-            '(\w+,)*' +                                #then 0 or more alphanumeric substrings     e.g. 'R1(h1,m1,h2,' or 'R1(' if only 1 argument
-            '(\w+)' +                                  #then an alphanumeric substring             e.g. 'R1(h1,m1,h2,m2' or 'R1(h1' if only 1 argument
-            '\)<=>',                                   #finished by ')<=>'                         e.g. 'R1(h1,m1,h2,m2)<=>' or 'R1(h1)<=>' if only 1 argument
-            wsf_definiton
-            )
-        
-        #if syntactially valid, determine if semantically valid
-        if matchObj: 
+        matchObj = re.match(                           # we use match as it matches only the beginning of a string
 
-            #get start and end parentheses
+            r'R' +                                     # begin with 'R'                             e.g. 'R'
+            '\d+' +                                    # followed by any whole numbers              e.g. 'R1'
+            '\(' +                                     # then a '('                                 e.g. 'R1('
+            '(\w+,)*' +                                # then 0 or more alphanumeric substrings     e.g. 'R1(h1,m1,h2,' or 'R1(' if only 1 argument
+            '(\w+)' +                                  # then an alphanumeric substring             e.g. 'R1(h1,m1,h2,m2' or 'R1(h1' if only 1 argument
+            '\)<=>',                                   # finished by ')<=>'                         e.g. 'R1(h1,m1,h2,m2)<=>' or 'R1(h1)<=>' if only 1 argument
+            wsf_definiton)
+
+        # if syntactially valid, determine if semantically valid
+        if matchObj:
+
+            # get start and end parentheses
             start_paren = definition.find('(')
             end_paren = definition.find(')')
 
-            #get arguments within definition e.g. R(a,b,c) -> [a, b, c]
-            arg_string = definition[start_paren+1:end_paren]
+            # get arguments within definition e.g. R(a,b,c) -> [a, b, c]
+            arg_string = definition[start_paren + 1:end_paren]
             r_args = arg_string.split(',')
 
-            #ensure no duplicate arguments
+            # ensure no duplicate arguments
             if len(r_args) == len(set(r_args)):
                 return True
-            else :
+            else:
                 raise ValueError(
                     "duplicate arguments in relation not permitted")
-        else: 
+        else:
             return False
 
 def main():

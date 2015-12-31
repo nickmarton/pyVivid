@@ -89,9 +89,8 @@ class AttributeInterpretation(object):
                 raise ValueError(
                     "1 <= j_x <= n must be true for all j_x in profile")
 
-            entry = [R, R_prime.get_arity(),
-                     'R' + str(R_prime._subscript),
-                     prof]
+            entry = [
+                R, R_prime.get_arity(), 'R' + str(R_prime._subscript), prof]
             interpretation_table.append(entry)
 
         # Save copy of all params for deepcopy implementation

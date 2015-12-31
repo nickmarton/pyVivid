@@ -1,6 +1,6 @@
 """TruthValueParser unit tests."""
 
-from vivid.Classes.TruthValueParser import TruthValueParser
+from vivid.Classes.Parsers.TruthValueParser import TruthValueParser
 
 
 def test_eval():

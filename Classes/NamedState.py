@@ -317,6 +317,10 @@ class NamedState(State):
         # get supsets of this NamedState's ConstantAssignment and create an
         # empty list to hold all alternate extensions.
         supersets = get_supersets()
+
+        for sup in supersets:
+            print sup
+
         named_alternate_extensions = []
 
         for p_prime in supersets:
@@ -542,10 +546,12 @@ def main():
     """quick dev tests."""
 
     from Interval import Interval
+    from Point import Point
     from Formula import Formula
     from AssumptionBase import AssumptionBase
     from AttributeInterpretation import AttributeInterpretation
 
+    '''
     a = Attribute('hour', [Interval(0, 23)])
     a2 = Attribute('minute', [Interval(0, 59)])
     r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
@@ -620,6 +626,7 @@ def main():
                                           attribute_interpretation,
                                           named_state_1,
                                           named_state_2)
+    '''
 
 if __name__ == "__main__":
     main()
