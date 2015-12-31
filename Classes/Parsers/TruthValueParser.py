@@ -122,6 +122,10 @@ class TruthValueParser(object):
         self.log = {"and": all,
                     "or": any}
 
+    def __call__(self, *args):
+        """Implement callable for TruthValueParser object."""
+        return self._eval(*args)
+
     def pushFirst(self, strg, loc, toks):
         """Push first token onto the stack."""
         self.exprStack.append(toks[0])
@@ -178,7 +182,7 @@ class TruthValueParser(object):
         else:
             return float(op)
 
-    def eval(self, num_string, parseAll=True):
+    def _eval(self, num_string, parseAll=True):
         self.exprStack = []
         results = self.bnf.parseString(num_string, parseAll)
         val = self.evaluate_stack(self.exprStack[:])
@@ -190,9 +194,9 @@ def main():
     start_time = time.time()
 
     lmtp = TruthValueParser()
-    # result = lmtp.eval(
+    # result = lmtp(
     # '(!!(((-cos(2*pi) + 44^2) + (-cos(2*pi) + 44^2) ^ 1.5) > 1) and !!True) or 7>5^2')
-    result = lmtp.eval(
+    result = lmtp(
         '(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)')
     print result
 

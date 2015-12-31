@@ -400,6 +400,10 @@ class Formula(object):
         elif 'clocks_unequal' in relation._definition:
             return handle_clocks_unequal(profile)
         else:
+            # Create a ParserSet object so we can attempt parsing of formula
+            from Parsers.ParserSet import ParserSet
+            parser_set = ParserSet()
+
             truth_values = []
             for world in worlds:
                 # break reference from Relation
@@ -422,10 +426,17 @@ class Formula(object):
                 print expression
                 # return
 
-                from Parsers.TruthValueParser import TruthValueParser
-                lmtp = TruthValueParser()
-                result = lmtp.eval(expression)
-                truth_values.append(result)
+                # Try each parser in ParserSet; raise ValueError if no parser
+                # can successfully parse formula
+                for parser in parser_set:
+                    try:
+                        result = parser(expression)
+                        truth_values.append(result)
+                        break
+                    except:
+                        pass
+                else:
+                    raise ValueError("Unable to parse formula")
 
             if all(truth_values):
                 return True
