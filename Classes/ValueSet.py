@@ -1,7 +1,9 @@
 """
 ValueSet class.
 
-Supports any object provided they implement __deepcopy__, __eq__, and __hash__.
+Supports any object provided they implement
+__deepcopy__, __eq__, __str__, __hash__,
+and provide a parser for truth value evaluation.
 """
 
 from copy import deepcopy

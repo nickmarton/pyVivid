@@ -113,3 +113,25 @@ def test___repr__():
     """Test repr(Point)."""
     assert Point(1.0, 2.0, 3.0).__repr__() == "P(1.0,2.0,3.0)"
     assert Point('x', 'x', 'x').__repr__() == "P(x,x,x)"
+
+
+def test_unstringify():
+    """Test Point object reconstruction."""
+    def test_ValueError(point_string):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            Point.unstringify(point_string)
+
+    test_ValueError('asdf')
+    test_ValueError('P()')
+    test_ValueError('P(xx)')
+    test_ValueError('P(,2)')
+
+    p1 = Point('x')
+    p2 = Point('x', 'x')
+    p3 = Point(1.0)
+    p4 = Point(1.0, 1.0)
+    assert Point.unstringify(str(p1)) == Point('x')
+    assert Point.unstringify(str(p2)) == Point('x', 'x')
+    assert Point.unstringify(str(p3)) == Point(1.0)
+    assert Point.unstringify(str(p4)) == Point(1.0, 1.0)

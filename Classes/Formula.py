@@ -458,7 +458,7 @@ def main():
     from AttributeInterpretation import AttributeInterpretation
 
     point = Attribute('point', [Point('x', 'x')])
-    relation_2d = Relation('R1(h1) <=> #is_2d(h1)#', ['point'], 1)
+    relation_2d = Relation('R1(h1) <=> is_2d(h1)', ['point'], 1)
     attribute_structure = AttributeStructure(point, relation_2d)
     relation_symbol_2d = RelationSymbol('2D', 1)
     vocabulary = Vocabulary(['P'], [relation_symbol_2d], [])
