@@ -52,23 +52,34 @@ class ValueSet(object):
 
     def __le__(self, other):
         """Implement <= for ValueSet object; overloaded for subset."""
-
         self_dict = ValueSet._split_by_types(self)
         other_dict = ValueSet._split_by_types(other)
 
         # filter out ints, floats, or longs contained in any Interval in other
         filtered_self_values = []
         for _type, values in self_dict.iteritems():
-            if _type == int or _type == float or _type == long or _type == "_is_Interval":
+            # Handle Interval related stuff
+            if _type == int or _type == float or _type == long or \
+                    _type == "_is_Interval":
                 for value in values:
                     for interval in other_dict['_is_Interval']:
                         if value in interval:
                             break
                     else:
                         filtered_self_values.append(value)
+            # Handle point related stuff
+            elif _type == "_is_Point":
+                for value in values:
+                    for point in other_dict["_is_Point"]:
+                        if value._dimension == point._dimension:
+                            if value == point or point._is_generic:
+                                break
+                    else:
+                        return False
             else:
                 filtered_self_values.extend(values)
 
+        # At this point, only objects, str, and bool can be in new_self_values
         new_self_values = ValueSet(filtered_self_values)
 
         if len(new_self_values) > len(other._values):

@@ -420,7 +420,7 @@ class Formula(object):
                     value = str(valueset)[2:-1]
                     definition = definition.replace(pattern, value)
 
-                # trim the LHS of the definition to create evaluatable expression
+                # trim the LHS of the definition to make evaluatable expression
                 expression = definition[definition.find(" <=> ") + 5:]
 
                 # Try each parser in ParserSet; raise ValueError if no parser
@@ -458,12 +458,12 @@ def main():
     from AttributeInterpretation import AttributeInterpretation
 
     point = Attribute('point', [Point('x', 'x')])
-    relation_2d = Relation('R1(h1) <=> is_2d(h1)', ['point'], 1)
+    relation_2d = Relation('R1(h1, h2, h3) <=> is_2d(h1, h2, h3)', ['point', 'point', 'point'], 1)
     attribute_structure = AttributeStructure(point, relation_2d)
-    relation_symbol_2d = RelationSymbol('2D', 1)
-    vocabulary = Vocabulary(['P'], [relation_symbol_2d], [])
+    relation_symbol_2d = RelationSymbol('2D', 3)
+    vocabulary = Vocabulary(['P1', 'P2', 'P3'], [relation_symbol_2d], [])
 
-    profiles = [[relation_symbol_2d, ('point', 1)]]
+    profiles = [[relation_symbol_2d, ('point', 1), ('point', 2), ('point', 3)]]
     mapping = {relation_symbol_2d: 1}
 
     attribute_interpretation = AttributeInterpretation(vocabulary,
@@ -471,13 +471,16 @@ def main():
                                                        mapping,
                                                        profiles)
 
-    objects = ['p1']
+    objects = ['p1', 'p2', 'p3']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    p = ConstantAssignment(vocabulary, attribute_system, {'P': 'p1'})
+    p = ConstantAssignment(vocabulary, attribute_system, {'P1': 'p1', 'P2': 'p2', 'P3': 'p3'})
 
-    named_state = NamedState(attribute_system, p, {})
+    named_state = NamedState(attribute_system, p, {
+                             ('point', 'p1'): [Point(1.0, 1.0)],
+                             ('point', 'p2'): [Point(2.0, 2.0)],
+                             ('point', 'p3'): [Point(3.0, 3.0)]})
 
-    f = Formula(vocabulary, '2D', 'P')
+    f = Formula(vocabulary, '2D', 'P1', 'P2', 'P3')
 
     VA = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
     f.assign_truth_value(attribute_interpretation, named_state, VA)

@@ -19,7 +19,18 @@ class PointParser(object):
 
     def _eval(self, string):
         """Try to evaluate given string."""
-        print string
+        for fn in dir(Point):
+            pass#print fn
+        fn_start, fn_end = string.find("("), string.rfind(")")
+        fn_name, fn_args = string[:fn_start], string[fn_start + 1: fn_end]
+
+        #fn_args = "P(x), P(1,2)"
+        print fn_args
+        import re
+        point_pattern = r'P\(\d\.\d+(,\d\.\d+)*\)|P\(x(,x)*\)'
+        match_obj = re.match(point_pattern, fn_args)
+        if match_obj:
+            print match_obj.group()
 
 
 def main():

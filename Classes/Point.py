@@ -30,7 +30,7 @@ class Point(object):
                     raise TypeError(
                         'values for dimensions must all be of type float or x')
 
-        self._generic = generic_flag
+        self._is_generic = generic_flag
         self._coordinate = tuple(dimension_values)
         self._dimension = len(dimension_values)
         self._is_Point = True
