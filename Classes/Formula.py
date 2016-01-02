@@ -146,60 +146,6 @@ class Formula(object):
             arg_string = definition[start_paren + 1:end_paren]
             return arg_string.split(',')
 
-        def handle_through_worldline(profile):
-            """
-            Handle Relations with definition in the following form:
-            R2(p1,p2,l) <=> p1 = p2 through_worldline l
-            where p1 and p2 are Points and l is a line segment represented
-            by a 2-tuple of Points
-            """
-
-            # Create subprofiles to check if points are on line
-            p1_on_l_profile = [profile[0], profile[2]]
-            p2_on_l_profile = [profile[1], profile[2]]
-
-            p1_on_l = handle_is_on_line(p1_on_l_profile)
-            p2_on_l = handle_is_on_line(p2_on_l_profile)
-
-            # if they're both on the same worldine, then observes holds
-            both_on_same_worldline = p1_on_l and p2_on_l
-
-            # Get the point objects for comparison
-            ascriptions = [named_state.get_ascription(tup) for tup in profile]            # get value set for each object
-            p1 = ascriptions[0]
-            p2 = ascriptions[1]
-            '''
-            print "-"*40
-            print ascriptions
-            print p1 == p2
-            print both_on_same_worldline
-            print "-"*40
-            print
-            '''
-            # if the p1 and p2 are the same location or both on the same worldline,
-            # then p1 and p2 are observable from one another
-            if p1 == p2 or both_on_same_worldline:
-                return True
-            else:
-                return False
-
-        def handle_meets(profile):
-            """
-            Determine if spacetime_position at profile[0] is on both worldlines
-            m1 and m2 and therefore if m1 and m2 intersect at sp.
-            """
-
-            profile_1 = [profile[0], profile[1]]
-            profile_2 = [profile[0], profile[2]]
-
-            sp_on_m1 = handle_is_on_line(profile_1)
-            sp_on_m2 = handle_is_on_line(profile_2)
-
-            if sp_on_m1 and sp_on_m2:
-                return True
-            else:
-                return False
-
         if not hasattr(attribute_interpretation,
                        "_is_AttributeInterpretation"):
             raise TypeError(
@@ -284,52 +230,47 @@ class Formula(object):
                                  reverse=True)))
 
         # we now check the formula against each possible world within the state
-        if 'is_on_line' in relation._definition and 'and' in relation._definition:
-            return handle_meets(profile)
-        elif 'through_worldline' in relation._definition:
-            return handle_through_worldline(profile)
-        else:
-            # Create a ParserSet object so we can attempt parsing of formula
-            from Parsers.ParserSet import ParserSet
-            parser_set = ParserSet()
+        # First, create a ParserSet object so we can attempt parsing of formula
+        from Parsers.ParserSet import ParserSet
+        parser_set = ParserSet()
 
-            truth_values = []
-            for world in worlds:
-                # break reference from Relation
-                definition = str(relation._definition)
-                # zip arguments in Relation and valuations together
-                valuations = [
-                    world._ascriptions[ao_pair] for ao_pair in profile]
-                substitutions = zip(relation_args, valuations)
+        truth_values = []
+        for world in worlds:
+            # break reference from Relation
+            definition = str(relation._definition)
+            # zip arguments in Relation and valuations together
+            valuations = [
+                world._ascriptions[ao_pair] for ao_pair in profile]
+            substitutions = zip(relation_args, valuations)
 
-                for substitution in substitutions:
-                    pattern, valueset = substitution
-                    # we're swapping in a valuation valueset so just shed
-                    # the prefix 'V(' and suffix ')'
-                    value = str(valueset)[2:-1]
-                    definition = definition.replace(pattern, value)
+            for substitution in substitutions:
+                pattern, valueset = substitution
+                # we're swapping in a valuation valueset so just shed
+                # the prefix 'V(' and suffix ')'
+                value = str(valueset)[2:-1]
+                definition = definition.replace(pattern, value)
 
-                # trim the LHS of the definition to make evaluatable expression
-                expression = definition[definition.find(" <=> ") + 5:]
+            # trim the LHS of the definition to make evaluatable expression
+            expression = definition[definition.find(" <=> ") + 5:]
 
-                # Try each parser in ParserSet; raise ValueError if no parser
-                # can successfully parse formula
-                for parser in parser_set:
-                    try:
-                        result = parser(expression)
-                        truth_values.append(result)
-                        break
-                    except:
-                        pass
-                else:
-                    raise ValueError("Unable to parse formula")
-
-            if all(truth_values):
-                return True
-            elif not any(truth_values):
-                return False
+            # Try each parser in ParserSet; raise ValueError if no parser
+            # can successfully parse formula
+            for parser in parser_set:
+                try:
+                    result = parser(expression)
+                    truth_values.append(result)
+                    break
+                except:
+                    pass
             else:
-                return "unknown"
+                raise ValueError("Unable to parse formula")
+
+        if all(truth_values):
+            return True
+        elif not any(truth_values):
+            return False
+        else:
+            return "unknown"
 
 
 def main():
@@ -345,46 +286,82 @@ def main():
     from NamedState import NamedState
     from VariableAssignment import VariableAssignment
     from AttributeInterpretation import AttributeInterpretation
+    from AssumptionBase import AssumptionBase
 
     point = Attribute('point', [Point('x', 'x', 'x', 'x')])
-    # relation = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)', ['point', 'point', 'point'], 1)
-    # relation = Relation('R1(h1, h2) <=> not_same_point(h1, h2)', ['point', 'point'], 1)
-    relation = Relation('R1(h1, h2) <=> clocks_unequal(h1, h2)', ['point', 'point'], 1)
-    attribute_structure = AttributeStructure(point, relation)
-    # relation_symbol = RelationSymbol('IS_ON', 3)
-    # relation_symbol = RelationSymbol('NOT_SAME_POINT', 2)
-    relation_symbol = RelationSymbol('CLOCKS_UNEQUAL', 2)
-    vocabulary = Vocabulary(['P1', 'P2', 'P3'], [relation_symbol], [])
+    r_is_on = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)',
+                       ['point', 'point', 'point'], 1)
+    r_not_same_point = Relation('R2(h1, h2) <=> not_same_point(h1, h2)',
+                                ['point', 'point'], 2)
+    r_clocks_unequal = Relation('R3(h1, h2) <=> clocks_unequal(h1, h2)',
+                                ['point', 'point'], 3)
+    r_can_observe = Relation(
+        'R4(p, sp_loc, wls, wle) <=> can_observe(p, sp_loc, wls, wle)',
+        ['point', 'point', 'point', 'point'], 4)
+    r_meets = Relation(
+        'R5(p, wl1s, wl1e, wl2s, wl2e) <=> meets(p, wl1s, wl1e, wl2s, wl2e)',
+        ['point', 'point', 'point', 'point', 'point'], 5)
 
-    # profiles = [[relation_symbol, ('point', 1), ('point', 2), ('point', 3)]]
-    profiles = [[relation_symbol, ('point', 1), ('point', 2)]]
-    mapping = {relation_symbol: 1}
+    attribute_structure = AttributeStructure(
+        point, r_is_on, r_not_same_point, r_clocks_unequal, r_can_observe,
+        r_meets)
+
+    rs_is_on = RelationSymbol('IS_ON', 3)
+    rs_not_same_point = RelationSymbol('NOT_SAME_POINT', 2)
+    rs_clocks_unequal = RelationSymbol('CLOCKS_UNEQUAL', 2)
+    rs_can_observe = RelationSymbol('CAN_OBSERVE', 4)
+    rs_meets = RelationSymbol('MEETS', 5)
+
+    vocabulary = Vocabulary(['P1', 'P2', 'P3', 'P4', 'P5'],
+                            [rs_is_on, rs_not_same_point,
+                             rs_clocks_unequal, rs_can_observe, rs_meets],
+                            [])
+
+    profiles = [
+        [rs_is_on, ('point', 1), ('point', 2), ('point', 3)],
+        [rs_not_same_point, ('point', 1), ('point', 2)],
+        [rs_clocks_unequal, ('point', 1), ('point', 2)],
+        [rs_can_observe,
+         ('point', 1), ('point', 2), ('point', 3), ('point', 4)],
+        [rs_meets,
+         ('point', 1), ('point', 2), ('point', 3), ('point', 4), ('point', 5)]]
+
+    mapping = {rs_is_on: 1, rs_not_same_point: 2, rs_clocks_unequal: 3,
+               rs_can_observe: 4, rs_meets: 5}
 
     attribute_interpretation = AttributeInterpretation(vocabulary,
                                                        attribute_structure,
                                                        mapping,
                                                        profiles)
 
-    objects = ['p1', 'p2', 'p3']
+    objects = ['p1', 'p2', 'p3', 'p4', 'p5']
     attribute_system = AttributeSystem(attribute_structure, objects)
-    p = ConstantAssignment(vocabulary, attribute_system, {'P1': 'p1', 'P2': 'p2', 'P3': 'p3'})
-
-    # named_state = NamedState(attribute_system, p, {
-    #                         ('point', 'p1'): [Point(2.0, 2.0, 2.0), Point(1.5, 1.5, 1.5)],
-    #                         ('point', 'p2'): [Point(1.0, 1.0, 1.0)],
-    #                         ('point', 'p3'): [Point(3.0, 3.0, 3.0)]})
+    p = ConstantAssignment(vocabulary, attribute_system,
+                           {'P1': 'p1', 'P2': 'p2', 'P3': 'p3', 'P4': 'p4',
+                            'P5': 'p5'})
 
     named_state = NamedState(attribute_system, p, {
-                             ('point', 'p1'): [Point(2.0, 2.0, 2.0, 2.0)],
-                             ('point', 'p2'): [Point(1.0, 1.0, 1.0, 1.0)],
-                             ('point', 'p3'): [Point(3.0, 3.0, 3.0, 3.0)]})
+                             ('point', 'p1'): [Point(1.5, 1.5, 1.5, 1.5)],
+                             ('point', 'p2'): [Point(2.0, 2.0, 2.0, 2.0)],
+                             ('point', 'p3'): [Point(1.0, 1.0, 1.0, 1.0)],
+                             ('point', 'p4'): [Point(3.0, 3.0, 3.0, 3.0)],
+                             ('point', 'p5'): [Point(2.0, 2.0, 2.0, 2.0)]})
 
-    # f = Formula(vocabulary, 'IS_ON', 'P1', 'P2', 'P3')
-    # f = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P2')
-    f = Formula(vocabulary, 'CLOCKS_UNEQUAL', 'P1', 'P2')
+    f1 = Formula(vocabulary, 'IS_ON', 'P1', 'P3', 'P4')
+    f2 = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P2')
+    f3 = Formula(vocabulary, 'CLOCKS_UNEQUAL', 'P1', 'P2')
+    f4 = Formula(vocabulary, 'CAN_OBSERVE', 'P1', 'P2', 'P3', 'P4')
+    f5 = Formula(vocabulary, 'MEETS', 'P1', 'P2', 'P3', 'P4', 'P5')
 
     VA = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
-    print f.assign_truth_value(attribute_interpretation, named_state, VA)
+
+    assumption_base = AssumptionBase(f1, f2, f3, f4)
+
+    for f in assumption_base:
+        print f.assign_truth_value(attribute_interpretation, named_state, VA)
+
+    named_state.set_ascription(('point', 'p4'), [Point(1.0, 1.0, 1.0, 1.0)])
+    print f5.assign_truth_value(attribute_interpretation, named_state, VA)
 
 if __name__ == "__main__":
     main()

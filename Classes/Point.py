@@ -125,6 +125,41 @@ class Point(object):
 
         return self._coordinate[-1] != other._coordinate[-1]
 
+    def can_observe(self, spacetime_loc, worldline_start, worldline_end):
+        """
+        Determine if this Point can observe spacetime_loc on worldline segment
+        determined by worldline_start-worldline_end.
+        """
+
+        p1_on_l = self.is_on(worldline_start, worldline_end)
+        p2_on_l = spacetime_loc.is_on(worldline_start, worldline_end)
+
+        # if they're both on the same worldine, then observes holds
+        both_on_same_worldline = p1_on_l and p2_on_l
+
+        # if the p1 and p2 are the same location or both on the same worldline,
+        # then p1 and p2 are observable from one another
+        if self == spacetime_loc or both_on_same_worldline:
+            return True
+        else:
+            return False
+
+    def meets(self, worldline_1_start, worldline_1_end, worldline_2_start,
+              worldline_2_end):
+        """
+        Determine if worldline segments defined by
+        worldline_1_start-worldline_1_end and worldline_2_start-worldline_2_end
+        meet at this Point objects location.
+        """
+
+        sp_on_m1 = self.is_on(worldline_1_start, worldline_1_end)
+        sp_on_m2 = self.is_on(worldline_2_start, worldline_2_end)
+
+        if sp_on_m1 and sp_on_m2:
+            return True
+        else:
+            return False
+
     @staticmethod
     def unstringify(point_string):
         """Reconstruct a Point object from its string representation."""
