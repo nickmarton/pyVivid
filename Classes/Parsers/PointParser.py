@@ -19,18 +19,31 @@ class PointParser(object):
 
     def _eval(self, string):
         """Try to evaluate given string."""
-        for fn in dir(Point):
-            pass#print fn
         fn_start, fn_end = string.find("("), string.rfind(")")
         fn_name, fn_args = string[:fn_start], string[fn_start + 1: fn_end]
 
-        #fn_args = "P(x), P(1,2)"
-        print fn_args
+        for fn in dir(Point):
+            if fn_name == fn:
+                point_function = getattr(Point, fn)
+                break
+        else:
+            raise ValueError("Function not contained in dir of Point")
+
         import re
+        parsed_args = []
         point_pattern = r'P\(\d\.\d+(,\d\.\d+)*\)|P\(x(,x)*\)'
-        match_obj = re.match(point_pattern, fn_args)
-        if match_obj:
-            print match_obj.group()
+        match_obj_iter = re.finditer(point_pattern, fn_args)
+        for match in match_obj_iter:
+            parsed_args.append(Point.unstringify(match.group()))
+            fn_args = fn_args.replace(match.group(), '', 1)
+
+        if not all([char == "," for char in fn_args]):
+            raise ValueError("Only Point arguments acceptable")
+
+        try:
+            return point_function(*parsed_args)
+        except Exception, e:
+            raise ValueError("Bad args provided")
 
 
 def main():

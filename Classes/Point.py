@@ -51,6 +51,15 @@ class Point(object):
         """Tuple key for hash function."""
         return self._coordinate
 
+    def __getitem__(self, key):
+        """implement indexing for Point object."""
+        if type(key) != int:
+            raise TypeError("indicies must be of type int")
+        if key in range(self._dimension):
+            return self._coordinate[key]
+        else:
+            raise IndexError("Invalid index: " + str(key))
+
     def __hash__(self):
         """Hash so sets can use Interval's."""
         return hash(self._key())
@@ -70,6 +79,32 @@ class Point(object):
             [str(x_i) + ',' for x_i in self._coordinate])[:-1] + ')'
 
         return point_string
+
+    def is_on(self, endpoint_1, endpoint_2):
+        """
+        Determine if this Point object lies on line segment defined by the
+        endpoint Point objects provided in endpoint_1 and endpoint_2.
+        """
+
+        def distance(p1, p2):
+            from math import sqrt
+            return sqrt(
+                sum([(p1[i] - p2[i]) ** 2 for i in range(self._dimension)]))
+
+        def is_between(p1, p2, p3):
+            epsilon = .000000001
+            delta = (distance(p1, p2) + distance(p1, p3)) - distance(p2, p3)
+            return - epsilon < delta < epsilon
+
+        # Enforce all points being of same dimension
+        endpoints_dim_flag = endpoint_1._dimension == endpoint_2._dimension
+        if not endpoints_dim_flag:
+            raise ValueError("Endpoints must be of same dimension")
+
+        if self._dimension != endpoint_1._dimension:
+            raise ValueError("point must be of same dimension as endpoints")
+
+        return is_between(self, endpoint_1, endpoint_2)
 
     @staticmethod
     def unstringify(point_string):

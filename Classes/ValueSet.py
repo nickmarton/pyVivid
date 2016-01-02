@@ -4,6 +4,9 @@ ValueSet class.
 Supports any object provided they implement
 __deepcopy__, __eq__, __str__, __hash__,
 and provide a parser for truth value evaluation.
+Additionally, __le__ in ValueSet must be extended to support the object if the
+object uses a non-standard form of equality,
+(e.g. Point objects are subset of generic Point of same dimension).
 """
 
 from copy import deepcopy
