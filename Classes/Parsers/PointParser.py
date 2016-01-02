@@ -9,7 +9,7 @@ from Point import Point
 class PointParser(object):
     """Class for parsing Point object related operations."""
 
-    def __init__(self):
+    def __init__(self, *args):
         """Initialize a PointParser object."""
         self._is_Parser = True
 

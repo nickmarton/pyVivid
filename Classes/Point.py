@@ -106,6 +106,25 @@ class Point(object):
 
         return is_between(self, endpoint_1, endpoint_2)
 
+    def not_same_point(self, other):
+        """Wrapper for __ne__ so parser can evaluate."""
+        return self.__ne__(other)
+
+    def clocks_unequal(self, other):
+        """
+        Determine if the clocks of two spacetime locations are unequal;
+        this function assumes we're dealing with either 2D or 4D points
+        wherein the last dimension represents time
+        """
+
+        if self._dimension != other._dimension:
+            raise ValueError("dimensions must match")
+
+        if self._dimension != 2 and self._dimension != 4:
+            raise ValueError("dimensions must be either 2 or 4")
+
+        return self._coordinate[-1] != other._coordinate[-1]
+
     @staticmethod
     def unstringify(point_string):
         """Reconstruct a Point object from its string representation."""

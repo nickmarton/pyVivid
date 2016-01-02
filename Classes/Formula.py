@@ -146,71 +146,6 @@ class Formula(object):
             arg_string = definition[start_paren + 1:end_paren]
             return arg_string.split(',')
 
-        def handle_is_on_line(profile):
-            """
-            Get truth value of expressions containing within operator.
-            """
-
-            def validate_is_on_line_profile(profile):
-                """
-                Raise a ValueError if ascriptions form profile don't
-                correspond to a Point and line segment.
-                """
-
-                ascriptions = [
-                    named_state.get_ascription(tup) for tup in profile]
-
-                if len(ascriptions) != 2:
-                    raise ValueError(
-                        "profile for is_on_line must contain "
-                        "exactly two pairs")
-
-                if len(ascriptions[0]) != 1:
-                    raise ValueError(
-                        "ascription of first profile pair for" +
-                        " is_on_line must contain exactly one Point")
-
-                if not isinstance(ascriptions[0][0], Point):
-                    raise ValueError(
-                        "ascription of first profile pair for" +
-                        " is_on_line must contain exactly one Point")
-
-                if len(ascriptions[1]) != 2:
-                    raise ValueError(
-                        "ascription of second profile pair for" +
-                        " is_on_line must contain exactly two Points")
-
-                if not isinstance(ascriptions[1][0], Point) or not isinstance(ascriptions[1][1], Point):
-                    raise ValueError(
-                        "ascription of first profile pair for" +
-                        " is_on_line must contain exactly one Point")
-
-                return ascriptions
-
-            def is_on(ascriptions):
-                "Return true iff point c intersects the line segment from a to b."
-                #  (or the degenerate case that all 3 points are coincident)
-
-                ax, ay = ascriptions[1][0].get_coordinate()
-                bx, by = ascriptions[1][1].get_coordinate()
-                cx, cy = ascriptions[0][0].get_coordinate()
-
-                return (collinear(ax, ay, bx, by, cx, cy)
-                        and (within(ax, cx, bx) if ax != bx else
-                             within(ay, cy, by)))
-
-            def collinear(ax, ay, bx, by, cx, cy):
-                "Return true iff a, b, and c all lie on the same line."
-                return (bx - ax) * (cy - ay) == (cx - ax) * (by - ay)
-
-            def within(p, q, r):
-                "Return true iff q is between p and r (inclusive)."
-                return p <= q <= r or r <= q <= p
-
-            ascriptions = validate_is_on_line_profile(profile)
-            # print "@@@" + str(ascriptions)
-            return is_on(ascriptions)
-
         def handle_through_worldline(profile):
             """
             Handle Relations with definition in the following form:
@@ -265,46 +200,6 @@ class Formula(object):
             else:
                 return False
 
-        def handle_not_same_point(profile):
-            """Handle when two points are being compared for inequality."""
-
-            ascriptions = [named_state.get_ascription(tup) for tup in profile]
-
-            if len(ascriptions) != 2:
-                raise ValueError(
-                    "only 2 points may be compared")
-
-            if not isinstance(ascriptions[0][0], Point) or not isinstance(ascriptions[1][0], Point):
-                raise TypeError(
-                    "ascriptions must be of type Point")
-            
-            p1 = ascriptions[0][0]
-            p2 = ascriptions[1][0]
-
-            return p1 != p2
-
-        def handle_clocks_unequal(profile):
-            """
-            Handle when we compare two spacetime clocks.
-
-            clocks refers to 2nd element in spacetime_position tuple.
-            """
-
-            ascriptions = [named_state.get_ascription(tup) for tup in profile]
-
-            if len(ascriptions) != 2:
-                raise ValueError(
-                    "only 2 points may be compared")
-
-            if not isinstance(ascriptions[0][0], Point) or not isinstance(ascriptions[1][0], Point):
-                raise TypeError(
-                    "ascriptions must be of type Point")
-
-            p1 = ascriptions[0][0]
-            p2 = ascriptions[1][0]
-
-            return p1._coordinate[1] != p2._coordinate[1]
-
         if not hasattr(attribute_interpretation,
                        "_is_AttributeInterpretation"):
             raise TypeError(
@@ -320,7 +215,7 @@ class Formula(object):
                 "X parameter must be a VariableAssignment object")
 
         if self._vocabulary == attribute_interpretation._vocabulary == \
-                               named_state._p._vocabulary == X._vocabulary:
+                named_state._p._vocabulary == X._vocabulary:
             pass
         else:
             raise ValueError(
@@ -391,14 +286,8 @@ class Formula(object):
         # we now check the formula against each possible world within the state
         if 'is_on_line' in relation._definition and 'and' in relation._definition:
             return handle_meets(profile)
-        elif 'is_on_line' in relation._definition:
-            return handle_is_on_line(profile)
         elif 'through_worldline' in relation._definition:
             return handle_through_worldline(profile)
-        elif 'not_same_point' in relation._definition:
-            return handle_not_same_point(profile)
-        elif 'clocks_unequal' in relation._definition:
-            return handle_clocks_unequal(profile)
         else:
             # Create a ParserSet object so we can attempt parsing of formula
             from Parsers.ParserSet import ParserSet
@@ -457,14 +346,19 @@ def main():
     from VariableAssignment import VariableAssignment
     from AttributeInterpretation import AttributeInterpretation
 
-    point = Attribute('point', [Point('x', 'x', 'x')])
-    relation_2d = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)', ['point', 'point', 'point'], 1)
-    attribute_structure = AttributeStructure(point, relation_2d)
-    relation_symbol_2d = RelationSymbol('IS_ON', 3)
-    vocabulary = Vocabulary(['P1', 'P2', 'P3'], [relation_symbol_2d], [])
+    point = Attribute('point', [Point('x', 'x', 'x', 'x')])
+    # relation = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)', ['point', 'point', 'point'], 1)
+    # relation = Relation('R1(h1, h2) <=> not_same_point(h1, h2)', ['point', 'point'], 1)
+    relation = Relation('R1(h1, h2) <=> clocks_unequal(h1, h2)', ['point', 'point'], 1)
+    attribute_structure = AttributeStructure(point, relation)
+    # relation_symbol = RelationSymbol('IS_ON', 3)
+    # relation_symbol = RelationSymbol('NOT_SAME_POINT', 2)
+    relation_symbol = RelationSymbol('CLOCKS_UNEQUAL', 2)
+    vocabulary = Vocabulary(['P1', 'P2', 'P3'], [relation_symbol], [])
 
-    profiles = [[relation_symbol_2d, ('point', 1), ('point', 2), ('point', 3)]]
-    mapping = {relation_symbol_2d: 1}
+    # profiles = [[relation_symbol, ('point', 1), ('point', 2), ('point', 3)]]
+    profiles = [[relation_symbol, ('point', 1), ('point', 2)]]
+    mapping = {relation_symbol: 1}
 
     attribute_interpretation = AttributeInterpretation(vocabulary,
                                                        attribute_structure,
@@ -475,12 +369,19 @@ def main():
     attribute_system = AttributeSystem(attribute_structure, objects)
     p = ConstantAssignment(vocabulary, attribute_system, {'P1': 'p1', 'P2': 'p2', 'P3': 'p3'})
 
-    named_state = NamedState(attribute_system, p, {
-                             ('point', 'p1'): [Point(2.0, 2.0, 2.0), Point(1.5, 1.5, 1.5)],
-                             ('point', 'p2'): [Point(1.0, 1.0, 1.0)],
-                             ('point', 'p3'): [Point(3.0, 3.0, 3.0)]})
+    # named_state = NamedState(attribute_system, p, {
+    #                         ('point', 'p1'): [Point(2.0, 2.0, 2.0), Point(1.5, 1.5, 1.5)],
+    #                         ('point', 'p2'): [Point(1.0, 1.0, 1.0)],
+    #                         ('point', 'p3'): [Point(3.0, 3.0, 3.0)]})
 
-    f = Formula(vocabulary, 'IS_ON', 'P1', 'P2', 'P3')
+    named_state = NamedState(attribute_system, p, {
+                             ('point', 'p1'): [Point(2.0, 2.0, 2.0, 2.0)],
+                             ('point', 'p2'): [Point(1.0, 1.0, 1.0, 1.0)],
+                             ('point', 'p3'): [Point(3.0, 3.0, 3.0, 3.0)]})
+
+    # f = Formula(vocabulary, 'IS_ON', 'P1', 'P2', 'P3')
+    # f = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P2')
+    f = Formula(vocabulary, 'CLOCKS_UNEQUAL', 'P1', 'P2')
 
     VA = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
     print f.assign_truth_value(attribute_interpretation, named_state, VA)
