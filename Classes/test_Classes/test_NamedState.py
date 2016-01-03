@@ -1342,6 +1342,81 @@ def test_satisfies_context():
     point_test()
 
 
+def test__generate_variable_assignments():
+    """Test generate_variable_assignments function."""
+    objects = ['s1', 's2']
+    attribute_system = AttributeSystem(AttributeStructure(), objects)
+    vocabulary = Vocabulary([], [], [])
+    p = ConstantAssignment(vocabulary, attribute_system, {})
+    state = NamedState(attribute_system, p, {})
+
+    assert [VariableAssignment(vocabulary, attribute_system, {}, dummy=True)] == \
+        [X for X in state._generate_variable_assignments()]
+
+    objects = ['s1']
+    attribute_system = AttributeSystem(AttributeStructure(), objects)
+    vocabulary = Vocabulary([], [], ['V1', 'V2'])
+    p = ConstantAssignment(vocabulary, attribute_system, {})
+    state = NamedState(attribute_system, p, {})
+    V1 = VariableAssignment(vocabulary, attribute_system, {'V1': 's1'})
+    V2 = VariableAssignment(vocabulary, attribute_system, {'V2': 's1'})
+    variable_assignments = [X for X in state._generate_variable_assignments()]
+    assert len(variable_assignments) == 2
+    assert V1 in variable_assignments
+    assert V2 in variable_assignments
+
+    objects = ['s1', 's2']
+    attribute_system = AttributeSystem(AttributeStructure(), objects)
+    vocabulary = Vocabulary([], [], ['V1', 'V2'])
+    p = ConstantAssignment(vocabulary, attribute_system, {})
+    state = NamedState(attribute_system, p, {})
+    V1 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's1', 'V2': 's2'})
+    V2 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's2', 'V2': 's1'})
+    variable_assignments = [X for X in state._generate_variable_assignments()]
+    assert len(variable_assignments) == 2
+    assert V1 in variable_assignments
+    assert V2 in variable_assignments
+
+    objects = ['s1', 's2', 's3', 's4']
+    attribute_system = AttributeSystem(AttributeStructure(), objects)
+    vocabulary = Vocabulary([], [], ['V1', 'V2'])
+    p = ConstantAssignment(vocabulary, attribute_system, {})
+    state = NamedState(attribute_system, p, {})
+    V1 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's1', 'V2': 's2'})
+    V2 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's1', 'V2': 's3'})
+    V3 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's1', 'V2': 's4'})
+    V4 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's2', 'V2': 's1'})
+    V5 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's2', 'V2': 's3'})
+    V6 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's2', 'V2': 's4'})
+    V7 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's3', 'V2': 's1'})
+    V8 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's3', 'V2': 's2'})
+    V9 = VariableAssignment(vocabulary, attribute_system,
+                            {'V1': 's3', 'V2': 's4'})
+    V10 = VariableAssignment(vocabulary, attribute_system,
+                             {'V1': 's4', 'V2': 's1'})
+    V11 = VariableAssignment(vocabulary, attribute_system,
+                             {'V1': 's4', 'V2': 's2'})
+    V12 = VariableAssignment(vocabulary, attribute_system,
+                             {'V1': 's4', 'V2': 's3'})
+    # V2 = VariableAssignment(vocabulary, attribute_system,
+    #                        {'V1': 's2', 'V2': 's1'})
+    variable_assignments = [X for X in state._generate_variable_assignments()]
+    vas = [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12]
+    assert len(variable_assignments) == 12
+    for v in vas:
+        assert v in variable_assignments
+
+
 def test_is_named_entailment():
     """Test is_named_entailment() function for NamedState."""
     pass

@@ -1,60 +1,6 @@
 """Context class."""
 
-
 from VariableAssignment import VariableAssignment
-
-
-def generate_variable_assignments(variables, context):
-    """
-    Return a list of all possible VariableAssignments that can
-    be created from the variables in variables parameter and
-    the unmatched objects within Context object's
-    NamedState object.
-
-    note: this function is intended to be used internally from Context
-    for the purpose of determining entailment only.
-    """
-
-    c_target = context.get_named_state().get_p().get_target()
-    objects = context.get_named_state().get_attribute_system().get_objects()
-    unmatched_objects = [obj for obj in objects if obj not in c_target]
-
-    # get proper length of variable assignments
-    if len(variables) <= len(unmatched_objects):
-        smaller_length = len(variables)
-    else:
-        smaller_length = len(unmatched_objects)
-
-    from itertools import product
-
-    # get cartesian product of variables and objects such that the
-    # products created are of the smaller cardinality.
-    products = [
-        zip(variables, item) for item in product(
-            unmatched_objects, repeat=smaller_length)]
-
-    # filter out the products with duplicate targets.
-    mapping_list = []
-    for prod in products:
-        product_objs = [p[1] for p in prod]
-        if len(product_objs) == len(set(product_objs)):
-            mapping_list.append(dict(prod))
-
-    X_list = []
-
-    # if there are variable terms and unmatched object, form all
-    # possible VariableAssignments and store them in X_list,
-    # otherwise return an empty list
-    if smaller_length > 0:
-        for mapping in mapping_list:
-            X = VariableAssignment(
-                context.get_named_state().get_vocabulary(),
-                context.get_named_state().get_attribute_system(),
-                mapping)
-
-            X_list.append(X)
-
-    return X_list
 
 
 class Context(object):
@@ -118,7 +64,7 @@ class Context(object):
             deepcopy(self._assumption_base),
             deepcopy(self._named_state))
 
-    def entails_formula(self, formula, interpretation_table=None):
+    def entails_formula(self, formula, attribute_interpretation):
         """
         Determine if this Context entails formula provided by
         formula parameter w.r.t. all worlds and possible variable
@@ -144,48 +90,33 @@ class Context(object):
             raise TypeError(
                 "formula parameter must be of type Formula")
 
-        f_vocabulary = formula.get_vocabulary()
-        c_vocabulary = self.get_named_state().get_p().get_vocabulary()
+        f_vocabulary = formula._vocabulary
+        c_vocabulary = self._named_state._p._vocabulary
 
         if f_vocabulary != c_vocabulary:
             raise ValueError(
                 "Formula must be over the same vocabulary used to create"
                 "ConstantAssignment within this Context.")
 
-        # get list of variables from Formula terms
-        terms = formula.get_terms()
-        c_source = self.get_named_state().get_p().get_source()
-        variables = [t for t in terms if t not in c_source]
-
         # get all possible worlds and variable assignments.
-        possible_worlds = self.get_named_state().get_worlds()
-        variable_assignments = generate_variable_assignments(variables, self)
-
-        # if there are no variable assignments possible, add a dummy one.
-        if not variable_assignments:
-            dummy_X = VariableAssignment(
-                f_vocabulary,
-                self.get_named_state().get_attribute_system(), {},
-                dummy=True)
-            variable_assignments.append(dummy_X)
+        possible_worlds = self._named_state.get_worlds()
 
         # for every possible world and variable assignment, if the world
         # satisfies the context, but not the formula, this Context does not
         # entail the Formula, return False, otherwise return True aftewards.
-        for X in variable_assignments:
-            for world in possible_worlds:
+        for world in possible_worlds:
+            for X in world._generate_variable_assignments():
+                satisfies_context = world.satisfies_context(
+                    self, X, attribute_interpretation)
+                satisfies_formula = world.satisfies_formula(
+                    formula, X, attribute_interpretation)
 
-                sats_context = world.satisfies_context(
-                    self, X, f_vocabulary, interpretation_table)
-                sats_formula = world.satisfies_formula(
-                    formula, X, f_vocabulary, interpretation_table)
-
-                if sats_context and not sats_formula:
+                if satisfies_context and not satisfies_formula:
                     return False
 
         return True
 
-    def entails_named_state(self, named_state, interpretation_table=None):
+    def entails_named_state(self, named_state, attribute_interpretation):
         """
         Determine if this Context entails named_state provided by
         named_state parameter w.r.t. all worlds and possible variable
@@ -219,8 +150,8 @@ class Context(object):
             raise TypeError(
                 "named_state parameter must be of type NamedState")
 
-        ns_vocabulary = named_state.get_vocabulary()
-        c_vocabulary = self.get_named_state().get_p().get_vocabulary()
+        ns_vocabulary = named_state._p._vocabulary
+        c_vocabulary = self._named_state._p._vocabulary
 
         if ns_vocabulary != c_vocabulary:
             raise ValueError(
@@ -229,31 +160,32 @@ class Context(object):
                 "ConstantAssignment within this Context.")
 
         # get list of variabels from vocabulary V list.
-        variables = ns_vocabulary.get_V()
+        variables = ns_vocabulary._V
 
         # get all possible worlds and variable assignments.
-        possible_worlds = self.get_named_state().get_worlds()
-        variable_assignments = generate_variable_assignments(variables, self)
-
-        # if there are no variable assignments possible, add a dummy one.
-        if not variable_assignments:
-            dummy_X = VariableAssignment(
-                ns_vocabulary,
-                self.get_named_state().get_attribute_system(), {},
-                dummy=True)
-            variable_assignments.append(dummy_X)
-
+        possible_worlds = self._named_state.get_worlds()
         # for every possible world and variable assignment, if the world
         # satisfies this Context, but not the NamedState, this Context does not
         # entail the NamedState, return False, otherwise return True aftewards.
-        for X in variable_assignments:
-            for world in possible_worlds:
+        for world in possible_worlds:
+            for X in world._generate_variable_assignments():
 
-                sats_context = world.satisfies_context(
-                    self, X, ns_vocabulary, interpretation_table)
-                sats_named_state = world.satisfies_named_state(
-                    named_state, ns_vocabulary)
+                satisfies_context = world.satisfies_context(
+                    self, X, attribute_interpretation)
+                satisfies_named_state = world.satisfies_named_state(
+                    named_state)
 
-                if sats_context and not sats_named_state:
+                print X
+                print world
+                print satisfies_context and not satisfies_named_state
+                if satisfies_context and not satisfies_named_state:
                     return False
         return True
+
+
+def main():
+    """."""
+    pass
+
+if __name__ == "__main__":
+    main()

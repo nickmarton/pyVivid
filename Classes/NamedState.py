@@ -453,28 +453,29 @@ class NamedState(State):
             yield VariableAssignment(self._p._vocabulary,
                                      self._attribute_system,
                                      {}, dummy=True)
-
-        V = self._p._vocabulary._V
-        objects = self._attribute_system._objects
-        bound_objects = self._p._target
-        unbound_objects = [obj for obj in objects if obj not in bound_objects]
-        smaller = V if len(V) <= len(unbound_objects) else unbound_objects
-        bigger = V if len(V) >= len(unbound_objects) else unbound_objects
-
-        import itertools
-        if smaller == V:
-            combos = [zip(smaller, x)
-                      for x in itertools.permutations(bigger, len(smaller))]
         else:
-            combos = [zip(x, smaller)
-                      for x in itertools.permutations(bigger, len(smaller))]
+            V = self._p._vocabulary._V
+            objects = self._attribute_system._objects
+            bound_objects = self._p._target
+            unbound_objects = [
+                obj for obj in objects if obj not in bound_objects]
+            smaller = V if len(V) <= len(unbound_objects) else unbound_objects
+            bigger = V if len(V) > len(unbound_objects) else unbound_objects
 
-        for combo in combos:
-            mapping = {pair[0]: pair[1] for pair in combo}
-            X = VariableAssignment(self._p._vocabulary,
-                                   self._attribute_system,
-                                   mapping)
-            yield X
+            import itertools
+            if smaller == V:
+                combos = [zip(smaller, x) for x in itertools.permutations(
+                    bigger, len(smaller))]
+            else:
+                combos = [zip(x, smaller) for x in itertools.permutations(
+                    bigger, len(smaller))]
+
+            for combo in combos:
+                mapping = {pair[0]: pair[1] for pair in combo}
+                X = VariableAssignment(self._p._vocabulary,
+                                       self._attribute_system,
+                                       mapping)
+                yield X
 
     def is_named_entailment(self, assumption_base, attribute_interpretation,
                             *named_states):
