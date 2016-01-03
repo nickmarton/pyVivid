@@ -1419,7 +1419,97 @@ def test__generate_variable_assignments():
 
 def test_is_named_entailment():
     """Test is_named_entailment() function for NamedState."""
-    pass
+    def simple_test():
+        """Do simple tests for named entailment."""
+        a = Attribute('hour', [Interval(0, 23)])
+        a2 = Attribute('minute', [Interval(0, 59)])
+        r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+        r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
+        r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                           ['hour', 'minute', 'hour', 'minute'], 3)
+        r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                            ['hour', 'minute', 'hour', 'minute'], 4)
+        attribute_structure = AttributeStructure(
+            a, a2, r_ahead, r_behind, r_pm, r_am)
+        objects = ['s1', 's2', 's3', 's4']
+        attribute_system = AttributeSystem(attribute_structure, objects)
+
+        pm_rs = RelationSymbol('PM', 1)
+        am_rs = RelationSymbol('AM', 1)
+        ahead_rs = RelationSymbol('Ahead', 4)
+        behind_rs = RelationSymbol('Behind', 4)
+        vocabulary = Vocabulary(
+            ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V3', 'V2'])
+        p = ConstantAssignment(
+            vocabulary, attribute_system, {'C1': 's1', 'C2': 's2'})
+        X = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
+
+        named_state = NamedState(attribute_system, p, {
+                                ('minute', 's1'): [0],
+                                ('minute', 's2'): [0],
+                                ('minute', 's3'): [0],
+                                ('minute', 's4'): [0],
+                                ('hour', 's1'): [9, 10, 11, 13],
+                                ('hour', 's2'): [4, 5, 6, 8],
+                                ('hour', 's3'): [0],
+                                ('hour', 's4'): [0]})
+
+        named_state_1 = NamedState(attribute_system, p, {
+                                  ('minute', 's1'): [0],
+                                  ('minute', 's2'): [0],
+                                  ('minute', 's3'): [0],
+                                  ('minute', 's4'): [0],
+                                  ('hour', 's1'): [9, 11, 13],
+                                  ('hour', 's2'): [4, 5, 8],
+                                  ('hour', 's3'): [0],
+                                  ('hour', 's4'): [0]})
+
+        named_state_2 = NamedState(attribute_system, p, {
+                                  ('minute', 's1'): [0],
+                                  ('minute', 's2'): [0],
+                                  ('minute', 's3'): [0],
+                                  ('minute', 's4'): [0],
+                                  ('hour', 's1'): [9, 10, 13],
+                                  ('hour', 's2'): [4, 6],
+                                  ('hour', 's3'): [0],
+                                  ('hour', 's4'): [0]})
+
+        profiles = [
+            [pm_rs, ('hour', 1)],
+            [am_rs, ('hour', 1)],
+            [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
+            [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
+
+        attribute_interpretation = AttributeInterpretation(
+            vocabulary, attribute_structure,
+            {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4}, profiles)
+
+        f1 = Formula(vocabulary, 'PM', 'C1')
+        f2 = Formula(vocabulary, 'AM', 'C1')
+        f3 = Formula(vocabulary, 'Ahead', 'C1', 'C2')
+        f4 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
+
+        assumption_base = AssumptionBase(f1)
+
+        assert named_state.is_named_entailment(assumption_base,
+                                               attribute_interpretation,
+                                               named_state_1,
+                                               named_state_2)
+
+        named_state_2.set_ascription(("hour", "s1"), [9, 10])
+        assert not named_state.is_named_entailment(assumption_base,
+                                                   attribute_interpretation,
+                                                   named_state_1,
+                                                   named_state_2)
+        f1 = Formula(vocabulary, 'Ahead', 'C2', 'C1')
+        f2 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
+        assumption_base = AssumptionBase(f1, f2)
+        assert named_state.is_named_entailment(assumption_base,
+                                               attribute_interpretation,
+                                               named_state_1,
+                                               named_state_2)
+
+    simple_test()
 
 
 def test___str__():

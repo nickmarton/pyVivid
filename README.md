@@ -6,8 +6,6 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 [paper]: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.466.4004&rep=rep1&type=pdf
 
 #TODO
-* Finish NamedState unit tests
-    * named_entailment stuff
 * Implement the rest of the inference rules
     * [Thinning]
     * [Absurdity]
@@ -19,3 +17,5 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
     * [D; D]
     * [EI/∆]
     * [C3]
+* Known issues
+    * Subset does not test that an interval exists in discrete form in other
