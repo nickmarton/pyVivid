@@ -92,7 +92,7 @@ class Point(object):
                 sum([(p1[i] - p2[i]) ** 2 for i in range(self._dimension)]))
 
         def is_between(p1, p2, p3):
-            epsilon = .000000001
+            epsilon = .000000000000001
             delta = (distance(p1, p2) + distance(p1, p3)) - distance(p2, p3)
             return - epsilon < delta < epsilon
 

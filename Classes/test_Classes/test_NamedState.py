@@ -862,96 +862,175 @@ def test_satisfies_formula():
         with pytest.raises(ValueError) as excinfo:
             world.satisfies_formula(formula, attribute_interpretation, X)
 
-    a = Attribute('hour', [Interval(0, 23)])
-    a2 = Attribute('minute', [Interval(0, 59)])
-    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
-    r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
-                       ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
-                        ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(
-        a, a2, r_ahead, r_behind, r_pm, r_am)
+    def standard_test():
+        """Do regular tests."""
+        a = Attribute('hour', [Interval(0, 23)])
+        a2 = Attribute('minute', [Interval(0, 59)])
+        r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+        r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
+        r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                           ['hour', 'minute', 'hour', 'minute'], 3)
+        r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                            ['hour', 'minute', 'hour', 'minute'], 4)
+        attribute_structure = AttributeStructure(
+            a, a2, r_ahead, r_behind, r_pm, r_am)
 
-    pm_rs = RelationSymbol('PM', 1)
-    am_rs = RelationSymbol('AM', 1)
-    ahead_rs = RelationSymbol('Ahead', 4)
-    behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(
-        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+        pm_rs = RelationSymbol('PM', 1)
+        am_rs = RelationSymbol('AM', 1)
+        ahead_rs = RelationSymbol('Ahead', 4)
+        behind_rs = RelationSymbol('Behind', 4)
+        vocabulary = Vocabulary(
+            ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
 
-    profiles = [
-        [pm_rs, ('hour', 1)],
-        [am_rs, ('hour', 1)],
-        [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
-        [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
+        profiles = [
+            [pm_rs, ('hour', 1)],
+            [am_rs, ('hour', 1)],
+            [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
+            [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
 
-    attribute_interpretation = AttributeInterpretation(
-        vocabulary,
-        attribute_structure,
-        {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4},
-        profiles)
+        attribute_interpretation = AttributeInterpretation(
+            vocabulary,
+            attribute_structure,
+            {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4},
+            profiles)
 
-    objs = ['c1', 'c2', 'x1', 'x2']
-    asys = AttributeSystem(attribute_structure, objs)
+        objs = ['c1', 'c2', 'x1', 'x2']
+        asys = AttributeSystem(attribute_structure, objs)
 
-    const_mapping = {'C1': 'c1', 'C2': 'c2'}
-    var_mapping = {'V1': 'x1', 'V2': 'x2'}
-    p = ConstantAssignment(vocabulary, asys, const_mapping)
-    X = VariableAssignment(vocabulary, asys, var_mapping)
+        const_mapping = {'C1': 'c1', 'C2': 'c2'}
+        var_mapping = {'V1': 'x1', 'V2': 'x2'}
+        p = ConstantAssignment(vocabulary, asys, const_mapping)
+        X = VariableAssignment(vocabulary, asys, var_mapping)
 
-    world = NamedState(asys, p)
-    named_state = NamedState(asys, p)
+        world = NamedState(asys, p)
+        named_state = NamedState(asys, p)
 
-    world.set_ascription(('hour', 'c1'), [21])
-    world.set_ascription(('minute', 'c1'), [9])
-    world.set_ascription(('hour', 'c2'), [11])
-    world.set_ascription(('minute', 'c2'), [40])
+        world.set_ascription(('hour', 'c1'), [21])
+        world.set_ascription(('minute', 'c1'), [9])
+        world.set_ascription(('hour', 'c2'), [11])
+        world.set_ascription(('minute', 'c2'), [40])
 
-    world.set_ascription(('hour', 'x1'), [21])
-    world.set_ascription(('minute', 'x1'), [9])
-    world.set_ascription(('hour', 'x2'), [11])
-    world.set_ascription(('minute', 'x2'), [40])
+        world.set_ascription(('hour', 'x1'), [21])
+        world.set_ascription(('minute', 'x1'), [9])
+        world.set_ascription(('hour', 'x2'), [11])
+        world.set_ascription(('minute', 'x2'), [40])
 
-    named_state.set_ascription(('hour', 'c1'), [21, 11])
-    named_state.set_ascription(('minute', 'c1'), [9])
-    named_state.set_ascription(('hour', 'c2'), [11, Interval(20, 22)])
-    named_state.set_ascription(('minute', 'c2'), [40])
+        named_state.set_ascription(('hour', 'c1'), [21, 11])
+        named_state.set_ascription(('minute', 'c1'), [9])
+        named_state.set_ascription(('hour', 'c2'), [11, Interval(20, 22)])
+        named_state.set_ascription(('minute', 'c2'), [40])
 
-    named_state.set_ascription(('hour', 'x1'), [21])
-    named_state.set_ascription(('minute', 'x1'), [9])
-    named_state.set_ascription(('hour', 'x2'), [11])
-    named_state.set_ascription(('minute', 'x2'), [40])
+        named_state.set_ascription(('hour', 'x1'), [21])
+        named_state.set_ascription(('minute', 'x1'), [9])
+        named_state.set_ascription(('hour', 'x2'), [11])
+        named_state.set_ascription(('minute', 'x2'), [40])
 
-    f1 = Formula(vocabulary, 'PM', 'C1')
-    f2 = Formula(vocabulary, 'AM', 'C1')
-    f3 = Formula(vocabulary, 'Ahead', 'C1', 'C2')
-    f4 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
-    f5 = Formula(vocabulary, 'Behind', 'C2', 'C1', 'V1', 'V2')
+        f1 = Formula(vocabulary, 'PM', 'C1')
+        f2 = Formula(vocabulary, 'AM', 'C1')
+        f3 = Formula(vocabulary, 'Ahead', 'C1', 'C2')
+        f4 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
+        f5 = Formula(vocabulary, 'Behind', 'C2', 'C1', 'V1', 'V2')
 
-    from copy import deepcopy
-    world2 = deepcopy(world)
-    world2.set_ascription(('hour', 'c1'), [1])
+        from copy import deepcopy
+        world2 = deepcopy(world)
+        world2.set_ascription(('hour', 'c1'), [1])
 
-    test_TypeError(world, None, attribute_interpretation, X)
-    test_TypeError(world, object, attribute_interpretation, X)
-    test_TypeError(world, f1, None, X)
-    test_TypeError(world, f1, object, X)
-    test_TypeError(world, f1, attribute_interpretation, None)
-    test_TypeError(world, f1, attribute_interpretation, object)
-    test_ValueError(named_state, f1, X, attribute_interpretation)
+        test_TypeError(world, None, attribute_interpretation, X)
+        test_TypeError(world, object, attribute_interpretation, X)
+        test_TypeError(world, f1, None, X)
+        test_TypeError(world, f1, object, X)
+        test_TypeError(world, f1, attribute_interpretation, None)
+        test_TypeError(world, f1, attribute_interpretation, object)
+        test_ValueError(named_state, f1, X, attribute_interpretation)
 
-    assert world.satisfies_formula(f1, X, attribute_interpretation)
-    assert not world.satisfies_formula(f2, X, attribute_interpretation)
-    assert world.satisfies_formula(f3, X, attribute_interpretation)
-    assert not world.satisfies_formula(f4, X, attribute_interpretation)
-    assert world.satisfies_formula(f5, X, attribute_interpretation)
+        assert world.satisfies_formula(f1, X, attribute_interpretation)
+        assert not world.satisfies_formula(f2, X, attribute_interpretation)
+        assert world.satisfies_formula(f3, X, attribute_interpretation)
+        assert not world.satisfies_formula(f4, X, attribute_interpretation)
+        assert world.satisfies_formula(f5, X, attribute_interpretation)
 
-    assert not world2.satisfies_formula(f1, X, attribute_interpretation)
-    assert world2.satisfies_formula(f2, X, attribute_interpretation)
-    assert not world2.satisfies_formula(f3, X, attribute_interpretation)
-    assert world2.satisfies_formula(f4, X, attribute_interpretation)
-    assert not world2.satisfies_formula(f5, X, attribute_interpretation)
+        assert not world2.satisfies_formula(f1, X, attribute_interpretation)
+        assert world2.satisfies_formula(f2, X, attribute_interpretation)
+        assert not world2.satisfies_formula(f3, X, attribute_interpretation)
+        assert world2.satisfies_formula(f4, X, attribute_interpretation)
+        assert not world2.satisfies_formula(f5, X, attribute_interpretation)
+
+    def point_test():
+        """Do Point object tests."""
+        point = Attribute('point', [Point('x', 'x', 'x', 'x')])
+        r_is_on = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)',
+                           ['point', 'point', 'point'], 1)
+        r_not_same_point = Relation('R2(h1, h2) <=> not_same_point(h1, h2)',
+                                    ['point', 'point'], 2)
+        r_clocks_unequal = Relation('R3(h1, h2) <=> clocks_unequal(h1, h2)',
+                                    ['point', 'point'], 3)
+        r_can_observe = Relation(
+            'R4(p, sp_loc, wls, wle) <=> can_observe(p, sp_loc, wls, wle)',
+            ['point', 'point', 'point', 'point'], 4)
+
+        attribute_structure = AttributeStructure(
+            point, r_is_on, r_not_same_point, r_clocks_unequal, r_can_observe)
+
+        rs_is_on = RelationSymbol('IS_ON', 3)
+        rs_not_same_point = RelationSymbol('NOT_SAME_POINT', 2)
+        rs_clocks_unequal = RelationSymbol('CLOCKS_UNEQUAL', 2)
+        rs_can_observe = RelationSymbol('CAN_OBSERVE', 4)
+
+        vocabulary = Vocabulary(['P1', 'P2', 'P3', 'P4', 'P5'],
+                                [rs_is_on, rs_not_same_point,
+                                 rs_clocks_unequal, rs_can_observe],
+                                [])
+
+        profiles = [
+            [rs_is_on, ('point', 1), ('point', 2), ('point', 3)],
+            [rs_not_same_point, ('point', 1), ('point', 2)],
+            [rs_clocks_unequal, ('point', 1), ('point', 2)],
+            [rs_can_observe,
+             ('point', 1), ('point', 2), ('point', 3), ('point', 4)]]
+
+        mapping = {rs_is_on: 1, rs_not_same_point: 2, rs_clocks_unequal: 3,
+                   rs_can_observe: 4}
+
+        attribute_interpretation = AttributeInterpretation(vocabulary,
+                                                           attribute_structure,
+                                                           mapping,
+                                                           profiles)
+
+        objects = ['p1', 'p2', 'p3', 'p4', 'p5']
+        attribute_system = AttributeSystem(attribute_structure, objects)
+        p = ConstantAssignment(vocabulary, attribute_system,
+                               {'P1': 'p1', 'P2': 'p2', 'P3': 'p3', 'P4': 'p4',
+                                'P5': 'p5'})
+
+        world = NamedState(attribute_system, p, {
+                           ('point', 'p1'): [Point(1.5, 1.5, 1.5, 1.5)],
+                           ('point', 'p2'): [Point(2.0, 2.0, 2.0, 2.0)],
+                           ('point', 'p3'): [Point(1.0, 1.0, 1.0, 1.0)],
+                           ('point', 'p4'): [Point(3.0, 3.0, 3.0, 3.0)]})
+
+        f1 = Formula(vocabulary, 'IS_ON', 'P1', 'P3', 'P4')
+        f2 = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P2')
+        f3 = Formula(vocabulary, 'CLOCKS_UNEQUAL', 'P1', 'P2')
+        f4 = Formula(vocabulary, 'CAN_OBSERVE', 'P1', 'P2', 'P3', 'P4')
+
+        VA = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
+
+        assumption_base = AssumptionBase(f1, f2, f3, f4)
+
+        for f in assumption_base:
+            assert world.satisfies_formula(f, VA, attribute_interpretation)
+
+        f1_bad = Formula(vocabulary, 'IS_ON', 'P3', 'P1', 'P4')
+        assert not world.satisfies_formula(f1_bad, VA, attribute_interpretation)
+        f2_bad = Formula(vocabulary, 'CAN_OBSERVE', 'P1', 'P3', 'P2', 'P4')
+        assert not world.satisfies_formula(f2_bad, VA, attribute_interpretation)
+        f3_bad = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P1')
+        assert not world.satisfies_formula(f3_bad, VA, attribute_interpretation)
+        f4_bad = Formula(vocabulary, 'CLOCKS_UNEQUAL', 'P2', 'P2')
+        assert not world.satisfies_formula(f4_bad, VA, attribute_interpretation)
+
+    standard_test()
+    point_test()
 
 
 def test_satisfies_named_state():
@@ -966,49 +1045,87 @@ def test_satisfies_named_state():
         with pytest.raises(ValueError) as excinfo:
             world.satisfies_named_state(named_state)
 
-    a = Attribute('hour', [Interval(0, 23)])
-    a2 = Attribute('minute', [Interval(0, 59)])
-    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
-    r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
-                       ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
-                        ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(
-        a, a2, r_ahead, r_behind, r_pm, r_am)
+    def standard_test():
+        """Do regular tests."""
+        a = Attribute('hour', [Interval(0, 23)])
+        a2 = Attribute('minute', [Interval(0, 59)])
+        r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+        r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
+        r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                           ['hour', 'minute', 'hour', 'minute'], 3)
+        r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                            ['hour', 'minute', 'hour', 'minute'], 4)
+        attribute_structure = AttributeStructure(
+            a, a2, r_ahead, r_behind, r_pm, r_am)
 
-    pm_rs = RelationSymbol('PM', 1)
-    am_rs = RelationSymbol('AM', 1)
-    ahead_rs = RelationSymbol('Ahead', 4)
-    behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(
-        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+        pm_rs = RelationSymbol('PM', 1)
+        am_rs = RelationSymbol('AM', 1)
+        ahead_rs = RelationSymbol('Ahead', 4)
+        behind_rs = RelationSymbol('Behind', 4)
+        vocabulary = Vocabulary(
+            ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
 
-    objs = ['c1', 'c2']
-    asys = AttributeSystem(attribute_structure, objs)
+        objs = ['c1', 'c2']
+        asys = AttributeSystem(attribute_structure, objs)
 
-    p = ConstantAssignment(vocabulary, asys, {'C1': 'c1', 'C2': 'c2'})
+        p = ConstantAssignment(vocabulary, asys, {'C1': 'c1', 'C2': 'c2'})
 
-    named_state = NamedState(asys, p)
-    named_state.set_ascription(('hour', 'c1'), [1])
-    named_state.set_ascription(('hour', 'c2'), [1])
-    named_state.set_ascription(('minute', 'c1'), [47, 33, 13, 6, 19])
-    named_state.set_ascription(('minute', 'c2'), [1, 4, 9, 12, 55])
+        named_state = NamedState(asys, p)
+        named_state.set_ascription(('hour', 'c1'), [1])
+        named_state.set_ascription(('hour', 'c2'), [1])
+        named_state.set_ascription(('minute', 'c1'), [47, 33, 13, 6, 19])
+        named_state.set_ascription(('minute', 'c2'), [1, 4, 9, 12, 55])
 
-    worlds = named_state.get_worlds()
-    for world in worlds:
+        worlds = named_state.get_worlds()
+        for world in worlds:
+            assert world.satisfies_named_state(named_state)
+
+        from copy import deepcopy
+        w_copy = deepcopy(worlds[0])
+        w_copy.set_ascription(('hour', 'c1'), [2])
+
+        assert w_copy.satisfies_named_state(w_copy)
+        assert not w_copy.satisfies_named_state(named_state)
+
+        test_TypeError(worlds[0], None)
+        test_TypeError(worlds[0], object)
+        test_ValueError(named_state, named_state)
+
+    def point_test():
+        """Do Point object tests."""
+        point = Attribute('point', [Point('x', 'x', 'x', 'x')])
+        r_is_on = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)',
+                           ['point', 'point', 'point'], 1)
+        r_not_same_point = Relation('R2(h1, h2) <=> not_same_point(h1, h2)',
+                                    ['point', 'point'], 2)
+        r_clocks_unequal = Relation('R3(h1, h2) <=> clocks_unequal(h1, h2)',
+                                    ['point', 'point'], 3)
+        r_can_observe = Relation(
+            'R4(p, sp_loc, wls, wle) <=> can_observe(p, sp_loc, wls, wle)',
+            ['point', 'point', 'point', 'point'], 4)
+
+        attribute_structure = AttributeStructure(
+            point, r_is_on, r_not_same_point, r_clocks_unequal, r_can_observe)
+
+        vocabulary = Vocabulary(['P1', 'P2', 'P3', 'P4', 'P5'], [], [])
+
+        objects = ['p1', 'p2', 'p3', 'p4', 'p5']
+        attribute_system = AttributeSystem(attribute_structure, objects)
+        p = ConstantAssignment(vocabulary, attribute_system,
+                               {'P1': 'p1', 'P2': 'p2', 'P3': 'p3', 'P4': 'p4',
+                                'P5': 'p5'})
+
+        named_state = NamedState(attribute_system, p, {})
+        world = NamedState(attribute_system, p, {
+                           ('point', 'p1'): [Point(1.5, 1.5, 1.5, 1.5)],
+                           ('point', 'p2'): [Point(2.0, 2.0, 2.0, 2.0)],
+                           ('point', 'p3'): [Point(1.0, 1.0, 1.0, 1.0)],
+                           ('point', 'p4'): [Point(3.0, 3.0, 3.0, 3.0)]})
+
         assert world.satisfies_named_state(named_state)
 
-    from copy import deepcopy
-    w_copy = deepcopy(worlds[0])
-    w_copy.set_ascription(('hour', 'c1'), [2])
-
-    assert w_copy.satisfies_named_state(w_copy)
-    assert not w_copy.satisfies_named_state(named_state)
-
-    test_TypeError(worlds[0], None)
-    test_TypeError(worlds[0], object)
-    test_ValueError(named_state, named_state)
+    standard_test()
+    point_test()
 
 
 def test_satisfies_context():
@@ -1023,129 +1140,206 @@ def test_satisfies_context():
         with pytest.raises(ValueError) as excinfo:
             world.satisfies_context(context, X, attribute_interpretation)
 
-    a = Attribute('hour', [Interval(0, 23)])
-    a2 = Attribute('minute', [Interval(0, 59)])
-    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
-    r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
-    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
-                       ['hour', 'minute', 'hour', 'minute'], 3)
-    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
-                        ['hour', 'minute', 'hour', 'minute'], 4)
-    attribute_structure = AttributeStructure(
-        a, a2, r_ahead, r_behind, r_pm, r_am)
+    def standard_test():
+        """Do regular tests."""
+        a = Attribute('hour', [Interval(0, 23)])
+        a2 = Attribute('minute', [Interval(0, 59)])
+        r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+        r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
+        r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                           ['hour', 'minute', 'hour', 'minute'], 3)
+        r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                            ['hour', 'minute', 'hour', 'minute'], 4)
+        attribute_structure = AttributeStructure(
+            a, a2, r_ahead, r_behind, r_pm, r_am)
 
-    pm_rs = RelationSymbol('PM', 1)
-    am_rs = RelationSymbol('AM', 1)
-    ahead_rs = RelationSymbol('Ahead', 4)
-    behind_rs = RelationSymbol('Behind', 4)
-    vocabulary = Vocabulary(
-        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+        pm_rs = RelationSymbol('PM', 1)
+        am_rs = RelationSymbol('AM', 1)
+        ahead_rs = RelationSymbol('Ahead', 4)
+        behind_rs = RelationSymbol('Behind', 4)
+        vocabulary = Vocabulary(
+            ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
 
-    profiles = [
-        [pm_rs, ('hour', 1)],
-        [am_rs, ('hour', 1)],
-        [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
-        [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
+        profiles = [
+            [pm_rs, ('hour', 1)],
+            [am_rs, ('hour', 1)],
+            [behind_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)],
+            [ahead_rs, ('hour', 1), ('minute', 1), ('hour', 2), ('minute', 2)]]
 
-    attribute_interpretation = AttributeInterpretation(
-        vocabulary,
-        attribute_structure,
-        {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4},
-        profiles)
+        attribute_interpretation = AttributeInterpretation(
+            vocabulary,
+            attribute_structure,
+            {pm_rs: 1, am_rs: 2, ahead_rs: 3, behind_rs: 4},
+            profiles)
 
-    objs = ['c1', 'c2', 'x1', 'x2']
-    asys = AttributeSystem(attribute_structure, objs)
+        objs = ['c1', 'c2', 'x1', 'x2']
+        asys = AttributeSystem(attribute_structure, objs)
 
-    const_mapping = {'C1': 'c1', 'C2': 'c2'}
-    var_mapping = {'V1': 'x1', 'V2': 'x2'}
-    p = ConstantAssignment(vocabulary, asys, const_mapping)
-    X = VariableAssignment(vocabulary, asys, var_mapping)
+        const_mapping = {'C1': 'c1', 'C2': 'c2'}
+        var_mapping = {'V1': 'x1', 'V2': 'x2'}
+        p = ConstantAssignment(vocabulary, asys, const_mapping)
+        X = VariableAssignment(vocabulary, asys, var_mapping)
 
-    world = NamedState(asys, p)
-    named_state = NamedState(asys, p)
+        world = NamedState(asys, p)
+        named_state = NamedState(asys, p)
 
-    world.set_ascription(('hour', 'c1'), [21])
-    world.set_ascription(('minute', 'c1'), [9])
-    world.set_ascription(('hour', 'c2'), [11])
-    world.set_ascription(('minute', 'c2'), [40])
+        world.set_ascription(('hour', 'c1'), [21])
+        world.set_ascription(('minute', 'c1'), [9])
+        world.set_ascription(('hour', 'c2'), [11])
+        world.set_ascription(('minute', 'c2'), [40])
 
-    world.set_ascription(('hour', 'x1'), [21])
-    world.set_ascription(('minute', 'x1'), [9])
-    world.set_ascription(('hour', 'x2'), [11])
-    world.set_ascription(('minute', 'x2'), [40])
+        world.set_ascription(('hour', 'x1'), [21])
+        world.set_ascription(('minute', 'x1'), [9])
+        world.set_ascription(('hour', 'x2'), [11])
+        world.set_ascription(('minute', 'x2'), [40])
 
-    named_state.set_ascription(('hour', 'c1'), [21, 11])
-    named_state.set_ascription(('minute', 'c1'), [9])
-    named_state.set_ascription(('hour', 'c2'), [11, Interval(20, 22)])
-    named_state.set_ascription(('minute', 'c2'), [40])
+        named_state.set_ascription(('hour', 'c1'), [21, 11])
+        named_state.set_ascription(('minute', 'c1'), [9])
+        named_state.set_ascription(('hour', 'c2'), [11, Interval(20, 22)])
+        named_state.set_ascription(('minute', 'c2'), [40])
 
-    named_state.set_ascription(('hour', 'x1'), [21])
-    named_state.set_ascription(('minute', 'x1'), [9])
-    named_state.set_ascription(('hour', 'x2'), [11])
-    named_state.set_ascription(('minute', 'x2'), [40])
+        named_state.set_ascription(('hour', 'x1'), [21])
+        named_state.set_ascription(('minute', 'x1'), [9])
+        named_state.set_ascription(('hour', 'x2'), [11])
+        named_state.set_ascription(('minute', 'x2'), [40])
 
-    f1 = Formula(vocabulary, 'PM', 'C1')
-    f2 = Formula(vocabulary, 'AM', 'C1')
-    f3 = Formula(vocabulary, 'Ahead', 'C1', 'C2')
-    f4 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
-    f5 = Formula(vocabulary, 'Behind', 'C2', 'C1', 'V1', 'V2')
+        f1 = Formula(vocabulary, 'PM', 'C1')
+        f2 = Formula(vocabulary, 'AM', 'C1')
+        f3 = Formula(vocabulary, 'Ahead', 'C1', 'C2')
+        f4 = Formula(vocabulary, 'Behind', 'C1', 'C2', 'V1', 'V2')
+        f5 = Formula(vocabulary, 'Behind', 'C2', 'C1', 'V1', 'V2')
 
-    good_assumption_base = AssumptionBase(f3)
-    good_assumption_base2 = AssumptionBase(f1, f3)
-    good_assumption_base3 = AssumptionBase(f5)
-    bad_assumption_base = AssumptionBase(f2)
-    bad_assumption_base2 = AssumptionBase(f1, f2, f3)
-    bad_assumption_base3 = AssumptionBase(f4)
+        good_assumption_base = AssumptionBase(f3)
+        good_assumption_base2 = AssumptionBase(f1, f3)
+        good_assumption_base3 = AssumptionBase(f5)
+        bad_assumption_base = AssumptionBase(f2)
+        bad_assumption_base2 = AssumptionBase(f1, f2, f3)
+        bad_assumption_base3 = AssumptionBase(f4)
 
-    good_context = Context(good_assumption_base, world)
-    good_context2 = Context(good_assumption_base2, world)
-    good_context3 = Context(good_assumption_base3, world)
-    bad_context = Context(bad_assumption_base, world)
-    bad_context2 = Context(bad_assumption_base2, world)
-    bad_context3 = Context(bad_assumption_base3, world)
+        good_context = Context(good_assumption_base, world)
+        good_context2 = Context(good_assumption_base2, world)
+        good_context3 = Context(good_assumption_base3, world)
+        bad_context = Context(bad_assumption_base, world)
+        bad_context2 = Context(bad_assumption_base2, world)
+        bad_context3 = Context(bad_assumption_base3, world)
 
-    assert world.satisfies_context(good_context, X, attribute_interpretation)
-    assert world.satisfies_context(good_context2, X, attribute_interpretation)
-    assert world.satisfies_context(good_context3, X, attribute_interpretation)
-    assert not world.satisfies_context(
-        bad_context, X, attribute_interpretation)
-    assert not world.satisfies_context(
-        bad_context2, X, attribute_interpretation)
-    assert not world.satisfies_context(
-        bad_context3, X, attribute_interpretation)
+        assert world.satisfies_context(good_context, X, attribute_interpretation)
+        assert world.satisfies_context(good_context2, X, attribute_interpretation)
+        assert world.satisfies_context(good_context3, X, attribute_interpretation)
+        assert not world.satisfies_context(
+            bad_context, X, attribute_interpretation)
+        assert not world.satisfies_context(
+            bad_context2, X, attribute_interpretation)
+        assert not world.satisfies_context(
+            bad_context3, X, attribute_interpretation)
 
-    from copy import deepcopy
-    world2 = deepcopy(world)
-    world2.set_ascription(('hour', 'c1'), [1])
+        from copy import deepcopy
+        world2 = deepcopy(world)
+        world2.set_ascription(('hour', 'c1'), [1])
 
-    bad_assumption_base = AssumptionBase(f1)
-    bad_assumption_base2 = AssumptionBase(f1, f2)
-    bad_assumption_base3 = AssumptionBase(f3)
-    good_assumption_base = AssumptionBase(f4)
-    good_assumption_base2 = AssumptionBase(f2, f4)
+        bad_assumption_base = AssumptionBase(f1)
+        bad_assumption_base2 = AssumptionBase(f1, f2)
+        bad_assumption_base3 = AssumptionBase(f3)
+        good_assumption_base = AssumptionBase(f4)
+        good_assumption_base2 = AssumptionBase(f2, f4)
 
-    good_context = Context(good_assumption_base, world2)
-    good_context2 = Context(good_assumption_base2, world2)
-    bad_context = Context(bad_assumption_base, world2)
-    bad_context2 = Context(bad_assumption_base2, world2)
-    bad_context3 = Context(bad_assumption_base3, world2)
+        good_context = Context(good_assumption_base, world2)
+        good_context2 = Context(good_assumption_base2, world2)
+        bad_context = Context(bad_assumption_base, world2)
+        bad_context2 = Context(bad_assumption_base2, world2)
+        bad_context3 = Context(bad_assumption_base3, world2)
 
-    assert world2.satisfies_context(good_context, X, attribute_interpretation)
-    assert world2.satisfies_context(good_context2, X, attribute_interpretation)
-    assert not world2.satisfies_context(
-        bad_context, X, attribute_interpretation)
-    assert not world2.satisfies_context(
-        bad_context2, X, attribute_interpretation)
-    assert not world2.satisfies_context(
-        bad_context3, X, attribute_interpretation)
+        assert world2.satisfies_context(good_context, X, attribute_interpretation)
+        assert world2.satisfies_context(good_context2, X, attribute_interpretation)
+        assert not world2.satisfies_context(
+            bad_context, X, attribute_interpretation)
+        assert not world2.satisfies_context(
+            bad_context2, X, attribute_interpretation)
+        assert not world2.satisfies_context(
+            bad_context3, X, attribute_interpretation)
 
-    test_TypeError(world, None, attribute_interpretation, X)
-    test_TypeError(world, object, attribute_interpretation, X)
-    test_TypeError(world, good_context, None, X)
-    test_TypeError(world, good_context, object, X)
-    test_TypeError(world, good_context, attribute_interpretation, None)
-    test_TypeError(world, good_context, attribute_interpretation, object)
-    test_ValueError(named_state, good_context, X, attribute_interpretation)
+        test_TypeError(world, None, attribute_interpretation, X)
+        test_TypeError(world, object, attribute_interpretation, X)
+        test_TypeError(world, good_context, None, X)
+        test_TypeError(world, good_context, object, X)
+        test_TypeError(world, good_context, attribute_interpretation, None)
+        test_TypeError(world, good_context, attribute_interpretation, object)
+        test_ValueError(named_state, good_context, X, attribute_interpretation)
+
+    def point_test():
+        """Do Point object tests."""
+        point = Attribute('point', [Point('x', 'x', 'x', 'x')])
+        r_is_on = Relation('R1(h1, h2, h3) <=> is_on(h1, h2, h3)',
+                           ['point', 'point', 'point'], 1)
+        r_not_same_point = Relation('R2(h1, h2) <=> not_same_point(h1, h2)',
+                                    ['point', 'point'], 2)
+        r_clocks_unequal = Relation('R3(h1, h2) <=> clocks_unequal(h1, h2)',
+                                    ['point', 'point'], 3)
+        r_can_observe = Relation(
+            'R4(p, sp_loc, wls, wle) <=> can_observe(p, sp_loc, wls, wle)',
+            ['point', 'point', 'point', 'point'], 4)
+
+        attribute_structure = AttributeStructure(
+            point, r_is_on, r_not_same_point, r_clocks_unequal, r_can_observe)
+
+        rs_is_on = RelationSymbol('IS_ON', 3)
+        rs_not_same_point = RelationSymbol('NOT_SAME_POINT', 2)
+        rs_clocks_unequal = RelationSymbol('CLOCKS_UNEQUAL', 2)
+        rs_can_observe = RelationSymbol('CAN_OBSERVE', 4)
+
+        vocabulary = Vocabulary(['P1', 'P2', 'P3', 'P4', 'P5'],
+                                [rs_is_on, rs_not_same_point,
+                                 rs_clocks_unequal, rs_can_observe],
+                                [])
+
+        profiles = [
+            [rs_is_on, ('point', 1), ('point', 2), ('point', 3)],
+            [rs_not_same_point, ('point', 1), ('point', 2)],
+            [rs_clocks_unequal, ('point', 1), ('point', 2)],
+            [rs_can_observe,
+             ('point', 1), ('point', 2), ('point', 3), ('point', 4)]]
+
+        mapping = {rs_is_on: 1, rs_not_same_point: 2, rs_clocks_unequal: 3,
+                   rs_can_observe: 4}
+
+        attribute_interpretation = AttributeInterpretation(vocabulary,
+                                                           attribute_structure,
+                                                           mapping,
+                                                           profiles)
+
+        objects = ['p1', 'p2', 'p3', 'p4', 'p5']
+        attribute_system = AttributeSystem(attribute_structure, objects)
+        p = ConstantAssignment(vocabulary, attribute_system,
+                               {'P1': 'p1', 'P2': 'p2', 'P3': 'p3', 'P4': 'p4',
+                                'P5': 'p5'})
+
+        world = NamedState(attribute_system, p, {
+                           ('point', 'p1'): [Point(1.5, 1.5, 1.5, 1.5)],
+                           ('point', 'p2'): [Point(2.0, 2.0, 2.0, 2.0)],
+                           ('point', 'p3'): [Point(1.0, 1.0, 1.0, 1.0)],
+                           ('point', 'p4'): [Point(3.0, 3.0, 3.0, 3.0)]})
+
+        f1 = Formula(vocabulary, 'IS_ON', 'P1', 'P3', 'P4')
+        f2 = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P2')
+        f3 = Formula(vocabulary, 'CLOCKS_UNEQUAL', 'P1', 'P2')
+        f4 = Formula(vocabulary, 'CAN_OBSERVE', 'P1', 'P2', 'P3', 'P4')
+
+        VA = VariableAssignment(vocabulary, attribute_system, {}, dummy=True)
+
+        named_state = NamedState(attribute_system, p, {})
+        assumption_base = AssumptionBase(f1, f2, f3, f4)
+        context = Context(assumption_base, named_state)
+
+        assert world.satisfies_context(context, VA, attribute_interpretation)
+
+        f_bad = Formula(vocabulary, 'NOT_SAME_POINT', 'P1', 'P1')
+        assumption_base_bad = AssumptionBase(f1, f_bad, f3, f4)
+        context_bad = Context(assumption_base_bad, named_state)
+        assert not world.satisfies_context(context_bad, VA,
+                                           attribute_interpretation)
+
+    standard_test()
+    point_test()
 
 
 def test_is_named_entailment():

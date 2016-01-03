@@ -8,5 +8,17 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 #TODO
 * Finish NamedState unit tests
     * named_entailment stuff
-    * satisfaction with objects
-    * Point unit tests
+* Finish Context unit tests
+    * entails_formula
+    * entails_named_state
+* Implement the rest of the inference rules
+    * [Thinning]
+    * [Absurdity]
+    * [C1]
+    * [C2]
+    * [D; ∆]
+    * [∆; D]
+    * [∆; ∆]
+    * [D; D]
+    * [EI/∆]
+    * [C3]

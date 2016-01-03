@@ -38,15 +38,10 @@ class Formula(object):
                 raise ValueError(
                     "all terms must be contained in vocabulary's C or V")
 
-        ordered_set_terms = []
-        for t in terms:
-            if t not in ordered_set_terms:
-                ordered_set_terms.append(t)
-
         from copy import deepcopy
         self._vocabulary = deepcopy(vocabulary)
         self._name = deepcopy(name)
-        self._terms = ordered_set_terms
+        self._terms = list(terms)
         self._is_Formula = True
 
     def __eq__(self, other):

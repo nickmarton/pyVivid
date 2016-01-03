@@ -25,3 +25,8 @@ def test__eval():
     assert parser(eval_string_2)
     assert parser(eval_string_3)
     assert not parser(eval_string_4)
+    assert parser("can_observe(P(1.5,1.5,1.5,1.5),P(2.0,2.0,2.0,2.0),P(1.0,1.0,1.0,1.0),P(3.0,3.0,3.0,3.0))")
+    assert parser("clocks_unequal(P(1.5,1.5,1.5,1.5),P(2.0,2.0,2.0,2.0))")
+    assert parser("is_on(P(1.5,1.5,1.5,1.5),P(1.0,1.0,1.0,1.0),P(3.0,3.0,3.0,3.0))")
+    assert parser("not_same_point(P(1.5,1.5,1.5,1.5),P(2.0,2.0,2.0,2.0))")
+    assert parser("meets(P(1.5,1.5,1.5,1.5),P(2.0,2.0,2.0,2.0),P(1.0,1.0,1.0,1.0),P(1.0,1.0,1.0,1.0),P(2.0,2.0,2.0,2.0))")

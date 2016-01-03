@@ -115,6 +115,90 @@ def test___repr__():
     assert Point('x', 'x', 'x').__repr__() == "P(x,x,x)"
 
 
+def test_is_on():
+    """Test is_on function used in LRB paper."""
+    point = Point(1.0)
+    start_point = Point(0.0)
+    end_point = Point(3.0)
+    assert point.is_on(start_point, end_point)
+    assert point.is_on(end_point, start_point)
+
+    point = Point(1.0, 1.0)
+    start_point = Point(0.0, 0.0)
+    end_point = Point(3.0, 3.0)
+    assert point.is_on(start_point, end_point)
+    assert point.is_on(end_point, start_point)
+
+    point = Point(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+    start_point = Point(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    end_point = Point(3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0)
+    assert point.is_on(start_point, end_point)
+    assert point.is_on(end_point, start_point)
+
+    point = Point(1.000000000000001)
+    start_point = Point(0.000000000000001)
+    end_point = Point(3.000000000000001)
+    assert point.is_on(start_point, end_point)
+    assert point.is_on(end_point, start_point)
+
+
+def test_not_same_point():
+    """Test not_same_point function used in LRB paper."""
+    point_1 = Point(1.0)
+    point_2 = Point(0.0)
+    assert point_1.not_same_point(point_2)
+
+    point_1 = Point(1.0, 1.0)
+    point_2 = Point(0.0, 0.0)
+    assert point_1.not_same_point(point_2)
+
+    point_1 = Point(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+    point_2 = Point(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    assert point_1.not_same_point(point_2)
+
+    point_1 = Point(1.000000000000001)
+    point_2 = Point(0.000000000000001)
+    assert point_1.not_same_point(point_2)
+
+
+def test_clocks_unequal():
+    """Test clocks_unequal function used in LRB paper."""
+
+    point_1 = Point(1.0, 1.0)
+    point_2 = Point(0.0, 0.0)
+    assert point_1.clocks_unequal(point_2)
+
+    point_1 = Point(1.0, 1.0, 1.0, 1.0)
+    point_2 = Point(0.0, 0.0, 0.0, 0.0)
+    assert point_1.clocks_unequal(point_2)
+
+    point_1 = Point(0.0, 1.000000000000001)
+    point_2 = Point(0.0, 0.000000000000001)
+    assert point_1.clocks_unequal(point_2)
+
+
+def test_can_observe():
+    """Test can_observe function used in LRB paper."""
+    point = Point(1.0, 1.0, 1.0, 1.0)
+    spacetime_loc = Point(0.0, 0.0, 0.0, 0.0)
+    worldline_start = Point(-10.0, -10.0, -10.0, -10.0)
+    worldline_end = Point(10.0, 10.0, 10.0, 10.0)
+    assert point.can_observe(spacetime_loc, worldline_start, worldline_end)
+    spacetime_loc = Point(1.0, 1.0, 1.0, 1.0)
+    assert point.can_observe(spacetime_loc, worldline_start, worldline_end)
+
+
+def test_meets():
+    """Test meets function used in LRB paper."""
+    spacetime_loc = Point(0.0, 0.0, 0.0, 0.0)
+    worldline_1_start = Point(-10.0, -10.0, -10.0, -10.0)
+    worldline_1_end = Point(10.0, 10.0, 10.0, 10.0)
+    worldline_2_start = Point(10.0, 10.0, 10.0, 10.0)
+    worldline_2_end = Point(-10.0, -10.0, -10.0, -10.0)
+    assert spacetime_loc.meets(
+        worldline_1_start, worldline_1_end, worldline_2_start, worldline_2_end)
+
+
 def test_unstringify():
     """Test Point object reconstruction."""
     def test_ValueError(point_string):
