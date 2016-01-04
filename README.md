@@ -7,6 +7,7 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 
 #TODO
 * Implement the rest of the inference rules
+    * [Observe]
     * [Thinning]
     * [Absurdity]
     * [C1]
