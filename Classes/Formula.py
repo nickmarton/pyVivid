@@ -39,7 +39,7 @@ class Formula(object):
                     "all terms must be contained in vocabulary's C or V")
 
         from copy import deepcopy
-        self._vocabulary = deepcopy(vocabulary)
+        self._vocabulary = vocabulary# deepcopy(vocabulary)
         self._name = deepcopy(name)
         self._terms = list(terms)
         self._is_Formula = True

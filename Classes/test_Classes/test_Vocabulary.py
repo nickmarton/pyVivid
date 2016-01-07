@@ -188,3 +188,70 @@ def test___repr__():
 
     vocab_empty = Vocabulary([], [], [])
     assert vocab_empty.__repr__() == "([], [], [])"
+
+
+def test_memory_binding():
+    """Test that a vocabulary is shared across all objects that use it."""
+    from vivid.Classes.Attribute import Attribute
+    from vivid.Classes.Relation import Relation
+    from vivid.Classes.AttributeStructure import AttributeStructure
+    from vivid.Classes.AttributeSystem import AttributeSystem
+    from vivid.Classes.ConstantAssignment import ConstantAssignment
+    from vivid.Classes.VariableAssignment import VariableAssignment
+    from vivid.Classes.NamedState import NamedState
+    from vivid.Classes.Formula import Formula
+    from vivid.Classes.AssumptionBase import AssumptionBase
+    from vivid.Classes.AttributeInterpretation import AttributeInterpretation
+    from vivid.Classes.Context import Context
+
+    color = Attribute("color", ['R', 'G', 'B'])
+    size = Attribute("size", ['S', 'M', 'L'])
+    r = Relation('R1(c) <=> c', ['color'], 1)
+    attribute_structure = AttributeStructure(color, size, r)
+    o = ['s1', 's2']
+    attribute_system = AttributeSystem(attribute_structure, o)
+
+    dummy_rs = RelationSymbol('DUMMY', 3)
+    vocabulary = Vocabulary(["dummy"], [dummy_rs], [])
+    p = ConstantAssignment(vocabulary, attribute_system, {})
+    p2 = ConstantAssignment(vocabulary, attribute_system, {})
+    X = VariableAssignment(vocabulary, attribute_system, {})
+
+    s = NamedState(attribute_system, p)
+    s2 = NamedState(attribute_system, p2)
+
+    f = Formula(vocabulary, 'DUMMY', "dummy")
+    assumption_base = AssumptionBase(f)
+
+    context = Context(assumption_base, s)
+
+    profiles = [[dummy_rs, ('color', 1)]]
+
+    mapping = {dummy_rs: 1}
+
+    attribute_interpretation = AttributeInterpretation(
+        vocabulary, attribute_structure, mapping, profiles)
+
+    vocabulary.add_constant("Vocabulary")
+    p._vocabulary.add_constant("constant")
+    X._vocabulary.add_variable("variable")
+    s._p._vocabulary.add_constant("named_state")
+    f._vocabulary.add_constant("formula")
+    assumption_base._vocabulary.add_constant("assumption_base")
+    context._named_state._p._vocabulary.add_constant("context")
+    attribute_interpretation._vocabulary.add_constant(
+        "attribute_interpretation")
+
+    assert str(vocabulary) == str(p._vocabulary) == str(X._vocabulary) == \
+        str(s._p._vocabulary) == str(f._vocabulary) == \
+        str(assumption_base._vocabulary) == \
+        str(context._named_state._p._vocabulary) == \
+        str(attribute_interpretation._vocabulary)
+
+    assert vocabulary is p._vocabulary
+    assert vocabulary is X._vocabulary
+    assert vocabulary is s._p._vocabulary
+    assert vocabulary is f._vocabulary
+    assert vocabulary is assumption_base._vocabulary
+    assert vocabulary is context._named_state._p._vocabulary
+    assert vocabulary is attribute_interpretation._vocabulary

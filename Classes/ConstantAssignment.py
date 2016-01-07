@@ -153,3 +153,27 @@ class ConstantAssignment(Assignment):
     def __repr__(self):
         """Return a string of this ConstantAssignment's mapping."""
         return self.__str__()
+
+
+def main():
+    """."""
+    from Vocabulary import Vocabulary
+    from Attribute import Attribute
+    from AttributeStructure import AttributeStructure
+    from AttributeSystem import AttributeSystem
+
+    vocabulary = Vocabulary(['C'], [], ['V'])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    C = ConstantAssignment(vocabulary, attribute_system, {'C': 'a'})
+    print C._vocabulary
+    vocabulary.add_constant("C2")
+    print C._vocabulary
+
+if __name__ == "__main__":
+    main()
