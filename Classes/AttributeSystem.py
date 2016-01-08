@@ -17,6 +17,9 @@ class AttributeSystem(object):
             if not isinstance(obj, str):
                 raise ValueError(str(objects) + " must contain only strings")
 
+            if obj == "":
+                raise ValueError("Cannot add an empty string as object")
+
         # Enforce AttributeStructure type
         if not hasattr(A, "_is_AttributeStructure"):
             raise TypeError("A parameter must be of type AttributeStructure")
@@ -34,7 +37,7 @@ class AttributeSystem(object):
     def __eq__(self, other):
         """Implement == for AttributeSystem's."""
         c_astr = self._attribute_structure == other._attribute_structure
-        c_objs = self._objects == other._objects
+        c_objs = set(self._objects) == set(other._objects)
         if c_astr and c_objs:
             return True
         else:

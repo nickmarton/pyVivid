@@ -272,6 +272,50 @@ def test___getitem__():
     assert s['size'] == [ValueSet(['M']), ValueSet(['L', 'S'])]
 
 
+def test_add_object():
+    """Test add object function to state."""
+    def test_TypeError(state, obj, ascriptions=None):
+        """Test constructor for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            state.add_object(obj, ascriptions)
+
+    def test_ValueError(state, obj, ascriptions=None):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            state.add_object(obj, ascriptions)
+
+    color = Attribute("color", ['R', 'G', 'B'])
+    a = AttributeStructure(color)
+    o = ['s1']
+    asys = AttributeSystem(a, o)
+
+    s = State(asys)
+
+    test_TypeError(s, None)
+    test_TypeError(s, 1)
+    test_TypeError(s, object)
+    test_TypeError(s, "")
+    test_TypeError(s, "a", 1)
+    test_TypeError(s, "a", object)
+    test_ValueError(s, "s1")
+    test_ValueError(s, "a", {"s1": 1})
+    test_ValueError(s, "a", {("s1"): 1})
+    test_ValueError(s, "a", {("s1", 's1', 's1'): 1})
+    test_ValueError(s, "a", {("color", "s1"): 1})
+    test_ValueError(s, "a", {("s", "a"): 1})
+
+    s.add_object("a")
+    ascr = {("color", "s1"): ValueSet(['R', 'G', 'B']),
+            ("color", "a"): ValueSet(['R', 'G', 'B'])}
+    assert s._ascriptions == ascr
+
+    s = State(asys)
+    s.add_object("a", {("color", "a"): ['R']})
+    ascr = {("color", "s1"): ValueSet(['R', 'G', 'B']),
+            ("color", "a"): ValueSet(['R'])}
+    assert s._ascriptions == ascr
+
+
 def test_is_valuation():
     """Test is_valuation function."""
     color = Attribute("color", ['R', 'G', 'B'])

@@ -1,9 +1,6 @@
 """Named State class."""
 
-from State import Attribute, AttributeStructure, AttributeSystem, State
-from Relation import Relation
-from RelationSymbol import RelationSymbol
-from Vocabulary import Vocabulary
+from State import State
 from ConstantAssignment import ConstantAssignment
 from VariableAssignment import VariableAssignment
 
@@ -110,6 +107,37 @@ class NamedState(State):
             return True
         else:
             return False
+
+    def add_object(self, obj, ascriptions=None, constant_symbol=None):
+        """
+        Add an object to the NamedState with option to bind it to a Constant in
+        ConstantAssignment.
+        """
+
+        if constant_symbol:
+            # If constant symbol provided is an unbound string
+            if type(constant_symbol) is not str:
+                raise TypeError("constant_symbol parameter must be a string")
+            if constant_symbol in self._p._source:
+                raise ValueError(
+                    "Constant Symbol " + constant_symbol + " is already bound")
+
+            # If constant symbol isn't in Vocabulary, add it
+            if constant_symbol not in self._p._vocabulary._C:
+                self._p._vocabulary.add_constant(constant_symbol)
+
+            # Add object, then add mapping so any errors happen before mutation
+            State.add_object(self, obj, ascriptions)
+            self._p._attribute_system._objects = sorted(
+                self._p._attribute_system._objects + [obj])
+
+            self._p._mapping[constant_symbol] = obj
+            self._p._source.append(constant_symbol)
+            self._p._target.append(obj)
+        else:
+            State.add_object(self, obj, ascriptions)
+            self._p._attribute_system._objects = sorted(
+                self._p._attribute_system._objects + [obj])
 
     def is_world(self):
         """Determine if this NamedState is a world."""
@@ -508,12 +536,10 @@ class NamedState(State):
                     "all NamedStates provided must be proper "
                     "extensions of this NamedState object.")
 
-        vocabs_match = self._p._vocabulary == assumption_base._vocabulary == \
+        vocabs_match = self._p._vocabulary is assumption_base._vocabulary is \
             attribute_interpretation._vocabulary
 
-        if vocabs_match:
-            pass
-        else:
+        if not vocabs_match:
             raise ValueError(
                 "Vocabulary's of NamedState, AssumptionBase, and "
                 "AttributeInterpretation must all match")

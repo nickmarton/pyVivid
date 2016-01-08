@@ -352,8 +352,8 @@ def main():
 
     assumption_base = AssumptionBase(f1, f2, f3, f4)
 
-    for f in assumption_base:
-        print f.assign_truth_value(attribute_interpretation, named_state, VA)
+    # for f in assumption_base:
+    #    print f.assign_truth_value(attribute_interpretation, named_state, VA)
 
     named_state.set_ascription(('point', 'p4'), [Point(1.0, 1.0, 1.0, 1.0)])
     print f5.assign_truth_value(attribute_interpretation, named_state, VA)

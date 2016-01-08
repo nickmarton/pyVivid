@@ -194,6 +194,54 @@ class State(object):
                 "Only Attribute label strings and attribute-object "
                 "2-tuples are valid keys")
 
+    def add_object(self, obj, ascriptions=None):
+        """
+        Add an object to this State's AttributeSystem and optionally update any
+        ascriptions provided.
+        """
+
+        # If object is a fresh string, add it to AttributeSystem
+        if type(obj) is not str or obj == "":
+            raise TypeError("obj must be a non-empty string")
+
+        if obj in self._attribute_system._objects:
+            raise ValueError("Cannot add duplicate object.")
+
+        attributes = self._attribute_system._attribute_structure._attributes
+        attribute_labels = [attribute._label for attribute in attributes]
+
+        # If any ascriptions were provided, check they're well formed then add
+        if ascriptions:
+            if type(ascriptions) is not dict:
+                raise TypeError(
+                    "Any ascriptions provided must be in a dictionary")
+
+            if not all([type(key) is tuple and len(key) == 2
+                        for key in ascriptions.keys()]):
+                raise ValueError(
+                    "Ascription keys must be of form (attribute, object)")
+
+            for ao_pair in ascriptions.keys():
+                if ao_pair[0] not in attribute_labels or ao_pair[1] != obj:
+                    raise ValueError(
+                        "Invalid attribute-object pair: " + str(ao_pair))
+
+            self._attribute_system._objects = sorted(
+                self._attribute_system._objects + [obj])
+            # Extend ascriptions with new object
+            for Ai in attributes:
+                self._ascriptions[(Ai._label, obj)] = deepcopy(Ai._value_set)
+
+            # Set any optional ascriptions
+            for ao_pair, valueset in ascriptions.iteritems():
+                self.set_ascription(ao_pair, valueset)
+        else:
+            self._attribute_system._objects = sorted(
+                self._attribute_system._objects + [obj])
+            # Extend ascriptions with new object
+            for Ai in attributes:
+                self._ascriptions[(Ai._label, obj)] = deepcopy(Ai._value_set)
+
     def is_valuation(self, label):
         """
         Determine if value set of ascription li is a valuation.

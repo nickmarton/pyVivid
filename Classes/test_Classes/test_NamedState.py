@@ -292,6 +292,49 @@ def test___le__():
     assert named_state_4 <= named_state_3 <= named_state_2 <= named_state
 
 
+def test_add_object():
+    """Test add_object function for NamedState."""
+    def test_TypeError(named_state, obj, ascriptions=None, constant=None):
+        """Test constructor for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            named_state.add_object(obj, ascriptions, constant)
+
+    def test_ValueError(named_state, obj, ascriptions=None, constant=None):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            named_state.add_object(obj, ascriptions, constant)
+
+    color = Attribute('color', ['R', 'G', 'B'])
+    attribute_structure = AttributeStructure(color)
+    objects = ['s1']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    vocabulary = Vocabulary(['a'], [], [])
+
+    p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
+    named_state = NamedState(attribute_system, p)
+
+    test_TypeError(named_state, "a", None, 1)
+    test_TypeError(named_state, "a", None, object)
+
+    named_state.add_object("obj")
+    ascr = {("color", "s1"): ValueSet(['R', 'G', 'B']),
+            ("color", "obj"): ValueSet(['R', 'G', 'B'])}
+    assert named_state._ascriptions == ascr
+
+    named_state = NamedState(attribute_system, p)
+    named_state.add_object("obj", {("color", "obj"): ['R']})
+    ascr = {("color", "s1"): ValueSet(['R', 'G', 'B']),
+            ("color", "obj"): ValueSet(['R'])}
+    assert named_state._ascriptions == ascr
+
+    named_state = NamedState(attribute_system, p)
+    named_state.add_object("obj", constant_symbol="C")
+    p = ConstantAssignment(vocabulary, named_state._attribute_system,
+                           {'a': 's1', 'C': 'obj'})
+    assert named_state._p == p
+    assert 'C' in vocabulary._C
+
+
 def test_is_world():
     """Test is_world() function for NamedState."""
     color = Attribute('color', ['R', 'G', 'B'])
