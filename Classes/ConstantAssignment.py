@@ -114,6 +114,61 @@ class ConstantAssignment(Assignment):
             deepcopy(self._attribute_system),
             deepcopy(self._mapping))
 
+    def add_mapping(self, constant_symbol, obj):
+        """
+        Extend this ConstantAssignment by adding new mapping from
+        constant_symbol to obj.
+        """
+
+        if type(constant_symbol) is not str or type(obj) is not str:
+            raise TypeError(
+                "constant_symbol and obj parameters must be strings")
+
+        if constant_symbol not in self._vocabulary._C:
+            raise ValueError(
+                "constant_symbol parameter must be in vocabulary.")
+        if obj not in self._attribute_system._objects:
+            raise ValueError(
+                "obj parameter must be contained in objects of "
+                "AttributeSystem")
+        if constant_symbol in self._source:
+            raise ValueError("constant_symbol already in ConstantAssignment")
+        if obj in self._target:
+            raise ValueError("obj already in ConstantAssignment")
+
+        self._mapping[constant_symbol] = obj
+        self._source.append(constant_symbol)
+        self._target.append(obj)
+
+    def remove_mapping(self, constant_symbol, obj):
+        """
+        Extend this ConstantAssignment by removing new mapping from
+        constant_symbol to obj.
+        """
+
+        if type(constant_symbol) is not str or type(obj) is not str:
+            raise TypeError(
+                "constant_symbol and obj parameters must be strings")
+
+        if constant_symbol not in self._vocabulary._C:
+            raise ValueError(
+                "constant_symbol parameter must be in vocabulary.")
+        if obj not in self._attribute_system._objects:
+            raise ValueError(
+                "obj parameter must be contained in objects of "
+                "AttributeSystem")
+        if constant_symbol not in self._source:
+            raise ValueError("constant_symbol not in ConstantAssignment")
+        if obj not in self._target:
+            raise ValueError("obj not in ConstantAssignment")
+
+        if self._mapping[constant_symbol] != obj:
+            raise ValueError("Invalid mapping provided")
+
+        del self._mapping[constant_symbol]
+        self._source.remove(constant_symbol)
+        self._target.remove(obj)
+
     def is_total(self):
         """
         Determine if this ConstantAssignment is a total function

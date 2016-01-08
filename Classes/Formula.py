@@ -50,7 +50,7 @@ class Formula(object):
             raise TypeError(
                 "can only compare Formula object with another Formula object")
 
-        vocab_cond = self._vocabulary == other._vocabulary
+        vocab_cond = self._vocabulary is other._vocabulary
         name_cond = self._name == other._name
         terms_cond = set(self._terms) == set(other._terms)
 

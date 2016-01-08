@@ -516,17 +516,17 @@ class NamedState(State):
                        "_is_AttributeInterpretation"):
             raise TypeError(
                 "attribute_interpretation parameter must be an "
-                "AssumptionBase object")
+                "AttributeInterpretation object")
 
         for named_state in named_states:
             if not hasattr(named_state, "_is_NamedState"):
                 raise TypeError(
                     "all optional positional arguments must be "
                     "NamedState objects.")
-            if named_state._p._vocabulary != self._p._vocabulary:
+            if named_state._p._vocabulary is not self._p._vocabulary:
                 raise ValueError(
                     "all vocabularies in this NamedState and optional "
-                    "positional NamedStates must be equivalent.")
+                    "positional NamedStates must be the same.")
             if named_state._attribute_system != self._attribute_system:
                 raise ValueError(
                     "all AttributeSystems in this NamedState and optional "

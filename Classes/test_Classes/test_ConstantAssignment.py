@@ -224,6 +224,84 @@ def test___deepcopy__():
     assert CA._mapping is not CA_copy._mapping
 
 
+def test_add_mapping():
+    """Test add_mapping function for ConstantAssignment."""
+    def test_TypeError(constant_assignment, constant_symbol, obj):
+        """Test constructor for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            constant_assignment.add_mapping(constant_symbol, obj)
+
+    def test_ValueError(constant_assignment, constant_symbol, obj):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            constant_assignment.add_mapping(constant_symbol, obj)
+
+    vocabulary = Vocabulary(['C1', 'C2'], [], [])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    C = ConstantAssignment(vocabulary, attribute_system, {'C2': 'b'})
+
+    test_TypeError(C, None, 'a')
+    test_TypeError(C, object, 'a')
+    test_TypeError(C, 'C1', None)
+    test_TypeError(C, 'C1', object)
+    test_ValueError(C, 'bad_C', 'a')
+    test_ValueError(C, 'C1', 'bad_obj')
+    test_ValueError(C, 'C2', 'a')
+    test_ValueError(C, 'C1', 'b')
+
+    C.add_mapping('C1', 'a')
+    C2 = ConstantAssignment(vocabulary, attribute_system,
+                            {'C2': 'b', 'C1': 'a'})
+    C3 = ConstantAssignment(vocabulary, attribute_system,
+                            {'C1': 'a', 'C2': 'b'})
+    assert C == C2
+    assert C == C3
+
+
+def test_remove_mapping():
+    """Test remove_mapping function for ConstantAssignment."""
+    def test_TypeError(constant_assignment, constant_symbol, obj):
+        """Test constructor for TypeErrors with given params."""
+        with pytest.raises(TypeError) as excinfo:
+            constant_assignment.remove_mapping(constant_symbol, obj)
+
+    def test_ValueError(constant_assignment, constant_symbol, obj):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            constant_assignment.remove_mapping(constant_symbol, obj)
+
+    vocabulary = Vocabulary(['C1', 'C2'], [], [])
+
+    a = Attribute("a", [])
+    b = Attribute("b", [])
+    astr = AttributeStructure(a, b)
+    objs = ['a', 'b', 'c']
+    attribute_system = AttributeSystem(astr, objs)
+
+    C = ConstantAssignment(vocabulary, attribute_system,
+                           {'C1': 'a', 'C2': 'b'})
+
+    test_TypeError(C, None, 'a')
+    test_TypeError(C, object, 'a')
+    test_TypeError(C, 'C1', None)
+    test_TypeError(C, 'C1', object)
+    test_ValueError(C, 'bad_C', 'a')
+    test_ValueError(C, 'C1', 'bad_obj')
+    test_ValueError(C, 'C2', 'a')
+    test_ValueError(C, 'C1', 'b')
+
+    C.remove_mapping('C1', 'a')
+    C2 = ConstantAssignment(vocabulary, attribute_system,
+                            {'C2': 'b'})
+    assert C == C2
+
+
 def test_is_total():
     """Test is_total function for ConstantAssignment object."""
     vocabulary = Vocabulary(['C', 'C\''], [RelationSymbol('R', 1)], ['V'])

@@ -16,11 +16,11 @@ class AttributeInterpretation(object):
             raise TypeError(
                 "attribute_structure parameter must be an "
                 "AttributeStructure object")
-        if type(mapping) != dict:
+        if type(mapping) is not dict:
             raise TypeError(
                 "mapping parameter must be dictionary of RelationSymbol's to "
                 "Relations denoted by subscript")
-        if type(profiles) != list:
+        if type(profiles) is not list:
             raise TypeError("profiles parameter must be list")
 
         source, target = mapping.keys(), mapping.values()
@@ -30,7 +30,7 @@ class AttributeInterpretation(object):
                 "All keys provided to mapping parameter must be "
                 "RelationSymbol objects")
 
-        if not all(type(i) == int for i in target):
+        if not all(type(i) is int for i in target):
             raise ValueError(
                 "All values provided to mapping parameter must be integer "
                 "subscripts")

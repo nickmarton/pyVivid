@@ -1,6 +1,31 @@
 """This module intends to provide the rules of diagrammatic inference."""
 
 from vivid.Classes.VariableAssignment import VariableAssignment
+from vivid.Classes.AssumptionBase import AssumptionBase
+
+
+def thinning(context, named_state, attribute_interpretation, *formulae):
+    """
+    Verify that named_state can be obtained by thinning from the NamedState
+    contained in Context w.r.t. the AssumptionBase formed by formulae.
+
+    By Corollary 26, is_named_entailment suffices to show thinning holds.
+    """
+
+    if not hasattr(context, "_is_Context"):
+        raise TypeError("context parameter must be a Context object.")
+
+    if not hasattr(named_state, "_is_NamedState"):
+        raise TypeError("named_state parameter must be a NamedState object.")
+
+    # If no formulae are provided, just do thinning for Named States,
+    # otherwise, we're doing the full thinning inference rule
+    if not formulae:
+        return named_state <= context._named_state
+    else:
+        assumption_base = AssumptionBase(formulae)
+        return context._named_state._is_named_entailment(
+            assumption_base, attribute_interpretation, [named_state])
 
 
 def widening(context, named_state):
@@ -16,6 +41,15 @@ def widening(context, named_state):
         raise TypeError("named_state parameter must be a NamedState object.")
 
     return context._named_state <= named_state
+
+
+def observe(context, formula, attribute_interpretation):
+    """
+    Determine if a given Formula can be observed in a given Context w.r.t. an
+    AttributeInterpretation.
+    """
+
+    return context.entails_formula(formula, attribute_interpretation)
 
 
 def diagrammatic_absurdity(context, named_state, attribute_interpretation,

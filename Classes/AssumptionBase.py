@@ -64,6 +64,9 @@ class AssumptionBase(object):
         if len(self._formulae) != len(other._formulae):
             return False
 
+        if self._vocabulary is not other._vocabulary:
+            return False
+
         # check if each formula in self has a match in other.
         intersection = set(self._formulae) & set(other._formulae)
         union = set(self._formulae) | set(other._formulae)

@@ -70,6 +70,8 @@ def test___eq__():
     a1 = AssumptionBase(f1, f2, f3, f4)
     a2 = AssumptionBase(f2, f4, f1, f3)
     a3 = AssumptionBase(f2, f1, f3)
+    a_empty_1 = AssumptionBase(vocabulary)
+    a_empty_2 = AssumptionBase(vocabulary2)
 
     test_TypeError(a1, None)
     test_TypeError(a1, f1)
@@ -78,6 +80,7 @@ def test___eq__():
     assert a1 == a2
     assert a1 is not a2
     assert not a1 == a3
+    assert not a_empty_1 == a_empty_2
 
 
 def test___ne__():
@@ -103,6 +106,8 @@ def test___ne__():
     a1 = AssumptionBase(f1, f2, f3, f4)
     a2 = AssumptionBase(f2, f4, f1, f3)
     a3 = AssumptionBase(f2, f1, f3)
+    a_empty_1 = AssumptionBase(vocabulary)
+    a_empty_2 = AssumptionBase(vocabulary2)
 
     test_TypeError(a1, None)
     test_TypeError(a1, f1)
@@ -111,6 +116,7 @@ def test___ne__():
     assert not a1 != a2
     assert a1 is not a2
     assert a1 != a3
+    assert a_empty_1 != a_empty_2
 
 
 def test___add__():
