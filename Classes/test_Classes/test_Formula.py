@@ -114,7 +114,8 @@ def test___add__():
     behind_rs = RelationSymbol('Behind', 4)
     pm_rs = RelationSymbol('PM', 1)
     am_rs = RelationSymbol('AM', 1)
-    vocabulary = Vocabulary(['C1', 'C2'], [ahead_rs, behind_rs, am_rs, pm_rs], ['V1', 'V2'])
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [ahead_rs, behind_rs, am_rs, pm_rs], ['V1', 'V2'])
 
     f1 = Formula(vocabulary, 'Ahead', 'C1', 'V1')
     f2 = Formula(vocabulary, 'Behind', 'C1', 'V1')
@@ -123,12 +124,17 @@ def test___add__():
     a1 = AssumptionBase(f1, f2)
 
     a = f1 + f2
+    assert a._vocabulary is f1._vocabulary is f2._vocabulary
     a = f2 + f1
+    assert a._vocabulary is f1._vocabulary is f2._vocabulary
     assert hasattr(a, "_is_AssumptionBase")
     a = f3 + a1
+    assert a._vocabulary is a1._vocabulary is f3._vocabulary
     assert hasattr(a, "_is_AssumptionBase")
 
     a = f1 + f2 + f3 + f4
+    assert a._vocabulary is f1._vocabulary is f2._vocabulary is f3._vocabulary \
+        is f4._vocabulary
     assert hasattr(a, "_is_AssumptionBase")
     assert len(a) == 4
 
@@ -191,7 +197,7 @@ def test___deepcopy__():
 
     assert f == f_copy
     assert f is not f_copy
-    assert f._vocabulary is not f_copy._vocabulary
+    assert f._vocabulary is f_copy._vocabulary
     assert f._terms is not f_copy._terms
 
     f._name = "F"

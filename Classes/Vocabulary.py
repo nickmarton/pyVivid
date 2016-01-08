@@ -1,12 +1,11 @@
 """Vocabulary class."""
 
-from RelationSymbol import RelationSymbol
 
 class Vocabulary(object):
     """
     Class for First-Order Vocabulary
-        
-    C: Constants; can be either partially or totally mapped to 
+
+    C: Constants; can be either partially or totally mapped to
     {s1,...,sn}
     R: Relation Symbols, each with unique positive arity
     V: Vairables; can be totally mapped to {s1,...,sn}
@@ -72,7 +71,7 @@ class Vocabulary(object):
             return True
         else:
             return False
-    
+
     def __ne__(self, other):
         """Implement != operator for Vocabulary object."""
         return not self.__eq__(other)
@@ -82,6 +81,13 @@ class Vocabulary(object):
         from copy import deepcopy
         return Vocabulary(
             deepcopy(self._C), deepcopy(self._R), deepcopy(self._V))
+
+    def __contains__(self, item):
+        """Implement in operator for Vocabulary."""
+        if hasattr(item, "_is_RelationSymbol"):
+            return item in self._R
+
+        return self._C or item in self._V
 
     def add_constant(self, constant):
         """Add a constant to this Vocabulary object's C."""
@@ -126,6 +132,7 @@ class Vocabulary(object):
     def __hash__(self):
         """Hash so sets can use Vocabulary's."""
         return hash(self._key())
+
 
 def main():
     """short tests."""

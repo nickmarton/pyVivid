@@ -33,6 +33,7 @@ def test___init__():
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary2, 'AM', 'C1')
     a1 = AssumptionBase(f1, f2, f3)
+    a_empty = AssumptionBase(vocabulary)
 
     test_TypeError(f1, None)
     test_TypeError(f1, object)
@@ -42,6 +43,8 @@ def test___init__():
     assert a1[0] is f1
     assert a1[1] is f2
     assert a1[2] is f3
+    assert a1._vocabulary is f1._vocabulary is f2._vocabulary is \
+        f3._vocabulary is a_empty._vocabulary
 
 
 def test___eq__():
@@ -126,6 +129,7 @@ def test___add__():
     f2 = Formula(vocabulary, 'Behind', 'C1', 'V1')
     f3 = Formula(vocabulary, 'PM', 'C1')
     f4 = Formula(vocabulary, 'AM', 'C1')
+    a_empty = AssumptionBase(vocabulary)
     a_1 = AssumptionBase(f1)
     a_2 = AssumptionBase(f2)
     a_3 = AssumptionBase(f3)
@@ -133,6 +137,10 @@ def test___add__():
     a_1_2_3 = AssumptionBase(f1, f2, f3)
     a_1_2_3_4 = AssumptionBase(f1, f2, f3, f4)
 
+    assert a_1 == a_empty + f1
+    assert a_1 == f1 + a_empty
+    assert a_1 == a_empty + a_1
+    assert a_1 == a_1 + a_empty
     assert a_1_2 == a_1 + f2
     assert a_1_2 == f2 + a_1
     assert a_1_2 is not a_1
@@ -144,6 +152,11 @@ def test___add__():
     assert a_1_2_3 == a_1 + a_2 + a_3
     assert a_1_2_3 == a_1 + f2 + f3
     assert a_1_2_3_4 == a_1 + f2 + f3 + f4
+
+    assert f1._vocabulary is f2._vocabulary is f3._vocabulary is \
+        f4._vocabulary is a_1._vocabulary is a_2._vocabulary is \
+        a_3._vocabulary is a_1_2._vocabulary is a_1_2_3._vocabulary is \
+        a_1_2_3_4._vocabulary is a_empty._vocabulary
 
 
 def test___iadd__():
@@ -175,6 +188,11 @@ def test___iadd__():
     a_1 += (f3 + f4)
     assert a_1 == a_1_2_3_4
     assert a_1 is not a_1_2_3_4
+
+    assert f1._vocabulary is f2._vocabulary is f3._vocabulary is \
+        f4._vocabulary is a_1._vocabulary is a_2._vocabulary is \
+        a_3._vocabulary is a_1_2._vocabulary is a_1_2_3._vocabulary is \
+        a_1_2_3_4._vocabulary
 
 
 def test___str__():

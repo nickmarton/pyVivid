@@ -122,7 +122,7 @@ class Formula(object):
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for formula object."""
         from copy import deepcopy
-        return Formula(deepcopy(self._vocabulary),
+        return Formula(self._vocabulary,
                        deepcopy(self._name),
                        *deepcopy(self._terms))
 

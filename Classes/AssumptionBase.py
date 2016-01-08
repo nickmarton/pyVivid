@@ -16,34 +16,41 @@ class AssumptionBase(object):
         self._formulae = []
 
         if formulae:
-            # Ensure all optional positional args are of type Formula.
-            for f in formulae:
-                if not hasattr(f, "_is_Formula"):
-                    raise TypeError(
-                        "all arguments passed to constructor must be a "
-                        "Formula object")
+            if len(formulae) == 1 and hasattr(formulae[0], "_is_Vocabulary"):
+                self._vocabulary = formulae[0]
+            else:
+                # Ensure all optional positional args are of type Formula.
+                for f in formulae:
+                    if not hasattr(f, "_is_Formula"):
+                        raise TypeError(
+                            "all arguments passed to constructor must be a "
+                            "Formula object")
 
-            # check for same vocabulary condition and add formula to list
-            vocabulary = formulae[0]._vocabulary
-            names = [f._name for f in formulae]
+                # check for same vocabulary condition and add formula to list
+                vocabulary = formulae[0]._vocabulary
+                names = [f._name for f in formulae]
 
-            if len(names) != len(set(names)):
-                raise ValueError("Duplicate Formula names not permitted")
+                if len(names) != len(set(names)):
+                    raise ValueError("Duplicate Formula names not permitted")
 
-            for f in formulae:
-                if vocabulary != f._vocabulary:
-                    raise ValueError(
-                        "all formulae provided to constructor must share the "
-                        "same Vocabulary")
+                for f in formulae:
+                    if vocabulary is not f._vocabulary:
+                        raise ValueError(
+                            "all formulae provided to constructor must share "
+                            "the same Vocabulary")
 
-                # ensure no duplicates
-                if f not in self._formulae:
-                    self._formulae.append(f)
+                    # ensure no duplicates
+                    if f not in self._formulae:
+                        self._formulae.append(f)
+
+                self._formulae = sorted(self._formulae, key=lambda x: x._name)
+                self._vocabulary = vocabulary
+
         else:
-            raise ValueError("AssumptionBase cannot be empty")
+            raise ValueError(
+                "AssumptionBase require either a Vocabulary or at least 1 "
+                "Formula")
 
-        self._formulae = sorted(self._formulae, key=lambda x: x._name)
-        self._vocabulary = self._formulae[0]._vocabulary
         self._is_AssumptionBase = True
 
     def __eq__(self, other):
@@ -92,6 +99,9 @@ class AssumptionBase(object):
 
                 self_copy._formulae.append(deepcopy(other_formula))
 
+            self_copy._formulae = sorted(
+                self_copy._formulae, key=lambda x: x._name)
+
             return self_copy
 
         # Handle adding a Formula
@@ -110,6 +120,8 @@ class AssumptionBase(object):
                 raise ValueError("Duplicate Formula objects not permitted")
 
             self_copy._formulae.append(deepcopy(other))
+            self_copy._formulae = sorted(
+                self_copy._formulae, key=lambda x: x._name)
 
             return self_copy
 
@@ -180,7 +192,12 @@ class AssumptionBase(object):
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for AssumptionBase."""
         from copy import deepcopy
-        return AssumptionBase(*deepcopy(self._formulae))
+        # If the AssumptionBase has any formulae, copy like normal.
+        # Otherwise, it's empty so we need to pass the Vocabulary
+        if self._formulae:
+            return AssumptionBase(*deepcopy(self._formulae))
+        else:
+            return AssumptionBase(self._vocabulary)
 
 
 def main():

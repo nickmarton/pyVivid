@@ -99,6 +99,18 @@ def test___deepcopy__():
     assert vocab._V is not vocab_copy._V
 
 
+def test___contains__():
+    """Test in operator for Vocabulary."""
+    C = ['C']
+    R = [RelationSymbol('R', 1)]
+    V = ['V']
+    vocabulary = Vocabulary(C, R, V)
+
+    assert 'C' in vocabulary
+    assert RelationSymbol('R', 1) in vocabulary
+    assert 'V' in vocabulary
+
+
 def test_add_constant():
     """Test add_constant() function for Vocabulary object."""
     def test_TypeError(vocabulary, c):

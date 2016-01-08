@@ -81,12 +81,10 @@ class AttributeSystem(object):
                 raise ValueError(
                     "AttributeSystem cannot add duplicate objects from "
                     "other AttributeSystem")
-        # Handle removing a list of objects or an object string
         else:
             raise TypeError(
-                "Only strings, lists, Attributes, Relations, "
-                "AttributeStructures, and AttributeSystems may be removed "
-                "from an AttributeSystem")
+                "Only Attributes, Relations, AttributeStructures, and "
+                "AttributeSystems may be removed from an AttributeSystem")
 
         return self_copy
 
@@ -117,12 +115,10 @@ class AttributeSystem(object):
                     "AttributeSystem cannot remove objects present in "
                     "other AttributeSystem if they do not exist in this "
                     "AttributeSystem")
-        # Handle removing a list of objects or an object string
         else:
             raise TypeError(
-                "Only strings, lists, Attributes, Relations, "
-                "AttributeStructures, and AttributeSystems may be removed "
-                "from an AttributeSystem")
+                "Only Attributes, Relations, AttributeStructures, and "
+                "AttributeSystems may be removed from an AttributeSystem")
 
         return self_copy
 

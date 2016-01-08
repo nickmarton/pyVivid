@@ -9,14 +9,9 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 * Implement the rest of the inference rules
     * [Observe]
     * [Thinning]
-    * [Absurdity]
+    * [Sentential-to-Sentential]
     * [C1]
     * [C2]
-    * [D; ∆]
-    * [∆; D]
-    * [∆; ∆]
-    * [D; D]
-    * [EI/∆]
     * [C3]
 * Known issues
     * Subset does not test that an interval exists in discrete form in other
