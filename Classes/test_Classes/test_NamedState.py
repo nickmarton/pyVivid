@@ -386,7 +386,7 @@ def test_get_worlds():
     ascr = {('color', 's1'): ['R']}
 
     ns = NamedState(attribute_system, p, ascr)
-    worlds = ns.get_worlds()
+    worlds = [w for w in ns.get_worlds()]
 
     worlds_manual = [
         NamedState(attribute_system, p_1, {
@@ -1119,7 +1119,7 @@ def test_satisfies_named_state():
         named_state.set_ascription(('minute', 'c1'), [47, 33, 13, 6, 19])
         named_state.set_ascription(('minute', 'c2'), [1, 4, 9, 12, 55])
 
-        worlds = named_state.get_worlds()
+        worlds = [w for w in named_state.get_worlds()]
         for world in worlds:
             assert world.satisfies_named_state(named_state)
 

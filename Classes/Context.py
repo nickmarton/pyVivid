@@ -1,7 +1,5 @@
 """Context class."""
 
-from VariableAssignment import VariableAssignment
-
 
 class Context(object):
     """
@@ -159,25 +157,19 @@ class Context(object):
                 "ConstantAssignment as the Vocabulary of the "
                 "ConstantAssignment within this Context.")
 
-        # get list of variabels from vocabulary V list.
-        variables = ns_vocabulary._V
-
         # get all possible worlds and variable assignments.
         possible_worlds = self._named_state.get_worlds()
+
         # for every possible world and variable assignment, if the world
         # satisfies this Context, but not the NamedState, this Context does not
         # entail the NamedState, return False, otherwise return True aftewards.
         for world in possible_worlds:
             for X in world._generate_variable_assignments():
-
                 satisfies_context = world.satisfies_context(
                     self, X, attribute_interpretation)
                 satisfies_named_state = world.satisfies_named_state(
                     named_state)
 
-                print X
-                print world
-                print satisfies_context and not satisfies_named_state
                 if satisfies_context and not satisfies_named_state:
                     return False
         return True

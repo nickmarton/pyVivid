@@ -146,72 +146,50 @@ class NamedState(State):
 
     def get_worlds(self):
         """
-        Return a list of all possible worlds derivable from this
-        NamedState object.
+        Return a list of all possible VariableAssignments that can
+        be created from this NamedState object.
         """
 
         if self.is_world():
             from copy import deepcopy
-            return [deepcopy(self)]
-
-        source = self._p._vocabulary._C
-        target = self._attribute_system._objects
-
-        repeat_num = len(source) if len(source) < len(target) else len(target)
-
-        from itertools import product
-        # create all combinations of source and target elements
-        combos = list(product(source, target, repeat=repeat_num))
-
-        # remove combinations with duplicate source or target elements
-        combos = [
-            c for c in combos if len(set(c)) == len(source) + len(target)]
-        # group the combinations into 2-tuples
-        combos = [
-            [combo[i:i + 2] for i, item in enumerate(combo) if i % 2 == 0]
-            for combo in combos]
-        # sort the combinations by vocabulary elements
-        combos = [sorted(combo, key=lambda x: x[0]) for combo in combos]
-
-        # remove duplcate combinations
-        unique_combos = []
-
-        for combo in combos:
-            if combo not in unique_combos:
-                unique_combos.append(combo)
-
-        # remove combinations in conflict with this NamedState
-        valid_constant_assignments = []
-        for combo in unique_combos:
-            CA = ConstantAssignment(
-                self._p._vocabulary,
-                self._attribute_system,
-                {vocab: obj for (vocab, obj) in combo})
-
-            if not ConstantAssignment.in_conflict(self._p, CA):
-                valid_constant_assignments.append(CA)
-
-        self_worlds = State.get_worlds(self)
-
-        # create worlds for all constant assignment and world combos.
-        worlds = []
-        if valid_constant_assignments:
-            for p in valid_constant_assignments:
-                for self_world in self_worlds:
-                    # construct world and save it
-                    world = NamedState(
-                        self._attribute_system, p, self_world._ascriptions)
-                    worlds.append(world)
+            yield deepcopy(self)
         else:
-            for self_world in self_worlds:
-                    # construct world and save it
-                    world = NamedState(
-                        self._attribute_system,
-                        self._p,
-                        self_world._ascriptions)
-                    worlds.append(world)
+            C = self._p._vocabulary._C
+            bound_constants = self._p._source
+            unbound_constants = [c for c in C if c not in bound_constants]
 
-        return worlds
+            objects = self._attribute_system._objects
+            bound_objects = self._p._target
+            unbound_objects = [
+                obj for obj in objects if obj not in bound_objects]
+
+            smaller = unbound_constants if len(unbound_constants) <= \
+                len(unbound_objects) else unbound_objects
+            bigger = unbound_constants if len(unbound_constants) > \
+                len(unbound_objects) else unbound_objects
+
+            import itertools
+            if smaller == unbound_constants:
+                combos = [zip(smaller, x) for x in itertools.permutations(
+                    bigger, len(smaller))]
+            else:
+                combos = [zip(x, smaller) for x in itertools.permutations(
+                    bigger, len(smaller))]
+
+            constant_assignments = []
+            for combo in combos:
+                mapping = dict(combo + self._p._mapping.items())
+                p = ConstantAssignment(self._p._vocabulary,
+                                       self._attribute_system,
+                                       mapping)
+                constant_assignments.append(p)
+
+            self_worlds = State.get_worlds(self)
+            for p in constant_assignments:
+                for self_world in self_worlds:
+                    yield NamedState(self._attribute_system,
+                                     p,
+                                     self_world._ascriptions)
 
     def is_named_alternate_extension(self, ns_prime, *named_states):
         """
@@ -568,7 +546,56 @@ class NamedState(State):
 
 def main():
     """quick dev tests."""
-    pass
+
+    from Interval import Interval
+    from RelationSymbol import RelationSymbol
+    from Vocabulary import Vocabulary
+    from AttributeInterpretation import AttributeInterpretation
+    from Formula import Formula
+    from AssumptionBase import AssumptionBase
+    from Attribute import Attribute
+    from Relation import Relation
+    from AttributeStructure import AttributeStructure
+    from AttributeSystem import AttributeSystem
+    from ConstantAssignment import ConstantAssignment
+    from NamedState import NamedState
+    from Context import Context
+    from VariableAssignment import VariableAssignment
+
+    a = Attribute('hour', [Interval(0, 23)])
+    a2 = Attribute('minute', [Interval(0, 59)])
+    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+    r_am = Relation('R2(h1) <=> h1 <= 11', ['hour'], 2)
+    r_ahead = Relation('R3(h1,m1,h2,m2) <=> h1 > h2 or (h1 = h2 and m1 > m2)',
+                       ['hour', 'minute', 'hour', 'minute'], 3)
+    r_behind = Relation('R4(h1,m1,h2,m2) <=> h1 < h2 or (h1 = h2 and m1 < m2)',
+                        ['hour', 'minute', 'hour', 'minute'], 4)
+    attribute_structure = AttributeStructure(
+        a, a2, r_ahead, r_behind, r_pm, r_am)
+
+    pm_rs = RelationSymbol('PM', 1)
+    am_rs = RelationSymbol('AM', 1)
+    ahead_rs = RelationSymbol('Ahead', 4)
+    behind_rs = RelationSymbol('Behind', 4)
+
+    vocabulary = Vocabulary(
+        ['C1', 'C2'], [pm_rs, am_rs, ahead_rs, behind_rs], ['V1', 'V2'])
+
+    objs = ['s1', 's2', 's3']
+    asys = AttributeSystem(attribute_structure, objs)
+
+    const_mapping_2 = {'C1': 's1'}
+    p2 = ConstantAssignment(vocabulary, asys, const_mapping_2)
+
+    ascriptions_1 = {("hour", "s1"): [13, 15, 17], ("minute", "s1"): [10],
+                     ("hour", "s2"): [1, 3, 5], ("minute", "s2"): [10],
+                     ("hour", "s3"): [1, 3, 5], ("minute", "s3"): [10]}
+
+    named_state_4 = NamedState(asys, p2, ascriptions_1)
+    for p in named_state_4.get_worlds2():
+        print p
+        print
+
 
 if __name__ == "__main__":
     main()

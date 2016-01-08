@@ -28,7 +28,7 @@ def thinning(context, named_state, attribute_interpretation, *formulae):
             assumption_base, attribute_interpretation, [named_state])
 
 
-def widening(context, named_state):
+def widening(context, named_state, attribute_interpretation=None):
     """
     Verify that NamedState named_state can be obtained from Context context by
     widening.
@@ -39,6 +39,9 @@ def widening(context, named_state):
 
     if not hasattr(named_state, "_is_NamedState"):
         raise TypeError("named_state parameter must be a NamedState object.")
+
+    if attribute_interpretation:
+        context.entails_named_state(named_state, attribute_interpretation)
 
     return context._named_state <= named_state
 
