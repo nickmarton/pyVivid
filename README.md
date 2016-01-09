@@ -8,8 +8,10 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 #TODO
 * Implement the rest of the inference rules
     * [Sentential-to-Sentential] unit tests
-    * [C1] and unit tests
+    * [C1] unit tests
     * [C2] unit tests
-    * [C3] and unit tests
+    * [C3] unit tests
+    * get_basis unit tests
+    * is_exhaustive unit tests
 * Known issues
     * Subset does not test that an interval exists in discrete form in other

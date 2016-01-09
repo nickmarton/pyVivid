@@ -541,7 +541,17 @@ class NamedState(State):
         """
 
         for ao_pair in basis:
-            pass
+            # Take union of the ValueSets of ascriptions of all named states
+            union = sum([named_state._ascriptions[ao_pair]
+                         for named_state in named_states])
+
+            # If union is not equal to this NamedState's Valueset of
+            # corresponding ascription, the named states provided are not
+            # exhaustive
+            if union != self._ascriptions[ao_pair]:
+                return False
+
+        return True
 
     def __str__(self):
         """Implement str(NamedState)."""
