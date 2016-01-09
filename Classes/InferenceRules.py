@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 """This module intends to provide the rules of diagrammatic inference."""
 
-from vivid.Classes.Context import Context
-from vivid.Classes.VariableAssignment import VariableAssignment
+from Formula import Formula
+from AssumptionBase import AssumptionBase
+from Context import Context
+from VariableAssignment import VariableAssignment
 
 
 def thinning(context, named_state, assumption_base=None,
@@ -58,7 +61,7 @@ def observe(context, formula, attribute_interpretation):
 def diagrammatic_absurdity(context, named_state, attribute_interpretation,
                            variable_assignment=None):
     """Verify that NamedState named_state can be obtained from Context context by
-    absurdity, i.e., there is some Fomrula in the Context's AssumptionBase that
+    absurdity, i.e., there is some Formula in the Context's AssumptionBase that
     is False for every world derivable from the Context's NamedState w.r.t. the
     AttributeInterpretation and (optionally the VariableAssignment) provided.
     """
@@ -122,15 +125,17 @@ def diagram_reiteration(context):
     return context._named_state
 
 
-def sentential_to_sentential(context, F1, F2, G, attribute_interpretation):
+def sentential_to_sentential(context, F1, F2, G, attribute_interpretation,
+                             variable_assignment=None):
     """
-    Verify that in the case of a disjunction F1 OR F2 holding a Context entails
+    Verify that in the case of a disjunction F1 ∨ F2 holding a Context entails
     Formula G either way w.r.t. and AttributeInterpretation.
     """
 
-    variable_assignment = VariableAssignment(
-        context._named_state._p._vocabulary,
-        context._named_state._attribute_system, {}, dummy=True)
+    if not variable_assignment:
+        variable_assignment = VariableAssignment(
+            context._named_state._p._vocabulary,
+            context._named_state._attribute_system, {}, dummy=True)
 
     F1_holds = F1.assign_truth_value(attribute_interpretation,
                                      context._named_state,
@@ -158,16 +163,63 @@ def sentential_to_sentential(context, F1, F2, G, attribute_interpretation):
         return False
 
 
-def sentential_to_diagrammatic(context, F1, F2, named_state,
-                               attribute_interpretation):
+def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
+                                 attribute_interpretation, variable_assignment,
+                                 *formulae):
     """
-    Verify that in the case of a disjunction F1 OR F2 holding a Context entails
-    NamedState named_state either way w.r.t. and AttributeInterpretation.
+    Verify that on the basis of the present diagram and some formulas F1,...,Fk
+    contained in formulae, k >= 0, that for each named_state
+    (σ1; ρ1),...,(σn; ρn), n > 0, contained in named_states, a formula F can be
+    derived in every one of these n cases.
+
+    This is rule [C1].
     """
 
-    variable_assignment = VariableAssignment(
-        context._named_state._p._vocabulary,
-        context._named_state._attribute_system, {}, dummy=True)
+    if formulae:
+        constant_assignment = context._named_state._p
+        basis = Formula.get_basis(constant_assignment, variable_assignment,
+                                  attribute_interpretation, formulae)
+
+        if not context._named_state.is_exhaustive(basis, *named_states):
+            raise ValueError(
+                "named states are not exahustive on basis of formulae.")
+
+        assumption_base = AssumptionBase(formulae)
+    else:
+        assumption_base = AssumptionBase(context._assumption_base._vocabulary)
+
+    proviso = context._named_state.is_named_entailment(
+        assumption_base, attribute_interpretation, *named_states)
+
+    if not proviso:
+        raise ValueError("[C1] proviso does not hold")
+
+    formulae_union = context._assumption_base._formulae + list(formulae)
+    assumption_base_union = AssumptionBase(*formulae_union)
+
+    for named_state in named_states:
+        context_i = Context(assumption_base_union, named_state)
+        if not context_i._entails_named_state(inferred_named_state,
+                                              attribute_interpretation):
+            return False
+
+    return True
+
+
+def sentential_to_diagrammatic(context, F1, F2, named_state,
+                               attribute_interpretation,
+                               variable_assignment=None):
+    """
+    Verify that in the case of a disjunction F1 ∨ F2 holding a Context entails
+    NamedState named_state either way w.r.t. and AttributeInterpretation.
+
+    This is rule [C2].
+    """
+
+    if not variable_assignment:
+        variable_assignment = VariableAssignment(
+            context._named_state._p._vocabulary,
+            context._named_state._attribute_system, {}, dummy=True)
 
     F1_holds = F1.assign_truth_value(attribute_interpretation,
                                      context._named_state,
@@ -195,6 +247,48 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
         return True
     else:
         return False
+
+
+def diagrammatic_to_sentential(context, F, named_states,
+                               attribute_interpretation, variable_assignment,
+                               *formulae):
+    """
+    Verify that on the basis of the present diagram and some formulas F1,...,Fk
+    contained in formulae, k >= 0, that for each named_state
+    (σ1; ρ1),...,(σn; ρn), n > 0, contained in named_states, a named state
+    (σ'; ρ') can be derived in every one of these n cases.
+
+    This is rule [C3].
+    """
+
+    if formulae:
+        constant_assignment = context._named_state._p
+        basis = Formula.get_basis(constant_assignment, variable_assignment,
+                                  attribute_interpretation, formulae)
+
+        if not context._named_state.is_exhaustive(basis, *named_states):
+            raise ValueError(
+                "named states are not exahustive on basis of formulae.")
+
+        assumption_base = AssumptionBase(formulae)
+    else:
+        assumption_base = AssumptionBase(context._assumption_base._vocabulary)
+
+    proviso = context._named_state.is_named_entailment(
+        assumption_base, attribute_interpretation, *named_states)
+
+    if not proviso:
+        raise ValueError("[C1] proviso does not hold")
+
+    formulae_union = context._assumption_base._formulae + list(formulae)
+    assumption_base_union = AssumptionBase(*formulae_union)
+
+    for named_state in named_states:
+        context_i = Context(assumption_base_union, named_state)
+        if not context_i._entails_formula(F, attribute_interpretation):
+            return False
+
+    return True
 
 
 def main():

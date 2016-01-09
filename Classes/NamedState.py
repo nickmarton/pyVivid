@@ -534,6 +534,15 @@ class NamedState(State):
                         return False
         return True
 
+    def is_exhaustive(self, basis, *named_states):
+        """
+        Determine if on some basis, a set of NamedState objects is exhaustive
+        w.r.t this NamedState.
+        """
+
+        for ao_pair in basis:
+            pass
+
     def __str__(self):
         """Implement str(NamedState)."""
         return State.__str__(self) + '\n' + str(self._p)

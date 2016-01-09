@@ -216,6 +216,7 @@ class Formula(object):
                     return "unknown"
 
             profile[i] = (pair[0], obj)
+        print profile
 
         relation_args = get_relation_arguments(relation._definition)
         worlds = named_state.get_worlds()
@@ -270,6 +271,58 @@ class Formula(object):
             return False
         else:
             return "unknown"
+
+    @staticmethod
+    def get_basis(constant_assignment, variable_assignment,
+                  attribute_interpretation, *formulae):
+        """
+        Get the basis of a set of formulae w.r.t. a ConstantAssignment,
+        VariableAssignment, and AttributeInterpretation.
+        """
+
+        if not formulae:
+            raise ValueError("At least one Formula must be provided")
+
+        basis = set([])
+
+        for formula in formulae:
+
+            if not hasattr(formula, "_is_Formula"):
+                raise TypeError(
+                    "All positional arguments provided in formulae must be "
+                    "Formula objects.")
+
+            # name should always be in interpretation table
+            for entry in attribute_interpretation:
+                if entry[0]._name == formula._name:
+                    R_I = entry
+                    break
+            else:
+                raise ValueError(
+                    formula._name + " must be in intepretation table")
+
+            profile = list(R_I[3])
+            terms = formula._terms
+
+            profile = map(lambda pair: (pair[0], terms[pair[1] - 1]), profile)
+
+            # Replace Vocabulary C and V's with their respective objects
+            # according to p and X
+            for i, pair in enumerate(profile):
+                try:
+                    obj = constant_assignment._mapping[pair[1]]
+                except KeyError:
+                    try:
+                        obj = variable_assignment._mapping[pair[1]]
+                    except KeyError:
+                        raise ValueError("term: " + pair[1] + " undefined")
+
+                profile[i] = (pair[0], obj)
+
+            # Add all ao-pairs in profile to basis if they're not in it already
+            basis.update(profile)
+
+        return list(basis)
 
 
 def main():
@@ -356,11 +409,14 @@ def main():
 
     assumption_base = AssumptionBase(f1, f2, f3, f4)
 
+    print Formula.get_basis(
+        named_state._p, VA, attribute_interpretation, f1, f2, f3, f4)
+
     # for f in assumption_base:
     #    print f.assign_truth_value(attribute_interpretation, named_state, VA)
 
     named_state.set_ascription(('point', 'p4'), [Point(1.0, 1.0, 1.0, 1.0)])
-    print f5.assign_truth_value(attribute_interpretation, named_state, VA)
+    # print f5.assign_truth_value(attribute_interpretation, named_state, VA)
 
 if __name__ == "__main__":
     main()
