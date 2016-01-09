@@ -472,6 +472,122 @@ def test_get_worlds():
 
     assert worlds == worlds_manual
 
+    color = Attribute('color', ['R', 'G'])
+    attribute_structure = AttributeStructure(color)
+    objects = ['s1', 's2', 's3']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    vocabulary = Vocabulary(['a', 'b', 'c', 'd'], [], [])
+
+    p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
+
+    p_1 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's3', 'b': 's2'})
+    p_2 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'b': 's2', 'd': 's3'})
+    p_3 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's2', 'b': 's3'})
+    p_4 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's2', 'd': 's3'})
+    p_5 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'b': 's3', 'd': 's2'})
+    p_6 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's3', 'd': 's2'})
+
+    ascr = {('color', 's1'): ['R'], ('color', 's2'): ['R'],
+            ('color', 's3'): ['R']}
+
+    ns = NamedState(attribute_system, p, ascr)
+    worlds = [w for w in ns.get_worlds()]
+
+    worlds_manual = [
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R']}),
+        NamedState(attribute_system, p_3, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R']}),
+        NamedState(attribute_system, p_4, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R']}),
+        NamedState(attribute_system, p_5, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R']}),
+        NamedState(attribute_system, p_6, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R']})]
+
+    assert worlds == worlds_manual
+
+    color = Attribute('color', ['R', 'G'])
+    attribute_structure = AttributeStructure(color)
+    objects = ['s1', 's2', 's3', 's4']
+    attribute_system = AttributeSystem(attribute_structure, objects)
+    vocabulary = Vocabulary(['a', 'b', 'c'], [], [])
+
+    p = ConstantAssignment(vocabulary, attribute_system, {'a': 's1'})
+
+    p_1 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's3', 'b': 's2'})
+    p_2 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's4', 'b': 's2'})
+    p_3 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's2', 'b': 's3'})
+    p_4 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's4', 'b': 's3'})
+    p_5 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's2', 'b': 's4'})
+    p_6 = ConstantAssignment(vocabulary, attribute_system,
+                             {'a': 's1', 'c': 's3', 'b': 's4'})
+
+    ascr = {('color', 's1'): ['R'], ('color', 's2'): ['R'],
+            ('color', 's3'): ['R'], ('color', 's4'): ['R']}
+
+    ns = NamedState(attribute_system, p, ascr)
+    worlds = [w for w in ns.get_worlds()]
+
+    worlds_manual = [
+        NamedState(attribute_system, p_1, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R'],
+                   ('color', 's4'): ['R']}),
+        NamedState(attribute_system, p_2, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R'],
+                   ('color', 's4'): ['R']}),
+        NamedState(attribute_system, p_3, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R'],
+                   ('color', 's4'): ['R']}),
+        NamedState(attribute_system, p_4, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R'],
+                   ('color', 's4'): ['R']}),
+        NamedState(attribute_system, p_5, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R'],
+                   ('color', 's4'): ['R']}),
+        NamedState(attribute_system, p_6, {
+                   ('color', 's1'): ['R'],
+                   ('color', 's2'): ['R'],
+                   ('color', 's3'): ['R'],
+                   ('color', 's4'): ['R']})]
+
+    assert worlds == worlds_manual
+
 
 def test_is_named_alternate_extension():
     """Test is_named_alternate_extension() function for NamedState."""

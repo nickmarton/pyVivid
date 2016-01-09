@@ -1,13 +1,12 @@
 """This module intends to provide the rules of diagrammatic inference."""
 
 from vivid.Classes.VariableAssignment import VariableAssignment
-from vivid.Classes.AssumptionBase import AssumptionBase
 
 
-def thinning(context, named_state, attribute_interpretation, *formulae):
+def thinning(context, named_state, assumption_base=None, attribute_interpretation=None):
     """
     Verify that named_state can be obtained by thinning from the NamedState
-    contained in Context w.r.t. the AssumptionBase formed by formulae.
+    contained in Context w.r.t. the AssumptionBase formed by assumption_base.
 
     By Corollary 26, is_named_entailment suffices to show thinning holds.
     """
@@ -18,14 +17,13 @@ def thinning(context, named_state, attribute_interpretation, *formulae):
     if not hasattr(named_state, "_is_NamedState"):
         raise TypeError("named_state parameter must be a NamedState object.")
 
-    # If no formulae are provided, just do thinning for Named States,
+    # If no assumption_base are provided, just do thinning for Named States,
     # otherwise, we're doing the full thinning inference rule
-    if not formulae:
+    if not assumption_base:
         return named_state <= context._named_state
     else:
-        assumption_base = AssumptionBase(formulae)
-        return context._named_state._is_named_entailment(
-            assumption_base, attribute_interpretation, [named_state])
+        return context._named_state.is_named_entailment(
+            assumption_base, attribute_interpretation, named_state)
 
 
 def widening(context, named_state, attribute_interpretation=None):
@@ -80,7 +78,6 @@ def diagrammatic_absurdity(context, named_state, attribute_interpretation,
         truth_value = formula.assign_truth_value(attribute_interpretation,
                                                  context._named_state,
                                                  variable_assignment)
-
         if truth_value is False:
             return True
 
@@ -108,30 +105,18 @@ def sentential_absurdity(context, formula, attribute_interpretation,
 
     # For each Formula in the Context's AssumptionBase, if a Formula always
     # evaulates to False, absurdity holds
-    for f in context._assumption_base:
-        truth_value = f.assign_truth_value(attribute_interpretation,
-                                           context._named_state,
-                                           variable_assignment)
-
+    for formula in context._assumption_base:
+        truth_value = formula.assign_truth_value(attribute_interpretation,
+                                                 context._named_state,
+                                                 variable_assignment)
         if truth_value is False:
             return True
 
     return False
 
 
-def diagram_reiteration(context, named_state=None):
+def diagram_reiteration(context):
     """Perform Diagram Reiteration to retrieve the current diagram."""
-    if named_state:
-        if not hasattr(named_state, "_is_NamedState"):
-            raise TypeError(
-                "named_state parameter must be a NamedState object")
-            if context._named_state != named_state:
-                raise ValueError(
-                    "named_state parameter must match NamedState object "
-                    "within Context context")
-
-            return named_state
-
     return context._named_state
 
 
