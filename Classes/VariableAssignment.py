@@ -85,9 +85,9 @@ class VariableAssignment(Assignment):
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for VariableAssignment object."""
         from copy import deepcopy
-        
+
         return VariableAssignment(
-            deepcopy(self._vocabulary),
+            self._vocabulary,
             deepcopy(self._attribute_system),
             deepcopy(self._mapping))
 

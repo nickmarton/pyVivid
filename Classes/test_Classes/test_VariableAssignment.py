@@ -140,7 +140,7 @@ def test___deepcopy__():
     VA_copy = deepcopy(VA)
     assert VA == VA_copy
     assert VA is not VA_copy
-    assert VA._vocabulary is not VA_copy._vocabulary
+    assert VA._vocabulary is VA_copy._vocabulary
     assert VA._attribute_system is not VA_copy._attribute_system
     assert VA._mapping is not VA_copy._mapping
 

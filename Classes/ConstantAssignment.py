@@ -110,7 +110,7 @@ class ConstantAssignment(Assignment):
         from copy import deepcopy
 
         return ConstantAssignment(
-            deepcopy(self._vocabulary),
+            self._vocabulary,
             deepcopy(self._attribute_system),
             deepcopy(self._mapping))
 

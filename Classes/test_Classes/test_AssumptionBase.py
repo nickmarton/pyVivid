@@ -254,6 +254,7 @@ def test___len__():
     f4 = Formula(vocabulary, 'AM', 'C1')
     a1 = AssumptionBase(f1, f2, f3, f4)
 
+    assert len(AssumptionBase(vocabulary)) == 0
     assert len(a1) == 4
 
 
@@ -369,6 +370,7 @@ def test___deepcopy__():
 
     assert a == a_copy
     assert a is not a_copy
+    assert a._vocabulary is a_copy._vocabulary
     assert a._formulae[0] is not a_copy._formulae[0]
     assert a._formulae[1] is not a_copy._formulae[1]
     assert a._formulae[2] is not a_copy._formulae[2]

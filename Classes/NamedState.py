@@ -323,7 +323,6 @@ class NamedState(State):
         # get supsets of this NamedState's ConstantAssignment and create an
         # empty list to hold all alternate extensions.
         supersets = get_supersets()
-
         named_alternate_extensions = []
 
         for p_prime in supersets:

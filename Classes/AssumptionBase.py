@@ -102,8 +102,8 @@ class AssumptionBase(object):
 
                 self_copy._formulae.append(deepcopy(other_formula))
 
-            self_copy._formulae = sorted(
-                self_copy._formulae, key=lambda x: x._name)
+            self_copy._formulae = sorted(self_copy._formulae,
+                                         key=lambda x: x._name)
 
             return self_copy
 
@@ -111,20 +111,23 @@ class AssumptionBase(object):
         if hasattr(other, "_is_Formula"):
             # Edge cases
             if len(self) == 0:
+                if other._vocabulary is not self._vocabulary:
+                    raise ValueError(
+                        "Cannot add Formula's with different Vocabulary's")
+
                 return AssumptionBase(*deepcopy([other]))
 
             names = [formula._name for formula in self._formulae]
-            vocabulary = self._formulae[0]._vocabulary
 
-            if other._vocabulary != vocabulary:
+            if other._vocabulary is not self._vocabulary:
                 raise ValueError(
                     "Cannot add Formula's with different Vocabulary's")
             if other._name in names:
                 raise ValueError("Duplicate Formula objects not permitted")
 
             self_copy._formulae.append(deepcopy(other))
-            self_copy._formulae = sorted(
-                self_copy._formulae, key=lambda x: x._name)
+            self_copy._formulae = sorted(self_copy._formulae,
+                                         key=lambda x: x._name)
 
             return self_copy
 

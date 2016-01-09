@@ -18,12 +18,13 @@ class Context(object):
             raise TypeError(
                 "named_state parameter must be a NamedState object")
 
-        if assumption_base._vocabulary != named_state._p._vocabulary:
+        if assumption_base._vocabulary is not named_state._p._vocabulary:
             raise ValueError(
                 "Vocabulary's of NamedState and AssumptionBase must match")
 
-        self._assumption_base = assumption_base
-        self._named_state = named_state
+        from copy import deepcopy
+        self._assumption_base = deepcopy(assumption_base)
+        self._named_state = deepcopy(named_state)
         self._is_Context = True
 
     def __eq__(self, other):
@@ -58,9 +59,8 @@ class Context(object):
     def __deepcopy__(self, memo):
         """Implement copy.deepcopy for Context object."""
         from copy import deepcopy
-        return Context(
-            deepcopy(self._assumption_base),
-            deepcopy(self._named_state))
+        return Context(deepcopy(self._assumption_base),
+                       deepcopy(self._named_state))
 
     def entails_formula(self, formula, attribute_interpretation):
         """

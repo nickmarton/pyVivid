@@ -1007,4 +1007,4 @@ def test_diagram_reiteration():
     context = Context(assumption_base, named_state)
 
     d1 = diagram_reiteration(context)
-    assert named_state is d1
+    assert context._named_state is d1

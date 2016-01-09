@@ -191,6 +191,7 @@ def test___deepcopy__():
     assert named_state._attribute_system == named_state_copy._attribute_system
     assert named_state._attribute_system is not named_state_copy._attribute_system
     assert named_state._p is not named_state_copy._p
+    assert named_state._p._vocabulary is named_state_copy._p._vocabulary
     assert named_state._ascriptions is not named_state_copy._ascriptions
 
 
@@ -1394,6 +1395,7 @@ def test_satisfies_context():
 
         from copy import deepcopy
         world2 = deepcopy(world)
+        world2._p._vocabulary = vocabulary
         world2.set_ascription(('hour', 'c1'), [1])
 
         bad_assumption_base = AssumptionBase(f1)

@@ -39,7 +39,7 @@ class Formula(object):
                     "all terms must be contained in vocabulary's C or V")
 
         from copy import deepcopy
-        self._vocabulary = vocabulary# deepcopy(vocabulary)
+        self._vocabulary = vocabulary
         self._name = deepcopy(name)
         self._terms = list(terms)
         self._is_Formula = True
@@ -76,10 +76,14 @@ class Formula(object):
         if hasattr(other, "_is_AssumptionBase"):
             # Edge cases
             if len(other) == 0:
+                if other._vocabulary is not self._vocabulary:
+                    raise ValueError(
+                        "Cannot add an AssumptionBase's with different "
+                        "Vocabulary than this Formula object")
                 return AssumptionBase(self)
 
             for other_formula in other:
-                if other_formula._vocabulary != self._vocabulary:
+                if other_formula._vocabulary is not self._vocabulary:
                     raise ValueError(
                         "Cannot add an AssumptionBase's with different "
                         "Vocabulary than this Formula object")
@@ -90,7 +94,7 @@ class Formula(object):
 
         # Handle adding a Formula
         if hasattr(other, "_is_Formula"):
-            if other._vocabulary != self._vocabulary:
+            if other._vocabulary is not self._vocabulary:
                 raise ValueError(
                     "Cannot add Formula's with different Vocabulary's")
             if other._name == self._name:
