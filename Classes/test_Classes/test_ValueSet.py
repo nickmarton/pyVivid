@@ -40,6 +40,8 @@ def test___init__():
     test_TypeError(Interval(0, 10))
     test_TypeError(Point(0.0))
 
+    VS1 = ValueSet([Interval(20, 100)])
+
 
 def test___eq__():
     """Test == operator."""
@@ -187,6 +189,57 @@ def test___add__():
 
     from vivid.Classes.Attribute import Attribute
     test_TypeError(VSA, Attribute("l", ['s']))
+
+
+def test___iadd__():
+    """Test + operator for ValueSet."""
+    VSA = ValueSet([
+        -5,
+        15L,
+        167.4,
+        'c',
+        True,
+        Interval(1, 10),
+        Interval(10.0, 75.4)])
+
+    VSB = ValueSet([
+        -2,
+        33L,
+        555.679,
+        'e',
+        False,
+        Point(1.0, 1.0),
+        Interval(2L, 5L)])
+
+    VSA += VSB
+    assert VSA == ValueSet([-5, -2, 15L, 33L, 167.4, 555.679, 'c', 'e',
+                           True, False, Interval(1, 10), Interval(10.0, 75.4),
+                           Interval(2L, 5L), Point(1.0, 1.0)])
+    VSA += VSA
+    assert VSA == VSA
+
+    VSD = ValueSet([
+        -2, -100,
+        33L,
+        555.679,
+        'e',
+        False,
+        Point(1.0, 1.0),
+        Interval(2L, 5L)])
+
+    VSE = ValueSet([
+        -2, -5, -100,
+        33L,
+        555.679,
+        'e',
+        False,
+        Point(1.0, 1.0),
+        Interval(2L, 5L)])
+
+    VSB += -100
+    assert VSD == VSB
+    VSB += [-5, -100]
+    assert VSE == VSB
 
 
 def test___sub__():
@@ -575,9 +628,9 @@ def test__parse():
         [-1, -2, -1.0, -1.5, -1L, -2L, 'a', 'b', True, False,
          Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L), Point(1.0)])
 
-    assert standard_types == [-2, -1, -1.5, -1.0, -2L, -1L, 'a', 'b',
-                              False, True, Interval(0, 10),
-                              Interval(0.0, 10.0), Interval(0L, 10L),
+    assert standard_types == [-1.5, -1.0, 'a', 'b',
+                              False, True, Interval(-2, 10),
+                              Interval(0.0, 10.0), Interval(-2L, 10L),
                               Point(1.0)]
 
     # test single numbers being filtered by intervals

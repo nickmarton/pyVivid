@@ -540,10 +540,19 @@ class NamedState(State):
         w.r.t this NamedState.
         """
 
+        if not basis:
+            raise ValueError("Basis cannot be empty")
+
+        if not named_states:
+            raise ValueError("At least one NamedState must be provided")
+
         for ao_pair in basis:
             # Take union of the ValueSets of ascriptions of all named states
-            union = sum([named_state._ascriptions[ao_pair]
-                         for named_state in named_states])
+            valuesets = [named_state._ascriptions[ao_pair]
+                         for named_state in named_states]
+            union = valuesets[0]
+            for valueset in valuesets[1:]:
+                union += valueset
 
             # If union is not equal to this NamedState's Valueset of
             # corresponding ascription, the named states provided are not
@@ -610,9 +619,6 @@ def main():
                      ("hour", "s3"): [1, 3, 5], ("minute", "s3"): [10]}
 
     named_state_4 = NamedState(asys, p2, ascriptions_1)
-    for p in named_state_4.get_worlds2():
-        print p
-        print
 
 
 if __name__ == "__main__":

@@ -115,6 +115,10 @@ class ValueSet(object):
             new_values.append(other)
             return ValueSet(new_values)
 
+    def __iadd__(self, other):
+        """Implement += for ValueSet."""
+        return self.__add__(other)
+
     def __sub__(self, other):
         """
         Implement - operator for ValueSet.
@@ -486,6 +490,37 @@ class ValueSet(object):
     def _parse(values):
         """Parse a list into standard format."""
 
+        def _extend_intervals(type_lists):
+            """
+            If int or long is just beyond infirmum or supremum, extend the
+            interval.
+            """
+
+            for i in type_lists[int]:
+                for index, interval in enumerate(type_lists["_is_Interval"]):
+                    if interval._type == int:
+                        if i == interval[0] - 1:
+                            type_lists["_is_Interval"][index] = Interval(i, interval[1])
+                            type_lists[int].remove(i)
+                            return True
+                        if i == interval[1] + 1:
+                            type_lists["_is_Interval"][index] = Interval(interval[0], i)
+                            type_lists[int].remove(i)
+                            return True
+
+            for i in type_lists[long]:
+                for index, interval in enumerate(type_lists["_is_Interval"]):
+                    if interval._type == long:
+                        if i == interval[0] - 1:
+                            type_lists["_is_Interval"][index] = Interval(i, interval[1])
+                            type_lists[long].remove(i)
+                            return True
+                        if i == interval[1] + 1:
+                            type_lists["_is_Interval"][index] = Interval(interval[0], i)
+                            type_lists[long].remove(i)
+                            return True
+            return False
+
         def _filter_numerics(type_lists):
             """Filter out numeric values subsumed by some Interval."""
             # filter out the ints, floats, and longs, subsumed by some Interval
@@ -537,6 +572,7 @@ class ValueSet(object):
         if type_lists["_is_Interval"]:
             type_lists["_is_Interval"] = Interval.collapse_intervals(
                 type_lists["_is_Interval"])
+            while _extend_intervals(type_lists): pass
             _filter_numerics(type_lists)
 
         output_set = []
@@ -551,23 +587,30 @@ class ValueSet(object):
 
 def main():
     """."""
-    v = ValueSet([Interval(0, 2),
-                  Interval(1, 4),
-                  Interval(10, 20),
-                  Interval(9, 24),
-                  Interval(30, 35),
-                  Interval(31, 34),
-                  Interval(60, 144),
-                  Interval(77, 150),
-                  Interval(9, 25),
-                  Interval(25, 30),
-                  "f", -1])
+    intervals = []
+    removals = []
 
-    v1 = ValueSet([-1, 'f', Point(1.0, 1.0)])
-    v2 = ValueSet([Point(1.0, 1.0)])
+    # 1-4, 5-6, 7-8, 10-12
+    ints = [-2, 0, 1, 2, 3, 5, 6, 10, 11, 13, 15, 16, 17, 20]
 
-    print Point(1.0, 1.0) == Point(1.0, 1.0)
-    print v1 - v2
+    prev_index, index = 0, 1
+    while prev_index != len(ints) - 1:
+        while ints[index] == ints[index - 1] + 1:
+            index += 1
+
+        if prev_index != index - 1:
+            removals.append((index - 1, prev_index))
+            intervals.append(Interval(ints[prev_index], ints[index - 1]))
+
+        prev_index = index
+        index += 1
+
+    for pair in sorted(removals, reverse=True):
+        for i in range(pair[0], pair[1] - 1, -1):
+            del ints[i]
+
+    print ints
+    print intervals
 
 
 if __name__ == "__main__":
