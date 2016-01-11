@@ -5,9 +5,8 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 
 [paper]: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.466.4004&rep=rep1&type=pdf
 
-##TODO
+## TODO
 * [C1] unit tests
-* [C2] unit tests
 * [C3] unit tests
-##Known issues
+## Known issues
 * Subset does not test that an interval exists in discrete form in other

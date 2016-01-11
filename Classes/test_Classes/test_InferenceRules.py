@@ -18,7 +18,14 @@ from vivid.Classes.Formula import Formula
 from vivid.Classes.AssumptionBase import AssumptionBase
 from vivid.Classes.Context import Context
 
-from vivid.Classes.InferenceRules import thinning, widening, observe, diagrammatic_absurdity, sentential_absurdity, diagram_reiteration, sentential_to_sentential
+from vivid.Classes.InferenceRules import thinning, widening, observe
+from vivid.Classes.InferenceRules import diagrammatic_absurdity
+from vivid.Classes.InferenceRules import sentential_absurdity
+from vivid.Classes.InferenceRules import diagram_reiteration
+from vivid.Classes.InferenceRules import sentential_to_sentential
+from vivid.Classes.InferenceRules import diagrammatic_to_diagrammatic
+from vivid.Classes.InferenceRules import sentential_to_diagrammatic
+from vivid.Classes.InferenceRules import diagrammatic_to_sentential
 
 
 def test_thinning():
@@ -1123,3 +1130,173 @@ def test_sentential_to_sentential():
                     attribute_interpretation)
     test_ValueError(context, f_one_pm, f_pm, f_three_pm,
                     attribute_interpretation)
+
+    const_mapping = {'C1': 's1'}
+    p = ConstantAssignment(vocabulary, asys, const_mapping)
+    ascriptions = {("hour", "s1"): [13], ("minute", "s1"): [0]}
+    named_state = NamedState(asys, p, ascriptions)
+
+    f_one_pm = Formula(vocabulary, "ONE_PM", 'C1')
+    f_three_pm = Formula(vocabulary, "THREE_PM", 'C1')
+    f_pm = Formula(vocabulary, "PM", 'C1')
+
+    assumption_base = AssumptionBase(f_pm)
+    context = Context(assumption_base, named_state)
+    assert sentential_to_sentential(context, f_one_pm, f_three_pm, f_pm,
+                                    attribute_interpretation)
+    assert sentential_to_sentential(context, f_three_pm, f_one_pm, f_pm,
+                                    attribute_interpretation)
+    assert sentential_to_sentential(context, f_three_pm, f_pm, f_one_pm,
+                                    attribute_interpretation)
+    # In the case of the assumption base containing f_one_pm, entailment holds
+    # as it's a case of absurdity
+    assert not sentential_to_sentential(context, f_one_pm, f_pm, f_three_pm,
+                                        attribute_interpretation)
+
+    assumption_base = AssumptionBase(f_pm, f_one_pm)
+    context = Context(assumption_base, named_state)
+    assert sentential_to_sentential(context, f_one_pm, f_three_pm, f_pm,
+                                    attribute_interpretation)
+    assert sentential_to_sentential(context, f_three_pm, f_one_pm, f_pm,
+                                    attribute_interpretation)
+    # In the case of the assumption base containing f_one_pm, entailment holds
+    # as it's a case of absurdity
+    assert sentential_to_sentential(context, f_three_pm, f_pm, f_one_pm,
+                                    attribute_interpretation)
+    assert not sentential_to_sentential(context, f_one_pm, f_pm, f_three_pm,
+                                        attribute_interpretation)
+
+    # Everything should evaulate the same as above as we only consider truth
+    # value of formula in the rule, i.e., even though context is absurd, it
+    # doesn't matter because we're looking at whether or not formule imply
+    # other formulae and nothing to do wit hformula in context already
+    assumption_base = AssumptionBase(f_pm, f_one_pm, f_three_pm)
+    context = Context(assumption_base, named_state)
+    assert sentential_to_sentential(context, f_one_pm, f_three_pm, f_pm,
+                                    attribute_interpretation)
+    assert sentential_to_sentential(context, f_three_pm, f_one_pm, f_pm,
+                                    attribute_interpretation)
+    assert sentential_to_sentential(context, f_three_pm, f_pm, f_one_pm,
+                                    attribute_interpretation)
+    assert not sentential_to_sentential(context, f_one_pm, f_pm, f_three_pm,
+                                        attribute_interpretation)
+
+
+def test_diagrammatic_to_diagrammatic():
+    """Test ."""
+    pass
+
+
+def test_sentential_to_diagrammatic():
+    """Test sentential_to_diagrammatic function."""
+    def test_ValueError(context, F1, F2, named_state, attribute_interpretation):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            sentential_to_diagrammatic(
+                context, F1, F2, named_state, attribute_interpretation)
+
+    a = Attribute('hour', [Interval(0, 23)])
+    a2 = Attribute('minute', [Interval(0, 59)])
+    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+    r_past_4pm = Relation(
+        'R2(h1) <=> h1 >= 16', ['hour'], 2)
+    attribute_structure = AttributeStructure(
+        a, a2, r_pm, r_past_4pm)
+
+    pm_rs = RelationSymbol('PM', 1)
+    past_4pm_rs = RelationSymbol('PAST_4PM', 2)
+    vocabulary = Vocabulary(
+        ['C1'], [pm_rs, past_4pm_rs], ['V1'])
+
+    profiles = [
+        [pm_rs, ('hour', 1)], [past_4pm_rs, ('hour', 1)]]
+
+    attribute_interpretation = AttributeInterpretation(
+        vocabulary, attribute_structure, {pm_rs: 1, past_4pm_rs: 2}, profiles)
+
+    objs = ['s1']
+    asys = AttributeSystem(attribute_structure, objs)
+
+    const_mapping = {'C1': 's1'}
+    p = ConstantAssignment(vocabulary, asys, const_mapping)
+
+    ascriptions = {("hour", "s1"): [Interval(12, 21)], ("minute", "s1"): [0]}
+    named_state = NamedState(asys, p, ascriptions)
+
+    f_pm = Formula(vocabulary, "PM", 'C1')
+    f_past_4pm = Formula(vocabulary, "PAST_4PM", 'C1')
+
+    assumption_base = AssumptionBase(vocabulary)
+    context = Context(assumption_base, named_state)
+
+    entailed_ascriptions = {("hour", "s1"): [18],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+
+    assert sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                      entailed_state, attribute_interpretation)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(18, 20)],
+                            ("minute", "s1"): [10]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+
+    assert not sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                          entailed_state,
+                                          attribute_interpretation)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(18, 21)],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+
+    assert sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                      entailed_state, attribute_interpretation)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(9, 21)],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+    assert not sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                          entailed_state,
+                                          attribute_interpretation)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(14, 17)],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+    assert not sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                          entailed_state,
+                                          attribute_interpretation)
+
+    # Test when formula is in context already
+    assumption_base = AssumptionBase(f_pm)
+    context = Context(assumption_base, named_state)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(18, 21)],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+
+    assert sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                      entailed_state, attribute_interpretation)
+
+    assumption_base = AssumptionBase(f_past_4pm)
+    context = Context(assumption_base, named_state)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(18, 21)],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+
+    assert sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                      entailed_state, attribute_interpretation)
+
+    assumption_base = AssumptionBase(f_pm, f_past_4pm)
+    context = Context(assumption_base, named_state)
+
+    entailed_ascriptions = {("hour", "s1"): [Interval(18, 21)],
+                            ("minute", "s1"): [0]}
+    entailed_state = NamedState(asys, p, entailed_ascriptions)
+
+    assert sentential_to_diagrammatic(context, f_pm, f_past_4pm,
+                                      entailed_state, attribute_interpretation)
+
+
+def test_diagrammatic_to_sentential():
+    """Test ."""
+    pass

@@ -68,16 +68,6 @@ class Context(object):
         formula parameter w.r.t. all worlds and possible variable
         assignments.
 
-        Note: possible variable assignments are determined as follows:
-        get terms of formula and extract the variables
-        (in the formula's Vocabulary) from terms, then extract list of
-        objects from this Context's NamedState's AttributeSystem.
-        Filter the objects to those objects for which
-        the ConstantAssignment does not have match; then take the
-        Cartesian product of variables in terms and unmatched objects
-        to form all possible VariableAssignments filtering out those
-        products with duplicate objects.
-
         Raise TypeError if formula parameter is not of type Formula.
         Raise ValueError if Vocabulary of formula isn't equal to
         Vocabulary embedded in this Context's NamedState.
@@ -109,14 +99,6 @@ class Context(object):
                 satisfies_formula = world.satisfies_formula(
                     formula, X, attribute_interpretation)
 
-                print "---------------------------"
-                print self
-                print
-                print world
-                print
-                print X
-                print satisfies_context, satisfies_formula
-                print "---------------------------"
                 if satisfies_context and not satisfies_formula:
                     return False
 
@@ -127,23 +109,6 @@ class Context(object):
         Determine if this Context entails named_state provided by
         named_state parameter w.r.t. all worlds and possible variable
         assignments.
-
-        NOTE: possible worlds are generated from NamedState of this
-        Context and not from named_state parameter! The reasoning for
-        this and not the converse is because in the event that all
-        possible worlds are created from named_state parameter, then
-        those worlds always satisfy named_state and thus this function
-        can never return False.
-
-        Note: possible variable assignments are determined as follows:
-        get terms of formula and extract the variables
-        (in the formula's Vocabulary) from terms, then extract list of
-        objects from this Context's NamedState's AttributeSystem.
-        Filter the objects to those objects for which
-        the ConstantAssignment does not have match; then take the
-        Cartesian product of variables in terms and unmatched objects
-        to form all possible VariableAssignments filtering out those
-        products with duplicate objects.
 
         Raise TypeError if named_state parameter is not of type
         NamedState.

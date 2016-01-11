@@ -227,24 +227,40 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
                                      context._named_state,
                                      variable_assignment)
 
-    if F1_holds is False and F2_holds is False:
+    if F1_holds is not True and F2_holds is not True:
         raise ValueError("disjunction F1 OR F2 does not hold")
 
-    f1_assumption_base = F1 + context._assumption_base
-    f2_assumption_base = F2 + context._assumption_base
+    if F1 not in context._assumption_base:
+        f1_assumption_base = F1 + context._assumption_base
+    else:
+        f1_assumption_base = context._assumption_base
+
+    if F2 not in context._assumption_base:
+        f2_assumption_base = F2 + context._assumption_base
+    else:
+        f2_assumption_base = context._assumption_base
 
     f1_context = Context(f1_assumption_base, context._named_state)
     f2_context = Context(f2_assumption_base, context._named_state)
 
-    f1_entails_named_state = f1_context.entails_formula(
-        named_state, attribute_interpretation)
-    f2_entails_named_state = f2_context.entails_formula(
-        named_state, attribute_interpretation)
+    # get all possible worlds and variable assignments of given named state;
+    # because the worlds come from the entailed named state but the contexts
+    # use the original context's named state, we're showing that
+    # (β ∪ {F1 ∨ F2}; (σ; ρ)) |= (σ'; ρ') by showing that in the case of either
+    # F1 or F2, all worlds of the entailed state satisify both contexts and
+    # thus (σ'; ρ') follows either way
+    possible_worlds = named_state.get_worlds()
 
-    if f1_entails_named_state and f2_entails_named_state:
-        return True
-    else:
-        return False
+    for world in possible_worlds:
+        for X in world._generate_variable_assignments():
+            satisfies_f1_context = world.satisfies_context(
+                f1_context, X, attribute_interpretation)
+            satisfies_f2_context = world.satisfies_context(
+                f2_context, X, attribute_interpretation)
+
+            if not satisfies_f1_context or not satisfies_f2_context:
+                return False
+    return True
 
 
 def diagrammatic_to_sentential(context, F, named_states,
