@@ -109,6 +109,14 @@ class Context(object):
                 satisfies_formula = world.satisfies_formula(
                     formula, X, attribute_interpretation)
 
+                print "---------------------------"
+                print self
+                print
+                print world
+                print
+                print X
+                print satisfies_context, satisfies_formula
+                print "---------------------------"
                 if satisfies_context and not satisfies_formula:
                     return False
 

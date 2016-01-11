@@ -145,22 +145,20 @@ def sentential_to_sentential(context, F1, F2, G, attribute_interpretation,
                                      context._named_state,
                                      variable_assignment)
 
-    if F1_holds is False and F2_holds is False:
+    if F1_holds is not True and F2_holds is not True:
         raise ValueError("disjunction F1 OR F2 does not hold")
 
-    f1_assumption_base = F1 + context._assumption_base
-    f2_assumption_base = F2 + context._assumption_base
+    G_holds = G.assign_truth_value(attribute_interpretation,
+                                   context._named_state,
+                                   variable_assignment)
 
-    f1_context = Context(f1_assumption_base, context._named_state)
-    f2_context = Context(f2_assumption_base, context._named_state)
-
-    f1_entails_g = f1_context.entails_formula(G, attribute_interpretation)
-    f2_entails_g = f2_context.entails_formula(G, attribute_interpretation)
-
-    if f1_entails_g and f2_entails_g:
-        return True
-    else:
+    if F1_holds and not G_holds:
         return False
+
+    if F2_holds and not G_holds:
+        return False
+
+    return True
 
 
 def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,

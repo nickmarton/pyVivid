@@ -216,7 +216,6 @@ class Formula(object):
                     return "unknown"
 
             profile[i] = (pair[0], obj)
-        print profile
 
         relation_args = get_relation_arguments(relation._definition)
         worlds = named_state.get_worlds()

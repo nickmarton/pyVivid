@@ -1,5 +1,7 @@
 """InferenceRules unit tests."""
 
+import pytest
+
 from vivid.Classes.Point import Point
 from vivid.Classes.Interval import Interval
 from vivid.Classes.Attribute import Attribute
@@ -16,7 +18,7 @@ from vivid.Classes.Formula import Formula
 from vivid.Classes.AssumptionBase import AssumptionBase
 from vivid.Classes.Context import Context
 
-from vivid.Classes.InferenceRules import thinning, widening, observe, diagrammatic_absurdity, sentential_absurdity, diagram_reiteration
+from vivid.Classes.InferenceRules import thinning, widening, observe, diagrammatic_absurdity, sentential_absurdity, diagram_reiteration, sentential_to_sentential
 
 
 def test_thinning():
@@ -1008,3 +1010,116 @@ def test_diagram_reiteration():
 
     d1 = diagram_reiteration(context)
     assert context._named_state is d1
+
+
+def test_sentential_to_sentential():
+    """Test sentential_to_sentential rule."""
+    def test_ValueError(context, F1, F2, G, attribute_interpretation):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            sentential_to_sentential(
+                context, F1, F2, G, attribute_interpretation)
+
+    a = Attribute('hour', [Interval(0, 23)])
+    a2 = Attribute('minute', [Interval(0, 59)])
+    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+    r_one_pm = Relation(
+        'R2(h1, m1) <=> h1 = 13 and m1 = 0', ['hour', 'minute'], 2)
+    r_three_pm = Relation(
+        'R3(h1, m1) <=> h1 = 15 and m1 = 0', ['hour', 'minute'], 3)
+    attribute_structure = AttributeStructure(
+        a, a2, r_pm, r_one_pm, r_three_pm)
+
+    pm_rs = RelationSymbol('PM', 1)
+    one_pm_rs = RelationSymbol('ONE_PM', 2)
+    three_pm_rs = RelationSymbol('THREE_PM', 2)
+    vocabulary = Vocabulary(
+        ['C1'], [pm_rs, one_pm_rs, three_pm_rs], ['V1'])
+
+    profiles = [
+        [pm_rs, ('hour', 1)],
+        [one_pm_rs, ('hour', 1), ('minute', 1)],
+        [three_pm_rs, ('hour', 1), ('minute', 1)]]
+
+    attribute_interpretation = AttributeInterpretation(
+        vocabulary,
+        attribute_structure,
+        {pm_rs: 1, one_pm_rs: 2, three_pm_rs: 3},
+        profiles)
+
+    objs = ['s1']
+    asys = AttributeSystem(attribute_structure, objs)
+
+    const_mapping = {'C1': 's1'}
+    p = ConstantAssignment(vocabulary, asys, const_mapping)
+
+    ascriptions = {("hour", "s1"): [13, 15], ("minute", "s1"): [0]}
+    named_state = NamedState(asys, p, ascriptions)
+
+    f_one_pm = Formula(vocabulary, "ONE_PM", 'C1')
+    f_three_pm = Formula(vocabulary, "THREE_PM", 'C1')
+    f_pm = Formula(vocabulary, "PM", 'C1')
+
+    assumption_base = AssumptionBase(vocabulary)
+    context = Context(assumption_base, named_state)
+
+    # Truth value is unknown for f_one_pm and f_three_pm so disjunction
+    # doesn't hold
+    test_ValueError(context, f_one_pm, f_three_pm, f_pm,
+                    attribute_interpretation)
+
+    ascriptions = {("hour", "s1"): [15], ("minute", "s1"): [0]}
+    named_state = NamedState(asys, p, ascriptions)
+    context = Context(assumption_base, named_state)
+
+    assert sentential_to_sentential(context, f_one_pm, f_three_pm, f_pm,
+                                    attribute_interpretation)
+    assert sentential_to_sentential(context, f_three_pm, f_one_pm, f_pm,
+                                    attribute_interpretation)
+    assert not sentential_to_sentential(context, f_three_pm, f_pm, f_one_pm,
+                                        attribute_interpretation)
+    # In the case of the assumption base containing f_one_pm, entailment holds
+    # as it's a case of absurdity
+    assert sentential_to_sentential(context, f_one_pm, f_pm, f_three_pm,
+                                    attribute_interpretation)
+
+    var_mapping = {'V1': 's1'}
+    X = VariableAssignment(vocabulary, asys, var_mapping)
+    f_three_pm = Formula(vocabulary, "THREE_PM", 'V1')
+    f_one_pm = Formula(vocabulary, "ONE_PM", 'V1')
+
+    assert sentential_to_sentential(context, f_one_pm, f_three_pm, f_pm,
+                                    attribute_interpretation, X)
+    assert sentential_to_sentential(context, f_three_pm, f_one_pm, f_pm,
+                                    attribute_interpretation, X)
+    assert not sentential_to_sentential(context, f_three_pm, f_pm, f_one_pm,
+                                        attribute_interpretation, X)
+    assert sentential_to_sentential(context, f_one_pm, f_pm, f_three_pm,
+                                    attribute_interpretation, X)
+
+    # Now there's no constants bound
+    named_state = NamedState(asys, ConstantAssignment(vocabulary, asys, {}),
+                             ascriptions)
+    context = Context(assumption_base, named_state)
+
+    f_one_pm = Formula(vocabulary, "ONE_PM", 'V1')
+    f_three_pm = Formula(vocabulary, "THREE_PM", 'V1')
+    f_pm = Formula(vocabulary, "PM", 'V1')
+
+    assert sentential_to_sentential(context, f_one_pm, f_three_pm, f_pm,
+                                    attribute_interpretation, X)
+    assert sentential_to_sentential(context, f_three_pm, f_one_pm, f_pm,
+                                    attribute_interpretation, X)
+    assert not sentential_to_sentential(context, f_three_pm, f_pm, f_one_pm,
+                                        attribute_interpretation, X)
+    assert sentential_to_sentential(context, f_one_pm, f_pm, f_three_pm,
+                                    attribute_interpretation, X)
+
+    test_ValueError(context, f_one_pm, f_three_pm, f_pm,
+                    attribute_interpretation)
+    test_ValueError(context, f_three_pm, f_one_pm, f_pm,
+                    attribute_interpretation)
+    test_ValueError(context, f_three_pm, f_pm, f_one_pm,
+                    attribute_interpretation)
+    test_ValueError(context, f_one_pm, f_pm, f_three_pm,
+                    attribute_interpretation)
