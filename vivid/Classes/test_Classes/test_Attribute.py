@@ -1,7 +1,7 @@
 """Attribute class unit tests."""
 
 import pytest
-from ..Attribute import Attribute
+from vivid.Classes.Attribute import Attribute
 
 
 def test___init__():
