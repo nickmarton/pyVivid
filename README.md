@@ -6,7 +6,7 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 [paper]: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.466.4004&rep=rep1&type=pdf
 
 ## TODO
-* [C3] unit tests
+* Final touches and __init__.py for vivid package
 
 ## Known issues
 * Subset does not test that an interval exists in discrete form in other

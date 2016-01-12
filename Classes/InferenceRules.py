@@ -27,8 +27,18 @@ def thinning(context, named_state, assumption_base=None,
     if not assumption_base:
         return named_state <= context._named_state
     else:
-        return context._named_state.is_named_entailment(
+        proviso = context._named_state.is_named_entailment(
             assumption_base, attribute_interpretation, named_state)
+
+        if not proviso:
+            raise ValueError("Thinning Proviso does not hold")
+
+        extended_context = Context(assumption_base, context._named_state)
+        if extended_context.entails_named_state(
+                named_state, attribute_interpretation):
+            return True
+        else:
+            return False
 
 
 def widening(context, named_state, attribute_interpretation=None):
@@ -167,8 +177,8 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
     """
     Verify that on the basis of the present diagram and some formulas F1,...,Fk
     contained in formulae, k >= 0, that for each named_state
-    (σ1; ρ1),...,(σn; ρn), n > 0, contained in named_states, a formula F can be
-    derived in every one of these n cases.
+    (σ1; ρ1),...,(σn; ρn), n > 0, contained in named_states, a named state
+    (σ'; ρ') can be derived in every one of these n cases.
 
     This is rule [C1].
     """
@@ -176,13 +186,13 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
     if formulae:
         constant_assignment = context._named_state._p
         basis = Formula.get_basis(constant_assignment, variable_assignment,
-                                  attribute_interpretation, formulae)
+                                  attribute_interpretation, *formulae)
 
         if not context._named_state.is_exhaustive(basis, *named_states):
             raise ValueError(
                 "named states are not exahustive on basis of formulae.")
 
-        assumption_base = AssumptionBase(formulae)
+        assumption_base = AssumptionBase(*formulae)
     else:
         assumption_base = AssumptionBase(context._assumption_base._vocabulary)
 
@@ -193,15 +203,20 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
         raise ValueError("[C1] proviso does not hold")
 
     formulae_union = context._assumption_base._formulae + list(formulae)
-    assumption_base_union = AssumptionBase(*formulae_union)
+    if formulae_union:
+        assumption_base_union = AssumptionBase(*formulae_union)
+    else:
+        assumption_base_union = AssumptionBase(
+            context._assumption_base._vocabulary)
 
-    for named_state in named_states:
-        context_i = Context(assumption_base_union, named_state)
-        if not context_i._entails_named_state(inferred_named_state,
-                                              attribute_interpretation):
-            return False
-
-    return True
+    # Determine if (β ∪ {F1,...,Fk}; (σ; ρ)) |= (σ'; ρ'); proviso holds at this
+    # point
+    extended_context = Context(assumption_base_union, context._named_state)
+    if extended_context.entails_named_state(inferred_named_state,
+                                            attribute_interpretation):
+        return True
+    else:
+        return False
 
 
 def sentential_to_diagrammatic(context, F1, F2, named_state,
@@ -292,7 +307,7 @@ def diagrammatic_to_sentential(context, F, named_states,
         assumption_base, attribute_interpretation, *named_states)
 
     if not proviso:
-        raise ValueError("[C1] proviso does not hold")
+        raise ValueError("[C3] proviso does not hold")
 
     formulae_union = context._assumption_base._formulae + list(formulae)
     if formulae_union:
@@ -301,14 +316,12 @@ def diagrammatic_to_sentential(context, F, named_states,
         assumption_base_union = AssumptionBase(
             context._assumption_base._vocabulary)
 
-    for named_state in named_states:
-        context_i = Context(assumption_base_union, named_state)
-        print context_i
-        print
-        if not context_i.entails_formula(F, attribute_interpretation):
-            return False
-
-    return True
+    # Determine if (β ∪ {F1,...,Fk}; (σ; ρ)) |= F; proviso holds at this point
+    extended_context = Context(assumption_base_union, context._named_state)
+    if extended_context.entails_formula(F, attribute_interpretation):
+        return True
+    else:
+        return False
 
 
 def main():
