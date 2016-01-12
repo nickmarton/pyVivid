@@ -5,5 +5,6 @@ Vivid provides a framework to combine two different forms of reasoning; the firs
 
 [paper]: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.466.4004&rep=rep1&type=pdf
 
-## Known issues
-* Subset does not test that an interval exists in discrete form in other
+## Publications
+* Sen, A., Bringsjord, S., Marton, N., Licato, J. (2015) “Toward Diagrammatic Automated Discovery in Axiomatic Physics” Logic, Relativity and Beyond 2nd International Conference
+* Atriya Sen, Matthew Peveler, Nick Marton, Rikhiya Ghosh, John Licato, Richard J. Radke, Tianna-Kaye A. E. Woodstock, Selmer Bringsjord "Towards the Cognitive Classroom: Mathematical Physics" Rensselaer-IBM Cognitive Colloquium
