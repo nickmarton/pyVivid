@@ -1298,5 +1298,156 @@ def test_sentential_to_diagrammatic():
 
 
 def test_diagrammatic_to_sentential():
-    """Test ."""
-    pass
+    """Test diagrammatic_to_sentential."""
+    def test_ValueError(context, f_pm, named_states, attribute_interpretation,
+                        variable_assignment, *formulae):
+        """Test constructor for ValueErrors with given params."""
+        with pytest.raises(ValueError) as excinfo:
+            diagrammatic_to_sentential(
+                context, f_pm, named_states, attribute_interpretation,
+                variable_assignment, *formulae)
+
+    a = Attribute('hour', [Interval(0, 23)])
+    a2 = Attribute('minute', [Interval(0, 59)])
+    r_pm = Relation('R1(h1) <=> h1 > 11', ['hour'], 1)
+    r_past_4pm = Relation(
+        'R2(h1) <=> h1 >= 16', ['hour'], 2)
+    r_past_8pm = Relation(
+        'R3(h1) <=> h1 >= 20', ['hour'], 3)
+    r_past_6pm = Relation(
+        'R4(h1) <=> h1 >= 18', ['hour'], 4)
+    r_past_2pm = Relation(
+        'R5(h1) <=> h1 >= 14', ['hour'], 5)
+    attribute_structure = AttributeStructure(
+        a, a2, r_pm, r_past_4pm, r_past_8pm, r_past_6pm, r_past_2pm)
+
+    pm_rs = RelationSymbol('PM', 1)
+    past_4pm_rs = RelationSymbol('PAST_4PM', 1)
+    past_8pm_rs = RelationSymbol('PAST_8PM', 1)
+    past_6pm_rs = RelationSymbol('PAST_6PM', 1)
+    past_2pm_rs = RelationSymbol('PAST_2PM', 1)
+    vocabulary = Vocabulary(
+        ['C1'], [pm_rs, past_4pm_rs, past_8pm_rs, past_6pm_rs, past_2pm_rs],
+        ['V1'])
+
+    profiles = [
+        [pm_rs, ('hour', 1)],
+        [past_4pm_rs, ('hour', 1)],
+        [past_8pm_rs, ('hour', 1)],
+        [past_6pm_rs, ('hour', 1)],
+        [past_2pm_rs, ('hour', 1)]]
+
+    attribute_interpretation = AttributeInterpretation(
+        vocabulary, attribute_structure,
+        {pm_rs: 1, past_4pm_rs: 2, past_8pm_rs: 3, past_6pm_rs: 4,
+         past_2pm_rs: 5},
+        profiles)
+
+    objs = ['s1']
+    asys = AttributeSystem(attribute_structure, objs)
+
+    const_mapping = {'C1': 's1'}
+    p = ConstantAssignment(vocabulary, asys, const_mapping)
+
+    ascriptions = {("hour", "s1"): [Interval(12, 21)], ("minute", "s1"): [0]}
+    named_state = NamedState(asys, p, ascriptions)
+
+    assumption_base = AssumptionBase(vocabulary)
+    context = Context(assumption_base, named_state)
+
+    f_pm = Formula(vocabulary, "PM", 'C1')
+    f_past_4pm = Formula(vocabulary, "PAST_4PM", 'C1')
+    f_past_8pm = Formula(vocabulary, "PAST_8PM", 'C1')
+    f_past_6pm = Formula(vocabulary, "PAST_6PM", 'C1')
+    f_past_2pm = Formula(vocabulary, "PAST_2PM", 'C1')
+
+    named_state_1 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(13, 20)], ("minute", "s1"): [0]})
+    named_states = [named_state_1]
+
+    # Testing no formulae provided with single NamedState
+    assert diagrammatic_to_sentential(context, f_pm, named_states,
+                                      attribute_interpretation,
+                                      variable_assignment=None)
+
+    named_state_2 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(16, 19)], ("minute", "s1"): [0]})
+    named_state_3 = NamedState(
+        asys, p, {("hour", "s1"): [21], ("minute", "s1"): [0]})
+    named_states = [named_state_1, named_state_2, named_state_3]
+
+    # Testing no formulae provided with multiple NamedState's
+    assert diagrammatic_to_sentential(context, f_pm, named_states,
+                                      attribute_interpretation,
+                                      variable_assignment=None)
+
+    named_state_4 = NamedState(
+        asys, p, {("hour", "s1"): [23], ("minute", "s1"): [0]})
+    named_states = [named_state_1, named_state_2, named_state_3, named_state_4]
+
+    # Testing proviso failure from named_state_4 not being proper extension
+    test_ValueError(context, f_pm, named_states, attribute_interpretation,
+                    variable_assignment=None)
+
+    named_state_1 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(15, 20)], ("minute", "s1"): [0]})
+    named_states = [named_state_1]
+
+    # Testing non exhaustive named states
+    test_ValueError(context, f_pm, named_states,
+                    attribute_interpretation,
+                    None, f_past_4pm)
+
+    named_state_1 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(15, 20)], ("minute", "s1"): [0]})
+    named_state_2 = NamedState(
+        asys, p, {("hour", "s1"): [21], ("minute", "s1"): [0]})
+    named_state_3 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(12, 15)], ("minute", "s1"): [0]})
+    named_states = [named_state_1, named_state_2, named_state_3]
+
+    # testing with formula that should be entailed
+    assert diagrammatic_to_sentential(context, f_pm, named_states,
+                                      attribute_interpretation,
+                                      None, f_past_4pm)
+
+    # Testing with formula that should not, for named_State_3 f_pas_4pm fails
+    assert not diagrammatic_to_sentential(context, f_past_4pm, named_states,
+                                          attribute_interpretation,
+                                          None, f_pm)
+
+    ascriptions = {("hour", "s1"): [Interval(12, 21)], ("minute", "s1"): [0, 10]}
+    named_state = NamedState(asys, p, ascriptions)
+
+    assumption_base = AssumptionBase(vocabulary)
+    context = Context(assumption_base, named_state)
+
+    # Proviso does not hold
+    test_ValueError(context, f_pm, named_states,
+                    attribute_interpretation,
+                    None, f_past_4pm)
+
+    named_state_1 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(15, 20)], ("minute", "s1"): [0, 10]})
+    named_state_2 = NamedState(
+        asys, p, {("hour", "s1"): [21], ("minute", "s1"): [0, 10]})
+    named_state_3 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(12, 15)], ("minute", "s1"): [0]})
+    named_states = [named_state_1, named_state_2, named_state_3]
+
+    # testing with formula that should be entailed
+    assert diagrammatic_to_sentential(context, f_pm, named_states,
+                                      attribute_interpretation,
+                                      None, f_past_4pm)
+
+    # testing with multiple formulae
+    assert diagrammatic_to_sentential(context, f_pm, named_states,
+                                      attribute_interpretation,
+                                      None, f_past_4pm, f_past_6pm, f_past_8pm)
+
+    named_state_3 = NamedState(
+        asys, p, {("hour", "s1"): [Interval(12, 15)], ("minute", "s1"): [0, 10]})
+    named_states = [named_state_1, named_state_2, named_state_3]
+    assert not diagrammatic_to_sentential(context, f_past_4pm, named_states,
+                                          attribute_interpretation,
+                                          None, f_pm, f_past_2pm)

@@ -550,10 +550,10 @@ class NamedState(State):
             # Take union of the ValueSets of ascriptions of all named states
             valuesets = [named_state._ascriptions[ao_pair]
                          for named_state in named_states]
+
             union = valuesets[0]
             for valueset in valuesets[1:]:
                 union += valueset
-
             # If union is not equal to this NamedState's Valueset of
             # corresponding ascription, the named states provided are not
             # exhaustive

@@ -400,6 +400,17 @@ def test___sub__():
     assert VS011 - VS012 == ValueSet([Interval(3.00000000001, 4.99999999999),
                                       Interval(5.00000000001, 7.99999999999)])
 
+    assert ValueSet([0]) == \
+        ValueSet([Interval(0, 9)]) - ValueSet([Interval(1, 9)])
+    assert ValueSet([0, 10]) == \
+        ValueSet([Interval(0, 10)]) - ValueSet([Interval(1, 9)])
+
+    assert ValueSet([10]) == \
+        ValueSet([Interval(0, 10)]) - ValueSet([Interval(0, 9)])
+
+    assert ValueSet([Interval(0, 1), Interval(9, 10)]) == \
+        ValueSet([Interval(0, 10)]) - ValueSet([Interval(2, 8)])
+
 
 def test___getitem__():
     """Test indexing for ValueSet object."""

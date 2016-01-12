@@ -130,7 +130,7 @@ class Interval(object):
         Determine if this Interval contains some {int,float,long} or another Interval.
         """
 
-        #Check containership for another Interval (i.e. subset)
+        # Check containership for another Interval (i.e. subset)
         if hasattr(key, "_is_Interval"):
             o_inf, o_sup = key._infimum, key._supremum
             if self._infimum <= o_inf and o_sup <= self._supremum:
@@ -138,7 +138,7 @@ class Interval(object):
             else:
                 return False
 
-        #not contained if type mismatch
+        # not contained if type mismatch
         if type(key) != self._type:
             return False
         else:

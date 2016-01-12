@@ -452,7 +452,6 @@ class State(object):
             # available from the properly spanning list
             ae = State(self._attribute_system, self._ascriptions)
             ascriptions = make_ascriptions(proper_spanning_list)
-
             # for each ascription, complement it w.r.t. the original ascription
             # and replace the original ascription with the complement
             for (ao_pair, valueset) in ascriptions.items():

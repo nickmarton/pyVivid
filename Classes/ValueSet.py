@@ -181,7 +181,6 @@ class ValueSet(object):
                             del other[j]
                             return True
                         elif other_interval in self_interval:
-
                             # split self_interval and destroy other, this is
                             # the only case where we don't keep danglers
                             try:
@@ -189,13 +188,15 @@ class ValueSet(object):
                                                       other_inf - diff)
                                 self.append(new_l_self)
                             except ValueError:
-                                pass
+                                if self_inf == other_inf - diff:
+                                    self_danglers.append(self_inf)
                             try:
                                 new_h_self = Interval(other_sup + diff,
                                                       self_sup)
                                 self.append(new_h_self)
                             except ValueError:
-                                pass
+                                if other_sup + diff == self_sup:
+                                    self_danglers.append(self_sup)
                             del self[i]
                             del other[j]
                             return True

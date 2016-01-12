@@ -278,13 +278,13 @@ def diagrammatic_to_sentential(context, F, named_states,
     if formulae:
         constant_assignment = context._named_state._p
         basis = Formula.get_basis(constant_assignment, variable_assignment,
-                                  attribute_interpretation, formulae)
+                                  attribute_interpretation, *formulae)
 
         if not context._named_state.is_exhaustive(basis, *named_states):
             raise ValueError(
                 "named states are not exahustive on basis of formulae.")
 
-        assumption_base = AssumptionBase(formulae)
+        assumption_base = AssumptionBase(*formulae)
     else:
         assumption_base = AssumptionBase(context._assumption_base._vocabulary)
 
@@ -295,11 +295,17 @@ def diagrammatic_to_sentential(context, F, named_states,
         raise ValueError("[C1] proviso does not hold")
 
     formulae_union = context._assumption_base._formulae + list(formulae)
-    assumption_base_union = AssumptionBase(*formulae_union)
+    if formulae_union:
+        assumption_base_union = AssumptionBase(*formulae_union)
+    else:
+        assumption_base_union = AssumptionBase(
+            context._assumption_base._vocabulary)
 
     for named_state in named_states:
         context_i = Context(assumption_base_union, named_state)
-        if not context_i._entails_formula(F, attribute_interpretation):
+        print context_i
+        print
+        if not context_i.entails_formula(F, attribute_interpretation):
             return False
 
     return True
