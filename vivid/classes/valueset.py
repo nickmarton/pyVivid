@@ -23,7 +23,7 @@ class ValueSet(object):
     """
     ValueSet object.
 
-    The ValueSet classes uses the ``total_ordering`` decorator so strict
+    The ValueSet class uses the ``total_ordering`` decorator so strict
     subsets, supersets and strict supersets are also available via the ``<``,
     ``>=``, and ``>`` operators respectively, despite the lack of magic
     functions for them.

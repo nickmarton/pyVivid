@@ -1,4 +1,4 @@
-"""Interval module."""
+"""interval module."""
 
 from copy import deepcopy
 

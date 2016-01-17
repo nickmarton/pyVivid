@@ -1,4 +1,4 @@
-"""Attribute System class."""
+"""attribute_system module."""
 
 from copy import deepcopy
 from functools import total_ordering
@@ -9,9 +9,38 @@ from attribute_structure import AttributeStructure
 
 @total_ordering
 class AttributeSystem(object):
-    """Class for Attribute System."""
+    """
+    AttributeSystem class composed of an AttributeStructure and set of objects.
+
+    The AttributeSystem class uses the ``total_ordering`` decorator so
+    strict subsets, supersets and strict supersets are also available via the
+    ``<``, ``>=``, and ``>`` operators respectively, despite the lack of magic
+    functions for them.
+
+    :ivar attribute_structure: The AttributeStructure of the AttributeSystem.
+    :ivar objects: The objects of the AttributeSystem; held as a list of \
+    ``str``\s.
+    :ivar _is_AttributeSystem: An identifier to use in place of type or \
+    isinstance.
+    """
+
     def __init__(self, A, objects):
-        """Construct AttributeSystem object."""
+        """
+        Construct AttributeSystem object.
+
+        :param A: an AttributeStructure object to use as the attribute \
+        structure of the AttributeSystem object.
+        :type  A: AttributeStructure
+        :param objects: A list of ``str``\s denoting the objects of the \
+        AttributeSystem.
+        :type  objects: list
+
+        :raises TypeError: ``objects`` parameter must be a ``list`` and ``A`` \
+        parameter must be an AttributeStructure object.
+        :raises ValueError: all objects provided in ``objects`` parameter \
+        must be unique non-empty ``str``\s.
+        """
+
         # Enforce objects as list of strings
         if not isinstance(objects, list):
             raise TypeError("objects parameter must be of type list")
@@ -37,7 +66,10 @@ class AttributeSystem(object):
         self._is_AttributeSystem = True
 
     def __eq__(self, other):
-        """Implement == for AttributeSystem's."""
+        """
+        Determine if two AttributeSystem objects are equal via ``==`` operator.
+        """
+
         c_astr = self._attribute_structure == other._attribute_structure
         c_objs = set(self._objects) == set(other._objects)
         if c_astr and c_objs:
@@ -46,7 +78,11 @@ class AttributeSystem(object):
             return False
 
     def __le__(self, other):
-        """Implement <= operator for AttributeSystem; overloaded for subset."""
+        """
+        Determine if this AttributeSystem is a subset of the AttributeSystem
+        contained in ``other`` parameter via ``<=`` operator.
+        """
+
         c_astr = self._attribute_structure <= other._attribute_structure
         c_objs = set(self._objects) <= set(other._objects)
         if c_astr and c_objs:
@@ -55,11 +91,28 @@ class AttributeSystem(object):
             return False
 
     def __ne__(self, other):
-        """Implement != for AttributeSystem's."""
+        """
+        Determine if two AttributeSystem objects are equal via ``!=`` operator.
+        """
+
         return not self.__eq__(other)
 
     def __add__(self, other):
-        """Implement + for AttributeSystem's."""
+        """
+        Add an Attribute, Relation, AttributeStructure, or AttributeSystem
+        object via the ``+`` operator.
+
+        :param other: The object to combine with the AttributeSystem. \
+        An AttributeSystem is always returned regardless of the type of \
+        ``other`` parameter.
+        :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
+
+        :raises TypeError: ``other`` parameter must be an Attribute, \
+        Relation, AttributeStructure, or AttributeSystem object.
+        :raises ValueError: Cannot add AttributeSystems with overlapping \
+        objects.
+        """
+
         self_copy = deepcopy(self)
         other_copy = deepcopy(other)
 
@@ -91,7 +144,23 @@ class AttributeSystem(object):
         return self_copy
 
     def __sub__(self, other):
-        """Implement - for AttributeSystem's."""
+        """
+        Remove an Attribute, Relation, AttributeStructure, or AttributeSystem
+        object via the ``-`` operator. In the case of AttributeStructure and
+        AttributeSystem objects, remove all of their consituent parts from this
+        AttributeSystem.
+
+        :param other: The object to remove from the AttributeSystem. \
+        An AttributeSystem is always returned regardless of the type of \
+        ``other`` parameter.
+        :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
+
+        :raises TypeError: ``other`` parameter must be an Attribute, \
+        Relation, AttributeStructure, or AttributeSystem object.
+        :raises ValueError: Cannot remove objects not present in this \
+        AttributeSystem.
+        """
+
         self_copy = deepcopy(self)
         other_copy = deepcopy(other)
 
@@ -125,33 +194,85 @@ class AttributeSystem(object):
         return self_copy
 
     def __iadd__(self, other):
-        """Implement += operator for AttributeSystem."""
+        """
+        Add an Attribute, Relation, AttributeStructure, or AttributeSystem
+        object via the ``+=`` operator.
+
+        :param other: The object to combine with the AttributeSystem. \
+        An AttributeSystem is always returned regardless of the type of \
+        ``other`` parameter.
+        :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
+
+        :raises TypeError: ``other`` parameter must be an Attribute, \
+        Relation, AttributeStructure, or AttributeSystem object.
+        :raises ValueError: Cannot add AttributeSystems with overlapping \
+        objects.
+        """
+
         return self.__add__(other)
 
     def __isub__(self, other):
-        """Implement -= for AttributeSystem."""
+        """
+        Remove an Attribute, Relation, AttributeStructure, or AttributeSystem
+        object via the ``-=`` operator. In the case of AttributeStructure and
+        AttributeSystem objects, remove all of their consituent parts from this
+        AttributeSystem.
+
+        :param other: The object to remove from the AttributeSystem. \
+        An AttributeSystem is always returned regardless of the type of \
+        ``other`` parameter.
+        :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
+
+        :raises TypeError: ``other`` parameter must be an Attribute, \
+        Relation, AttributeStructure, or AttributeSystem object.
+        :raises ValueError: Cannot remove objects not present in this \
+        AttributeSystem.
+        """
+
         return self.__sub__(other)
 
-    def __getitem__(self, obj):
-        """Implement indexing for AttributeSystem."""
+    def __getitem__(self, key):
+        """
+        Retrieve a reference to the Attribute, Relation, or object in the
+        AttributeSystem via the key provided.
+
+        :param key: The Attribute, Relation or name of the object to get the \
+        reference of from this AttributeSystem.
+        :type  key: Attribute|Relation|str
+
+        :raises TypeError: ``str`` in ``key`` does not match any object \
+        contained in this AttributeSystem.
+        """
+
         # Handle removing an Attribute
-        if hasattr(obj, "_is_Attribute"):
-            return self._attribute_structure[obj]
+        if hasattr(key, "_is_Attribute"):
+            return self._attribute_structure[key]
         # Handle removing a Relation
-        elif hasattr(obj, "_is_Relation"):
-            return self._attribute_structure[obj]
+        elif hasattr(key, "_is_Relation"):
+            return self._attribute_structure[key]
         # Handle removing a list of objects or an object string
         else:
-            if isinstance(obj, str):
-                if obj in self._objects:
-                    return self._objects[self._objects.index(obj)]
+            if isinstance(key, str):
+                if key in self._objects:
+                    return self._objects[self._objects.index(key)]
             else:
                 raise TypeError(
                     "Only strings (refering to objects), Attributes, and "
                     "Relations may index an AttributeSystem")
 
     def __contains__(self, key):
-        """Implement in for AttributeSystem."""
+        """
+        Determine if Attribute, Relation, AttributeStructure, or ``str`` in \
+        ``key`` parameter is contained by this AttributeSystem via ``in`` \
+        operator.
+
+        :param key: The key to use when checking for membership.
+        :type  key: Attribute|Relation|AttributeStructure|str
+
+        :raises TypeError: ``key`` must be an Attribute object, \
+        Relation object, AttributeStructure object, or ``str``.
+        """
+
         # Handle removing an Attribute
         if hasattr(key, "_is_Attribute"):
             return key in self._attribute_structure
@@ -171,27 +292,40 @@ class AttributeSystem(object):
                     "for membership in an AttributeSystem")
 
     def __deepcopy__(self, memo):
-        """Return a deep copy of this AttributeSystem object."""
+        """
+        Deepcopy an AttributeSystem object via the ``copy.deepcopy`` method.
+        """
+
         objects_copy = deepcopy(self._objects)
         attribute_structure_copy = deepcopy(self._attribute_structure)
         return AttributeSystem(attribute_structure_copy, objects_copy)
 
     def get_power(self):
-        """Get power of this AttributeSystem, i.e., n * |A|."""
+        """
+        Get power of this AttributeSystem, i.e.,
+        *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`.
+        """
+
         return len(self._objects) * self._attribute_structure.get_cardinality()
 
     def __str__(self):
-        """Return human-readable string representation of AttributeSystem."""
+        """
+        Return a readable string representation of the AttributeSystem object.
+        """
+
         asys_str = '({' + ''.join([s_i + ', ' for s_i in self._objects])[:-2]
         asys_str += '} ; ' + str(self._attribute_structure) + ')'
         return asys_str
 
     def __repr__(self):
-        """Machine representation of this AttributeSystem; same as str()."""
+        """
+        Return a string representation of the AttributeSystem object.
+        """
+
         return self.__str__()
 
     def is_automorphic(self):
-        """Determine if Attribute System is automorphic."""
+        """Determine if this Attribute System is automorphic."""
         from valueset import ValueSet
         # Check if any object is a subset of value set of any attribute
         for s in self._objects:

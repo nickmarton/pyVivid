@@ -320,10 +320,9 @@ def test___contains__():
     assert a in astr
     assert R1 in astr
     assert "a" in astr
-    assert "R1" in astr
+    assert 1 in astr
     assert "" not in astr
     test_TypeError(astr, None)
-    test_TypeError(astr, 1)
     test_TypeError(astr, 1.0)
     test_TypeError(astr, [])
     test_TypeError(astr, object)

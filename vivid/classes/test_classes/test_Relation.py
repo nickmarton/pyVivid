@@ -82,28 +82,6 @@ def test___add__():
     assert astr_r1_a1_a2 == r1 + astr_a1_a2
 
 
-def test___iadd__():
-    """Test += operator."""
-    from vivid.classes.attribute import Attribute
-    from vivid.classes.attribute_structure import AttributeStructure
-
-    a1 = Attribute("a1", [])
-    r1 = Relation("R1(a) <=> ", ["a1"], 1)
-    astr_a1 = AttributeStructure(a1)
-    astr_a1_copy = AttributeStructure(a1)
-    astr_a1_r1 = AttributeStructure(a1, r1)
-
-    # test adding Relation to AttributeStructure
-    astr_a1 += r1
-    assert astr_a1_r1 == astr_a1
-    assert hasattr(r1, "_is_Relation")
-    # test implicit conversion of Relation into AttributeStructure
-    r1 += astr_a1_copy
-    assert astr_a1_r1 == r1
-    assert not hasattr(r1, "_is_Relation")
-    assert hasattr(r1, "_is_AttributeStructure")
-
-
 def test___deepcopy__():
     """."""
     """Test copy.deepcopy functionality of Attribute object."""
