@@ -163,6 +163,7 @@ def test___or__():
 
     i1, i2 = Interval(-200, 1000), Interval(50, 100)
     assert i1 | i2 == Interval(-200, 1000)
+    assert i1 | i1 == i1
     i1, i2 = Interval(0, 10), Interval(50, 100)
     test_ValueError(i1, i2)
     i1, i2 = Interval(0, 55), Interval(50, 100)

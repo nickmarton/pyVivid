@@ -1,11 +1,11 @@
 """
-ValueSet class.
+valueset module.
 
 Supports any object provided they implement
-__deepcopy__, __eq__, __str__, __hash__,
+``__deepcopy__``, ``__eq__``, ``__str__``, ``__hash__``,
 and provide a parser for truth value evaluation.
-Additionally, __le__ in ValueSet must be extended to support the object if the
-object uses a non-standard form of equality,
+Additionally, ``__le__`` in ValueSet class must be extended to support the
+object if the object uses a non-standard form of equality,
 (e.g. Point objects are subset of generic Point of same dimension).
 """
 
@@ -20,20 +20,40 @@ from point import Point
 
 @total_ordering
 class ValueSet(object):
-    """ValueSet object."""
+    """
+    ValueSet object.
+
+    The ValueSet classes uses the ``total_ordering`` decorator so strict
+    subsets, supersets and strict supersets are also available via the ``<``,
+    ``>=``, and ``>`` operators respectively, despite the lack of magic
+    functions for them.
+
+    :cvar _base_types: The literal types supported by the ValueSet class.
+    :cvar _object_types: The object types supported by the ValueSet class.
+    :ivar values: The values contained in the ValueSet object.
+    :ivar _is_ValueSet: An identifier to use in place of type or isinstance.
+    """
 
     _base_types = [int, float, long, str, bool]
     _object_types = ["_is_Interval", "_is_Point"]
 
     @classmethod
     def add_object_type(cls, object_identifier):
-        """Add compatibility for object."""
+        """
+        Add compatibility for an object to the ValueSet class.
+        This is part of the vivid object extension protocol.
+
+        :param object_identifier: The identifier used by each instance of a \
+        class. This must be of the form: \"_is_Object\" \
+        (e.g. ``_is_Point`` or ``_is_Interval``).
+        :type  object_identifier: str
+        """
         # Ensure object identifiers are strings
         if not isinstance(object_identifier, str):
             raise TypeError("Object identifier's must be strings")
-        import re
 
         # Ensure they have the correct form
+        import re
         if not re.match("_is_[A-Za-z]", object_identifier):
             raise ValueError(
                 "object identifier must be of form _is_[object name]")
@@ -43,7 +63,17 @@ class ValueSet(object):
             cls._object_types.append(object_identifier)
 
     def __init__(self, valueset):
-        """Construct a ValueSet object."""
+        """
+        Construct a ValueSet object.
+
+        :param valueset: The values to place in the ValueSet object. These \
+        values are passed through the ``_parse`` function before being stored.
+        :type  valueset: list|set
+
+        :raises TypeError: ``valueset`` parameter must be a python ``list`` \
+        or ``set``.
+        """
+
         if not isinstance(valueset, list) and not isinstance(valueset, set):
             raise TypeError("valueset parameter must be of type list or set")
         # Save parsed output
@@ -51,13 +81,21 @@ class ValueSet(object):
         self._is_ValueSet = True
 
     def __eq__(self, other):
-        """Implement == for ValueSet object."""
+        """
+        Determine if two ValueSet objects are equal via the ``==`` operator.
+        """
+
         union = set(self._values) | set(other._values)
         intersection = set(self._values) & set(other._values)
         return union == intersection
 
     def __le__(self, other):
-        """Implement <= for ValueSet object; overloaded for subset."""
+        """
+        Overloaded ``<=`` operator for ValueSet object. Determine if this
+        ValueSet object is a subset of the ValueSet object contained in
+        ``other`` parameter.
+        """
+
         self_dict = ValueSet._split_by_types(self)
         other_dict = ValueSet._split_by_types(other)
 
@@ -73,7 +111,8 @@ class ValueSet(object):
                             break
                     else:
                         filtered_self_values.append(value)
-            # Handle point related stuff
+            # Handle point related stuff; speicfically handled hear for
+            # generic point support
             elif _type == "_is_Point":
                 for value in values:
                     for point in other_dict["_is_Point"]:
@@ -97,14 +136,17 @@ class ValueSet(object):
         return intersection == set(new_self_values)
 
     def __ne__(self, other):
-        """Implement != for ValueSet object."""
+        """
+        Determine if two ValueSet objects are equal via the ``!=`` operator.
+        """
+
         return not self.__eq__(other)
 
     def __add__(self, other):
         """
-        Implement + operator for ValueSet.
-        Take the union of two ValueSets or add a single element to Valueset.
-        If adding an object, the object must be within _object_types.
+        Overloaded ``+`` operator for ValueSet. Take the union of two ValueSets
+        or add a single element to this Valueset. If adding an object, the
+        object must be within ``_object_types``.
         """
 
         if hasattr(other, "_is_ValueSet"):
@@ -119,14 +161,18 @@ class ValueSet(object):
             return ValueSet(new_values)
 
     def __iadd__(self, other):
-        """Implement += for ValueSet."""
+        """
+        Overloaded ``+=`` for ValueSet. Take the union of two ValueSets
+        or add a single element to this Valueset. If adding an object, the
+        object must be within ``_object_types``.
+        """
+
         return self.__add__(other)
 
     def __sub__(self, other):
         """
-        Implement - operator for ValueSet.
-
-        Overloaded to be set theoretic difference.
+        Overloaded ``-`` operator for ValueSet. This functions as the
+        set-theoretic difference.
         """
 
         def resolve_intervals(intervals, other_type_lists):
@@ -377,7 +423,18 @@ class ValueSet(object):
         return ValueSet(output_set)
 
     def __getitem__(self, key):
-        """implement indexing for ValueSet object."""
+        """
+        Retrive the value located at the index given by ``key`` parameter via
+        indexing (e.g. ``ValueSet[key]``).
+
+        :param key: The index to use for retrieval.
+        :type  key: int
+
+        :raises IndexError: ``key`` index must be in {0,\ :math:`\ldots`, *n*-1} \
+        where *n* is the number of values contained in the ValueSet object.
+        :raises TypeError: ``key`` must be an int.
+        """
+
         if type(key) != int:
             raise TypeError("indicies must be of type int")
         if key in range(len(self._values)):
@@ -386,7 +443,13 @@ class ValueSet(object):
             raise IndexError("Invalid index: " + str(key))
 
     def __contains__(self, key):
-        """Implement "in" operator for ValueSet."""
+        """
+        Overloaded ``in`` operator for ValueSet. Determine if a value is
+        contained in this ValueSet object.
+
+        :param key: the item to test for membership in this ValueSet.
+        """
+
         for value in self:
             try:
                 is_equal = key == value
@@ -397,16 +460,39 @@ class ValueSet(object):
         return False
 
     def __len__(self):
-        """Implement len() for ValueSet."""
+        """
+        Determine the length of a ValueSet object via the ``len`` built-in
+        function e.g.(``len(ValueSet)``).
+        """
+
         return len(self._values)
 
     def __iter__(self):
-        """Implement iterator for ValueSet."""
+        """
+        Provides an iterator for ValueSet
+        (e.g. \"``for value in ValueSet:``\").
+        """
+
         for value in self._values:
             yield value
 
     def __setitem__(self, key, value):
-        """Implement mutability (assignment) for ValueSet object."""
+        """
+        Assign a value in ``value`` parameter to a ValueSet object at the index
+        given by ``key`` parameter (e.g. ``ValueSet[key] = value``).
+
+        :param key: The index to use for assignment.
+        :type  key: int
+        :param value: The value to assign at index given by ``key``.
+
+        :raises AttributeError: An invalid/unsupported object is given as \
+        ``value`` parameter.
+        :raises IndexError: ``key`` index must be in {0,\ :math:`\ldots`, *n*-1} \
+        where *n* is the number of values contained in the ValueSet object.
+        :raises TypeError: ``key`` must be an int.
+        :raises ValueError: Duplicate values are not allowed in a ValueSet.
+        """
+
         if type(key) != int:
             raise TypeError("indicies must be of type int")
         # ensure value is not a duplicate
@@ -434,27 +520,55 @@ class ValueSet(object):
             raise IndexError("Invalid index: " + str(key))
 
     def __nonzero__(self):
-        """Define boolean behavior."""
+        """
+        Determine if a ValueSet is falsy
+        (e.g. ``if ValueSet`` or ``if not ValueSet``).
+        """
+
         if self._values:
             return True
         else:
             return False
 
     def __deepcopy__(self, memo):
-        """Implement copy.deepcopy for ValueSet object."""
+        """
+        Deepcopy a ValueSet object via the ``copy.deepcopy`` method.
+        """
+
         return ValueSet(deepcopy(self._values))
 
     def __str__(self):
-        """Human readable representation of ValueSet object."""
+        """
+        Return a readable string representation of a ValueSet object with the
+        following form: \"V(v\ :sub:`1`\ , :math:`\ldots` ,v\ :sub:`n`\)\".
+        """
+
         return "V(" + ', '.join([str(i) for i in self._values]) + ")"
 
     def __repr__(self):
-        """Machine representation of ValueSet object."""
+        """
+        Return a string representation of a ValueSet object with the
+        following form: \"V(v\ :sub:`1`\ , :math:`\ldots` ,v\ :sub:`n`\)\".
+        """
+
         return self.__str__()
 
     @staticmethod
     def _split_by_types(values):
-        """Split valueset by types of elements within it."""
+        """
+        Split an iterable object by the types of elements within it and return
+        a defaultdict where keys are the types composing the iterable object
+        and the values are lists of the values of the iterable object falling
+        into those types.
+
+        :param values: An iterable object to split.
+        :type  values: list|set|ValueSet|...
+
+        :raises AttributeError: Only objects contianing a single identifier \
+        in ``_object_types`` are supported.
+        :raises TypeError: An invalid type exists in the iterable object.
+        """
+
         # initialize a dictionary to separate types
         from collections import defaultdict
         type_lists = defaultdict(list)
@@ -492,7 +606,15 @@ class ValueSet(object):
 
     @staticmethod
     def _parse(values):
-        """Parse a list into standard format."""
+        """
+        Parse a list into the standard format used by ValueSet objects.
+        Any ints, longs, and floats are absorbed into an Interval object if
+        they are contained by that Interval and the base types contained in
+        ``values`` are sorted.
+
+        :raises TypeError: ``values`` parameter must be either a python \
+        ``list`` or ``set``.
+        """
 
         def _extend_intervals(type_lists):
             """

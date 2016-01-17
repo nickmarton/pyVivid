@@ -1,4 +1,4 @@
-"""Attribute Class."""
+"""attribute module."""
 
 from copy import deepcopy
 from valueset import ValueSet
@@ -6,18 +6,28 @@ from valueset import ValueSet
 
 class Attribute(object):
     """
-    Class for Attribute i.e., set containing single elements, subsets
-    or containuous ranges of integers or decimals.
+    Attribute Class, i.e., a finite set *A* with an associated label *l*.
 
-    attributes:
-    label: name of Attribute (e.g. size), always a string
-    value_set: set of values that the attribute can take on
-    (e.g {small,large}) taken as a list and parsed into the standard
-    format defined by ValueSet class.
+    :ivar label: the associated label *l* of the Attribute *A*.
+    :ivar value_set: the set of values that the attribute can take on \
+    (e.g {small,large}).
+    :ivar _is_Attribute: An identifier to use in place of type or isinstance.
     """
 
     def __init__(self, label, value_set):
-        """Initialize an Attribute object."""
+        """
+        Construct an Attribute object.
+
+        :param label: The label *l* to associate with the Attribute object.
+        :type  label: str
+
+        :param value_set: The set of values the Attribute can take on.
+        :type  value_set: list|ValueSet
+
+        :raises TypeError: label parameter must be a string and value_set \
+        parameter must be either a ValueSet object or a list.
+        """
+
         # type checking before anything
         if not isinstance(label, str):
             raise TypeError("l parameter must be a string")
@@ -35,8 +45,7 @@ class Attribute(object):
 
     def __eq__(self, other):
         """
-        Determine if self Attribute object is equivalent to other
-        Attribute object.
+        Determine if two Attribute objects are equal via the ``==`` operator.
         """
 
         label_condition = self._label == other._label
@@ -48,16 +57,26 @@ class Attribute(object):
             return False
 
     def __ne__(self, other):
-        """Determine if this Attribute is not equivalent to other Attribute."""
+        """
+        Determine if two Attribute objects are not equal via the ``!=`` operator.
+        """
+
         return not self.__eq__(other)
 
     def __add__(self, other):
         """
-        Overloaded + operator.
+        Combine an Attribute object with another Attribute object, \
+        a Relation object, an AttributeStructure object or an AttributeSystem \
+        object via the ``+`` operator.
 
-        Combine this Attribute and another Attribute, Relation,
-        AttributeStructure into an AttributeStructure or combine it with an
-        AttributeSystem.
+        :param other: The object to combine with the Attribute. \
+        If an Attribute, Relation, or AttributeStructure object is provided, \
+        an AttributeStructure object is returned; if an AttributeSystem \
+        object is provided, an AttributeSystem is returned.
+        :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
+
+        :raises TypeError: other parameter must be an Attribute, Relation, \
+        AttributeStructure, or AttributeSystem object.
         """
 
         from attribute_structure import AttributeStructure
@@ -84,25 +103,31 @@ class Attribute(object):
                 "be added to an Attribute object.")
 
     def __deepcopy__(self, memo):
-        """Implement copy.deepcopy for Attribute object."""
+        """
+        Deepcopy an Attribute object via the ``copy.deepcopy`` method.
+        """
+
         return Attribute(deepcopy(self._label), deepcopy(self._value_set))
 
     def __str__(self):
-        "human-readable representation of attribute; 'label: {...}'."
+        "Return a readable string representation of the Attribute object with the \
+        following form: \
+        \"*label:* {v\ :sub:`1`\ , :math:`\ldots` ,v\ :sub:`n`\ }.\""
         return self._label + ': ' + '{' + ''.join(
             [str(i) + ',' for i in self._value_set])[:-1] + '}'
 
     def __repr__(self):
-        """Machine readable string repr; same as __str__."""
+        "Return a string representation of the Attribute object with the \
+        following form: \
+        \"*label:* {v\ :sub:`1`\ , :math:`\ldots` ,v\ :sub:`n`\ }.\""
         return "\"" + self.__str__() + "\""
 
     def _key(self):
         """Private key function for hashing."""
-        # Tuple key; not a permanent solution
         return (self._label, str(self._value_set))
 
     def __hash__(self):
-        """Hash implementation for set comparison of Attributes."""
+        """Hash implementation for set functionality of Attribute objects."""
         return hash(self._key())
 
 
