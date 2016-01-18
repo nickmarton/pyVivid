@@ -108,7 +108,8 @@ class Interval(object):
 
     def __ne__(self, other):
         """
-        Determine if two Interval objects are equal via the ``!=`` operator.
+        Determine if two Interval objects are not equal via the ``!=``
+        operator.
         """
 
         return not self.__eq__(other)

@@ -91,7 +91,7 @@ class Vocabulary(object):
 
     def __ne__(self, other):
         """
-        Determine if two Vocabulary objects are equal via ``!=`` operator.
+        Determine if two Vocabulary objects are not equal via ``!=`` operator.
         """
 
         return not self.__eq__(other)

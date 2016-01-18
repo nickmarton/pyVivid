@@ -80,7 +80,7 @@ def test___eq__():
     assert s == s1 == s2
 
 
-def test___lt__():
+def test_total_ordering():
     """Test < operator overloaded for proper extension."""
     color = Attribute("color", ['R', 'G', 'B'])
     size = Attribute("size", ['S', 'M', 'L'])
@@ -96,12 +96,25 @@ def test___lt__():
         ('size', 's1'): ['M'],
         ('size', 's2'): ['L', 'S']}
 
-    s1 = State(asys, ascr)
+    ascr2 = {
+        ('color', 's1'): ['R'],
+        ('color', 's2'): ['G'],
+        ('size', 's1'): ['M'],
+        ('size', 's2'): ['L', 'S']}
 
-    s_empty = State(AttributeSystem(AttributeStructure(), []))
+    s1 = State(asys, ascr)
+    s2 = State(asys, ascr2)
 
     assert not s < s
+    assert not s > s
     assert s1 < s
+    assert s1 <= s
+    assert s > s1
+    assert s >= s1
+    assert s2 < s1 < s
+    assert s2 <= s2 <= s1 <= s1 <= s <= s
+    assert s > s1 > s2
+    assert s >= s >= s1 >= s1 >= s2 >= s2
 
 
 def test___le__():

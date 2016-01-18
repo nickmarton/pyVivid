@@ -195,7 +195,7 @@ def test___deepcopy__():
     assert named_state._ascriptions is not named_state_copy._ascriptions
 
 
-def test___lt__():
+def test_total_ordering():
     """Test < operator for NamedState; overloaded for proper extension."""
     def test_TypeError(self, other):
         """Test NamedState < operator for TypeErrors."""
@@ -235,13 +235,26 @@ def test___lt__():
     test_TypeError(named_state, None)
 
     assert not named_state < named_state
+    assert not named_state > named_state
     # test superset p
     assert named_state_1 < named_state
+    assert named_state_1 <= named_state
+    assert named_state > named_state_1
+    assert named_state >= named_state_1
     # test subset ascriptions
     assert named_state_2 < named_state
+    assert named_state_2 <= named_state
+    assert named_state > named_state_2
+    assert named_state >= named_state_2
     # test both and chaining
     assert named_state_4 < named_state_3 < named_state_1 < named_state
+    assert named_state_4 <= named_state_3 <= named_state_1 <= named_state
+    assert named_state > named_state_1 > named_state_3 > named_state_4
+    assert named_state >= named_state_1 >= named_state_3 >= named_state_4
     assert named_state_4 < named_state_3 < named_state_2 < named_state
+    assert named_state_4 <= named_state_3 <= named_state_2 <= named_state
+    assert named_state > named_state_2 > named_state_3 > named_state_4
+    assert named_state >= named_state_2 >= named_state_3 >= named_state_4
 
 
 def test___le__():

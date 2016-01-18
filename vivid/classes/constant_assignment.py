@@ -32,7 +32,7 @@ class ConstantAssignment(Assignment):
         """
         Construct a ConstantAssignment object.
 
-        :param vocabulary: The Vocabulary the Assignment is defined over.
+        :param vocabulary: The Vocabulary the ConstantAssignment is defined over.
         :type  vocabulary: Vocabulary
         :param attribute_system: The AttributeSystem from which the objects \
         in the Assignment come from.
@@ -103,8 +103,8 @@ class ConstantAssignment(Assignment):
 
     def __ne__(self, other):
         """
-        Determine if two ConstantAssignment objects are equal via the ``!=``
-        operator.
+        Determine if two ConstantAssignment objects are not equal via the
+        ``!=`` operator.
         """
 
         return not self.__eq__(other)

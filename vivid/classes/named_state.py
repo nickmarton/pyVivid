@@ -1,10 +1,12 @@
 """Named State class."""
 
+from functools import total_ordering
 from state import State
 from constant_assignment import ConstantAssignment
 from variable_assignment import VariableAssignment
 
 
+@total_ordering
 class NamedState(State):
     """
     Class for named state;
@@ -62,32 +64,6 @@ class NamedState(State):
             deepcopy(self._p),
             deepcopy(self._ascriptions))
 
-    def __lt__(self, other):
-        """Implement overloaded < operator for NamedState proper extension."""
-        if not hasattr(other, "_is_NamedState"):
-            raise TypeError('other parameter must be of type NamedState')
-
-        same_attr_systems = self._attribute_system == other._attribute_system
-        same_vocabularies = self._p._vocabulary == other._p._vocabulary
-
-        # not same AttributeSystem or Vocabulary, not an extension
-        if not same_attr_systems or not same_vocabularies:
-            return False
-
-        # if this State is an extension of other State
-        if self <= other:
-            self_state = State(self._attribute_system, self._ascriptions)
-            other_state = State(other._attribute_system, other._ascriptions)
-
-            # if this State is a proper extension of other State or this
-            # ConstantAssignment is a proper superset of other
-            # ConstantAssignment, this NamedState is a proper extension of
-            # other NamedState
-            if self_state < other_state or self._p > other._p:
-                return True
-
-        return False
-
     def __le__(self, other):
         """Implement overloaded <= operator for NamedState extension."""
         if not hasattr(other, "_is_NamedState"):
@@ -103,6 +79,9 @@ class NamedState(State):
         self_state = State(self._attribute_system, self._ascriptions)
         other_state = State(other._attribute_system, other._ascriptions)
 
+        # if this State is an extension of other State or this
+        # ConstantAssignment is a superset of other ConstantAssignment,
+        # this NamedState is an extension of other NamedState
         if self_state <= other_state and self._p >= other._p:
             return True
         else:

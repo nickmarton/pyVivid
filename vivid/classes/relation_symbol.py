@@ -53,7 +53,7 @@ class RelationSymbol(object):
 
     def __ne__(self, other):
         """
-        Determine if two RelationSymbol objects are equal via the ``!=``
+        Determine if two RelationSymbol objects are not equal via the ``!=``
         operator.
         """
 

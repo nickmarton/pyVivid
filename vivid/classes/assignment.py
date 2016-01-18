@@ -57,7 +57,8 @@ class Assignment(object):
 
     def __ne__(self, other):
         """
-        Determine if two Assignment objects are equal via the ``!=`` operator.
+        Determine if two Assignment objects are not equal via the ``!=``
+        operator.
         """
 
         return not self.__eq__(other)

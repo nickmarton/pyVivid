@@ -10,7 +10,9 @@ from functools import total_ordering
 class AttributeStructure(Attribute):
     """
     AttributeStructure class composed of Attribute and Relation objects,
-    i.e., :math:`\mathcal{A}` = ({*A*\ :sub:`1`\, :math:`\ldots` , \
+    i.e.,
+
+    .. centered:: :math:`\mathcal{A}` = ({*A*\ :sub:`1`\, :math:`\ldots` , \
     *A*\ :sub:`k`\}; :math:`\mathcal{R}`)
 
     The AttributeStructure class uses the ``total_ordering`` decorator so
@@ -137,8 +139,8 @@ class AttributeStructure(Attribute):
 
     def __ne__(self, other):
         """
-        Determine if two AttributeStructure objects are equal via the ``!=``
-        operator.
+        Determine if two AttributeStructure objects are not equal via the
+        ``!=`` operator.
         """
 
         return not self.__eq__(other)

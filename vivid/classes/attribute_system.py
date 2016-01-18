@@ -10,7 +10,11 @@ from attribute_structure import AttributeStructure
 @total_ordering
 class AttributeSystem(object):
     """
-    AttributeSystem class composed of an AttributeStructure and set of objects.
+    AttributeSystem class composed of an AttributeStructure and set of objects,
+    i.e.,
+
+    .. centered:: :math:`\mathcal{S} =` \
+    ({*s*\ :sub:`1`, :math:`\ldots`, *s*\ :sub:`n`}; :math:`\mathcal{A}`)
 
     The AttributeSystem class uses the ``total_ordering`` decorator so
     strict subsets, supersets and strict supersets are also available via the
@@ -92,7 +96,8 @@ class AttributeSystem(object):
 
     def __ne__(self, other):
         """
-        Determine if two AttributeSystem objects are equal via ``!=`` operator.
+        Determine if two AttributeSystem objects are not equal via ``!=``
+        operator.
         """
 
         return not self.__eq__(other)

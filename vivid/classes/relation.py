@@ -99,15 +99,16 @@ class Relation(object):
 
     def __ne__(self, other):
         """
-        Determine if two Relation objects are equal via the ``!=`` operator.
+        Determine if two Relation objects are not equal via the ``!=``
+        operator.
         """
 
         return not self.__eq__(other)
 
     def __add__(self, other):
         """
-        Combine a Relation object with an Attribute object, \
-        an AttributeStructure object or an AttributeSystem object via the \
+        Combine a Relation object with an Attribute object,
+        an AttributeStructure object or an AttributeSystem object via the
         ``+`` operator.
 
         :param other: The object to combine with the Attribute. \
