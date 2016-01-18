@@ -24,8 +24,8 @@ class Attribute(object):
         :param value_set: The set of values the Attribute can take on.
         :type  value_set: list|ValueSet
 
-        :raises TypeError: label parameter must be a string and value_set \
-        parameter must be either a ValueSet object or a list.
+        :raises TypeError: ``label`` parameter must be a string and \
+        ``value_set`` parameter must be either a ValueSet object or a list.
         """
 
         # type checking before anything
@@ -123,7 +123,13 @@ class Attribute(object):
         return "\"" + self.__str__() + "\""
 
     def _key(self):
-        """Private key function for hashing."""
+        """
+        Private key function for hashing.
+
+        :return: 2-tuple consisting of (label, valueset)
+        :rtype: ``tuple``
+        """
+
         return (self._label, str(self._value_set))
 
     def __hash__(self):

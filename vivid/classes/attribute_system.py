@@ -304,6 +304,10 @@ class AttributeSystem(object):
         """
         Get power of this AttributeSystem, i.e.,
         *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`.
+
+        :return: power of the AttributeSystem: \
+        *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`
+        :rtype: ``int``
         """
 
         return len(self._objects) * self._attribute_structure.get_cardinality()
@@ -325,7 +329,14 @@ class AttributeSystem(object):
         return self.__str__()
 
     def is_automorphic(self):
-        """Determine if this Attribute System is automorphic."""
+        """
+        Determine if this Attribute System is automorphic.
+
+        :return: Whether or not this AttributeSystem is automorphic; i.e., \
+        some object is contained by one of the ValueSets of the Attributes.
+        :rtype: ``bool``
+        """
+
         from valueset import ValueSet
         # Check if any object is a subset of value set of any attribute
         for s in self._objects:

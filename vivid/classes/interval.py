@@ -215,7 +215,13 @@ class Interval(object):
         return Interval(self._infimum, self._supremum)
 
     def _key(self):
-        """Private key function for hashing."""
+        """
+        Private key function for hashing.
+
+        :return: 2-tuple consisting of (infimum, supremum)
+        :rtype: ``tuple``
+        """
+
         return (self._infimum, self._supremum)
 
     def __hash__(self):
@@ -229,6 +235,10 @@ class Interval(object):
         :param jump: The jump to use after each value. Defaults to ``1``, \
         ``1.0`` and ``1`` for int, float, and long Intervals respectively.
         :type  jump: None|int|float|long
+
+        :return: list of discrete values contained in this Interval with a \
+        step size of ``jump``\.
+        :rtype: ``list``
 
         :raises TypeError: if a jump is provided, it must be an int, float, \
         or long and match the type of this Interval.
@@ -283,6 +293,9 @@ class Interval(object):
 
         :param intervals: A list of intervals to collapse.
         :type  intervals: list
+
+        :return: A new list totally disjoint collapsed Intervals.
+        :rtype: ``list``
         """
 
         def can_collapse(lis):

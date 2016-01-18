@@ -19,7 +19,7 @@ class AttributeStructure(Attribute):
     functions for them.
 
     :ivar attributes: list of Attribute objects (i.e., {*A*\ :sub:`1`\, \
-    :math:`\ldots` , *A*\ :sub:`k`\}); always maintained as a list
+    :math:`\ldots` , *A*\ :sub:`k`\}); always maintained as a list.
     :ivar relations: dictionary of relations (i.e., :math:`\mathcal{R}`).
     :ivar _is_AttributeStructure: An identifier to use in place of type or \
     isinstance.
@@ -345,7 +345,8 @@ class AttributeStructure(Attribute):
         :raises KeyError: Attribute or Relation provided in ``key`` not found \
         in AttributeStructure or no Relation with subscript provided in \
         ``key`` found in AttributeStructure.
-        :raises TypeError: ``key`` is not an Attribute, Relation, int, or str.
+        :raises TypeError: ``key`` is not an Attribute, Relation, ``int``, or \
+        ``str``.
         :raises ValueError: no Attribute has label provided in ``key`` or \
         no Relation has subscript provided in ``key``.
         """
@@ -449,15 +450,36 @@ class AttributeStructure(Attribute):
         return AttributeStructure(*ops_copy)
 
     def get_labels(self):
-        """Return labels of Attributes within this AttributeStructure."""
+        """
+        Return labels of Attributes within this AttributeStructure.
+
+        :return: list of labels of Attribute objects in this \
+        AttributeStructure.
+        :rtype: ``list``
+        """
+
         return [a._label for a in self._attributes]
 
     def get_subscripts(self):
-        """Return subscripts of Relations within this AttributeStructure."""
+        """
+        Return subscripts of Relations within this AttributeStructure.
+
+        :return: list of subscripts of Relation objects in this \
+        AttributeStructure.
+        :rtype: ``list``
+        """
+
         return self._relations.keys()
 
     def get_cardinality(self):
-        """Return cardinality of this AttributeStructure."""
+        """
+        Return cardinality of this AttributeStructure.
+
+        :return: The cardinality of the AttributeStructure, i.e., the amount \
+        of Attribute objects.
+        :rtype: ``int``
+        """
+
         return len(self._attributes)
 
     def __str__(self):

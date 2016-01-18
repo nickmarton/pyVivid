@@ -183,12 +183,15 @@ class Relation(object):
 
     def get_DR(self, string=False):
         """
-        Return *D*\(*R*\) of relation.
-        If string is set to True, return string representation of *D*\(*R*\).
+        Return *D*\(*R*\) of relation. If string is set to True, return string
+        representation of *D*\(*R*\).
 
         :param string: boolean for whether or not to return string \
         representation of *D*\(*R*\)
         :type  string: boolean
+
+        :return: A representation of *D*\(*R*\)
+        :rtype: ``str`` or ``list``
         """
 
         if string:
@@ -232,7 +235,12 @@ class Relation(object):
         self._DR = DR
 
     def get_arity(self):
-        """Return arity of this Relation object."""
+        """
+        Return arity of this Relation object.
+
+        :return: length of *D*\(*R*\).
+        :rtype: ``int``
+        """
         return len(self._DR)
 
     @staticmethod
@@ -249,6 +257,9 @@ class Relation(object):
 
         :param definition: The definition to verify.
         :type  definition: str
+
+        :return: whether or not ``definition`` is valid.
+        :rtype: ``bool``
         """
 
         # Remove whitespace

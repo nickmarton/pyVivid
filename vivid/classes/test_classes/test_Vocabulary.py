@@ -41,6 +41,8 @@ def test___init__():
     assert vocab._R is not R
     assert vocab._V is not V
 
+    test_ValueError(['C', 'C'], [], [])
+    test_ValueError([], [], ['V', 'V'])
     test_ValueError(C, R_bad, V)
 
 

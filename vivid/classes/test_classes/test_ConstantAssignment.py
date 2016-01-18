@@ -98,7 +98,7 @@ def test___ne__():
     assert A1 != A5
 
 
-def test___lt__():
+def test_total_ordering():
     """Test overloaded < subset operator for ConstantAssignment."""
     vocabulary1 = Vocabulary(
         ['C1', 'C2', 'C3'], [RelationSymbol('R', 1)], ['V'])
@@ -126,8 +126,13 @@ def test___lt__():
     CA5 = ConstantAssignment(vocabulary1, attribute_system1, mapping5)
 
     assert not CA1 < CA1
+    assert CA1 <= CA1
+    assert not CA1 > CA1
+    assert CA1 >= CA1
     assert CA1 < CA2
+    assert CA2 > CA1
     assert CA1 < CA2 < CA3
+    assert CA3 > CA2 > CA1
     assert not CA1 < CA4
     assert not CA4 < CA1
     assert not CA5 < CA2
@@ -363,9 +368,9 @@ def test_in_conflict():
     CA2 = ConstantAssignment(vocabulary, attribute_system, mapping2)
     CA3 = ConstantAssignment(vocabulary, attribute_system, mapping3)
 
-    assert not ConstantAssignment.in_conflict(CA, CA)
-    assert not ConstantAssignment.in_conflict(CA, CA2)
-    assert ConstantAssignment.in_conflict(CA, CA3)
+    assert not CA.in_conflict(CA)
+    assert not CA.in_conflict(CA2)
+    assert CA.in_conflict(CA3)
 
 
 def test___str__():

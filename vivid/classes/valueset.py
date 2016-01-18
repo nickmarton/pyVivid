@@ -21,7 +21,7 @@ from point import Point
 @total_ordering
 class ValueSet(object):
     """
-    ValueSet object.
+    ValueSet class.
 
     The ValueSet class uses the ``total_ordering`` decorator so strict
     subsets, supersets and strict supersets are also available via the ``<``,
@@ -430,8 +430,9 @@ class ValueSet(object):
         :param key: The index to use for retrieval.
         :type  key: int
 
-        :raises IndexError: ``key`` index must be in {0,\ :math:`\ldots`, *n*-1} \
-        where *n* is the number of values contained in the ValueSet object.
+        :raises IndexError: ``key`` index must be in \
+        {0,\ :math:`\ldots`, *n*-1} where *n* is the number of values \
+        contained in the ValueSet object.
         :raises TypeError: ``key`` must be an int.
         """
 
@@ -564,6 +565,11 @@ class ValueSet(object):
         :param values: An iterable object to split.
         :type  values: list|set|ValueSet|...
 
+        :return: defaultdict of lists where keys correspond to \
+        ``ValueSet._base_type`` and ``ValueSet._object_types`` present in \
+        ``values`` parameter.
+        :rtype: ``defaultdict(list)``
+
         :raises AttributeError: Only objects contianing a single identifier \
         in ``_object_types`` are supported.
         :raises TypeError: An invalid type exists in the iterable object.
@@ -611,6 +617,9 @@ class ValueSet(object):
         Any ints, longs, and floats are absorbed into an Interval object if
         they are contained by that Interval and the base types contained in
         ``values`` are sorted.
+
+        :return: filtered, sorted values in a standard format.
+        :rtype: ``list``
 
         :raises TypeError: ``values`` parameter must be either a python \
         ``list`` or ``set``.

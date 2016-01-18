@@ -73,7 +73,13 @@ class Point(object):
         return Point(*self._coordinate)
 
     def _key(self):
-        """Private key function for hashing."""
+        """
+        Private key function for hashing.
+
+        :return: d-tuple consisting of coordinates
+        :rtype: tuple
+        """
+
         return self._coordinate
 
     def __getitem__(self, key):
@@ -126,6 +132,9 @@ class Point(object):
 
         :raises ValueError: The Point and the endpoints must all be in the \
         same dimension of space and no point involved can be generic.
+
+        :return: whether or not this Point lies on line segment.
+        :rtype: ``bool``
         """
 
         def distance(p1, p2):
@@ -155,6 +164,9 @@ class Point(object):
         """
         Determine if this Point and Point contained in ``other`` parameter are
         the same.
+
+        :return: whether or not this Point is equal to Point in ``other``.
+        :rtype: ``bool``
         """
 
         return self.__ne__(other)
@@ -163,6 +175,10 @@ class Point(object):
         """
         Determine if the clocks of two spacetime locations are unequal
         wherein the last coordinate of represents time.
+
+        :return: whether or not this Point's last coordinate is equal to the \
+        last coordinate of the Point in ``other``.
+        :rtype: ``bool``
 
         :raises ValueError: Dimensions of Point contained in other parameter \
         and this Point must match.
@@ -181,6 +197,10 @@ class Point(object):
 
         :raises ValueError: The Point and the worldine endpoints must all be \
         in the same dimension of space and no point involved can be generic.
+
+        :return: whether or not this Point can observe ``spacetime_loc`` \
+        through worldine defined by ``worldline_start`` and ``worldline_end``.
+        :rtype: ``bool``
         """
 
         p1_on_l = self.is_on(worldline_start, worldline_end)
@@ -204,6 +224,9 @@ class Point(object):
         ``worldline_2_start`` and ``worldline_2_end`` Points meet at
         this Point object's coordinates.
 
+        :return: whether or not worldines meet at this Point's coordinates.
+        :rtype: ``bool``
+
         :raises ValueError: The Point and the worldine endpoints must all be \
         in the same dimension of space and no point involved can be generic.
         """
@@ -220,6 +243,9 @@ class Point(object):
     def unstringify(point_string):
         """
         Reconstruct a Point object from its string representation.
+
+        :return: Point object reconstructed from string representation.
+        :rtype: Point
 
         :raises ValueError: The string must match the form given by \
         ``str(Point)`` or ``repr(Point)``, i.e., \

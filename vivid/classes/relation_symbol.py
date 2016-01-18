@@ -1,19 +1,27 @@
-"""Relation Symbol class."""
+"""relation_symbol module."""
 
 
 class RelationSymbol(object):
     """
-    Class for Relation Symbols consisting of a name and an arity;
+    Relation Symbols class for Vocabularies.
 
-    this class is intended to be a helper class for Vocabulary as later
-    on airty is required in addition to a name of a relation in Vocabulary
-
-    name:   a string designating the name of the relation symbol.
-    arity:  an integer designating the arity of the relation symbol.
+    :ivar name: a ``str`` designating the name of the RelationSymbol object.
+    :ivar arity: an ``int`` designating the arity of the RelationSymbol object.
     """
 
     def __init__(self, name, arity):
-        """Initialize a RelationSymbol object with name and arity."""
+        """
+        Construct a RelationSymbol object.
+
+        :param name: The name of the RelationSymbol object.
+        :type  name: ``str``
+        :param arity: The arity of the RelationSymbol object.
+        :type  arity: ``int``
+
+        :raises TypeError: ``name`` parameter must be a ``str`` and ``arity`` \
+        parameter must be an ``int``\.
+        :raises ValueError: ``arity`` must be positive.
+        """
 
         if not isinstance(name, str):
             raise TypeError('name parameter must be of type str')
@@ -30,7 +38,11 @@ class RelationSymbol(object):
         self._is_RelationSymbol = True
 
     def __eq__(self, other):
-        """Implement == operator for RelationSymbol object."""
+        """
+        Determine if two RelationSymbol objects are equal via the ``==``
+        operator.
+        """
+
         name_cond = self._name == other._name
         arity_cond = self._arity == other._arity
 
@@ -40,27 +52,46 @@ class RelationSymbol(object):
             return False
 
     def __ne__(self, other):
-        """Implement != operator for RelationSymbol object."""
+        """
+        Determine if two RelationSymbol objects are equal via the ``!=``
+        operator.
+        """
+
         return not self.__eq__(other)
 
     def __deepcopy__(self, memo):
-        """Implement copy.deepcopy for RelationSymbol object."""
+        """
+        Deepcopy a RelationSymbol object via the ``copy.deepcopy`` method.
+        """
+
         from copy import deepcopy
         return RelationSymbol(deepcopy(self._name), deepcopy(self._arity))
 
     def _key(self):
-        """Tuple key for hash function."""
+        """
+        Private key function for hashing.
+
+        :return: 2-tuple consisting of (``name``, ``arity``)
+        :rtype: tuple
+        """
+
         return (self._name, self._arity)
 
     def __hash__(self):
-        """Hash so sets can use RelationSymbol's."""
+        """
+        Hash implementation for set functionality of RelationSymbol objects.
+        """
+
         return hash(self._key())
 
     def __str__(self):
-        """Implement str(RelationSymbol)."""
+        """
+        Return a readable string representation of a RelationSymbol object.
+        """
+
         name_str = self._name
         return name_str
 
     def __repr__(self):
-        """Implement str(RelationSymbol)."""
+        """Return a string representation of a RelationSymbol object."""
         return self.__str__()

@@ -1,17 +1,30 @@
-"""Assignment base class."""
+"""assignment module."""
 
 
 class Assignment(object):
-    """This is a superclass for generic assignments."""
+    """
+    Assignment superclass for constant/variable assignments.
+
+    :ivar vocabulary: a reference to the Vocabulary object the Assignment is \
+    defined over.
+    :ivar attribute_system: a copy of the AttributeSystem the Assignment \
+    originates from.
+    :ivar _is_Assignment: An identifier to use in place of type or isinstance.
+    """
 
     def __init__(self, vocabulary, attribute_system):
         """
-        Initialize a base Assignment with a mapping from some
-        vocabulary to a set of objects while keeping a copy of the
-        vocabulary and objects themselves.
+        Construct a base Assignment.
 
-        Raise TypeError if vocabulary parameter is not of type Vocabulary,
-        or attribute_system parameter is not of type AttributeSystem.
+        :param vocabulary: The Vocabulary the Assignment is defined over.
+        :type  vocabulary: Vocabulary
+        :param attribute_system: The AttributeSystem from which the objects \
+        in the Assignment come from.
+        :type  attribute_system: AttributeSystem
+
+        :raises TypeError: ``vocabulary`` parameter must be a Vocabulary \
+        object and ``attribute_system`` parameter must be an AttributeSystem \
+        object.
         """
 
         from copy import deepcopy
@@ -29,7 +42,10 @@ class Assignment(object):
         self._is_Assignment = True
 
     def __eq__(self, other):
-        """Implement == for Assignment object."""
+        """
+        Determine if two Assignment objects are equal via the ``==`` operator.
+        """
+
         vocabulary_cond = self._vocabulary == other._vocabulary
         objects_cond = self._attribute_system._objects == \
             other._attribute_system._objects
@@ -40,5 +56,8 @@ class Assignment(object):
             return False
 
     def __ne__(self, other):
-        """Implement != for Assignment object."""
+        """
+        Determine if two Assignment objects are equal via the ``!=`` operator.
+        """
+
         return not self.__eq__(other)
