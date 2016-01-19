@@ -29,7 +29,7 @@ def thinning(context, named_state, assumption_base=None,
     context :math:`(\{F_{1}, \ldots, F_{n}\};(\sigma;\\rho))` and named state
     :math:`(\sigma^{\prime};\\rho^{\prime})`, that is
     :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{n}\}} \
-    (\sigma^{\prime};\\rho^{\prime})`, holds.
+    (\sigma^{\prime};\\rho^{\prime})`, holds to show that thinning holds.
 
     :param context: The Context object :math:`(\\beta;(\sigma;\\rho))`.
     :type  context: Context
@@ -112,77 +112,97 @@ def widening(context, named_state, attribute_interpretation=None):
 
 def observe(context, formula, attribute_interpretation):
     """
-    Determine if a given Formula can be observed in a given Context w.r.t. an
-    AttributeInterpretation.
+    Determine if a Formula object *F* given by ``formula`` parameter can be
+    observed in a Context object :math:`(\\beta;(\sigma;\\rho))` given by
+    ``context`` parameter, using the AttributeInterpretation object in the
+    ``attribute_interpretation`` parameter to interpret truth values, i.e.,
+    determine if **observe** *F* holds in :math:`(\\beta;(\sigma;\\rho))`.
+
+    :param context: The Context object in which the Formula object can \
+    potentially be observed.
+    :type  context: Context
+    :param formula: The (potentially) observable Formula object.
+    :type  formula: Formula
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use to interpet truth values in the ``context`` and ``formula`` parameters.
+    :type  attribute_interpretation: AttributeInterpretation
+
+    :return: Whether or not **observe** *F* holds in \
+    :math:`(\\beta;(\sigma;\\rho))`, that is, whether or not \
+    :math:`(\\beta;(\sigma;\\rho)) \models F`.
+    :rtype: ``bool``
     """
 
     return context.entails_formula(formula, attribute_interpretation)
 
 
-def diagrammatic_absurdity(context, named_state, attribute_interpretation,
-                           variable_assignment=None):
-    """Verify that NamedState named_state can be obtained from Context context by
-    absurdity, i.e., there is some Formula in the Context's AssumptionBase that
-    is False for every world derivable from the Context's NamedState w.r.t. the
-    AttributeInterpretation and (optionally the VariableAssignment) provided.
+def diagrammatic_absurdity(context, named_state, attribute_interpretation):
     """
+    Verify that the NamedState object in the ``named_state`` parameter can be
+    obtained from the Context object in the ``context`` parameter by absurdity,
+    using the AttributeInterpretation object provided in the
+    ``attribute_interpretation`` parameter to interpet truth values.
+
+    To show :math:`(\sigma^{\prime};\\rho^{\prime})` **by absurdity**, we must
+    show :math:`(\\beta \cup \{\\textbf{false}\}; (\sigma;\\rho)) \
+    \models (\sigma^{\prime};\\rho^{\prime})`.
+
+    By lemma 20, :math:`(\\beta \cup \{\\textbf{false}\}; (\sigma;\\rho)) \
+    \models (\sigma^{\prime};\\rho^{\prime})`, thus it suffices to show that
+    a call to ``entails_named_state`` with context
+    :math:`(\\beta;(\sigma;\\rho))` and named state
+    :math:`(\sigma^{\prime};\\rho^{\prime})`, that is,
+    :math:`(\\beta;(\sigma;\\rho)) \models (\sigma^{\prime};\\rho^{\prime})`
+    holds, implicitly assuming that some :math:`F \in \\beta` evaulates
+    to **false** (as then no world can satisify the context, i.e., for any
+    world :math:`(w; \widehat{\\rho})` derivable from the context
+    :math:`(\\beta;(\sigma;\\rho))`,
+    :math:`(w; \widehat{\\rho}) \\not\models_{\chi} (\\beta;(\sigma;\\rho))`
+    and thus ``entails_named_state`` will always hold yielding
+    :math:`(\sigma^{\prime};\\rho^{\prime})` **by absurdity** regardless of
+    the NamedState object :math:`(\sigma^{\prime};\\rho^{\prime})` provided in
+    the ``named_state`` parameter)
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))`.
+    :type  context: Context
+    :param named_state: The NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})`.
+    :type  named_state: NamedState
+    :param attribute_interpretation:
+    :type  attribute_interpretation: AttributeInterpretation
+
+    :return: Whether or not :math:`(\sigma^{\prime};\\rho^{\prime})` \
+    **by absurdity**, that is, whether or not :math:`(\\beta;(\sigma;\\rho)) \
+    \models (\sigma^{\prime};\\rho^{\prime})` holds.
+    :rtype: ``bool``
+
+    :raises TypeError: ``context`` parameter must be a Context object and \
+    ``named_state`` parameter must be a NamedState object.
+    """
+
     if not hasattr(context, "_is_Context"):
         raise TypeError("context parameter must be a Context object.")
 
     if not hasattr(named_state, "_is_NamedState"):
         raise TypeError("named_state parameter must be a NamedState object.")
 
-    # Create a dummy VariableAssignment if one isn't provided
-    if not variable_assignment:
-        variable_assignment = VariableAssignment(
-            context._named_state._p._vocabulary,
-            context._named_state._attribute_system, {}, dummy=True)
-
-    # For each Formula in the Context's AssumptionBase, if a Formula always
-    # evaulates to False, absurdity holds
-    for formula in context._assumption_base:
-        truth_value = formula.assign_truth_value(attribute_interpretation,
-                                                 context._named_state,
-                                                 variable_assignment)
-        if truth_value is False:
-            return True
-
-    return False
-
-
-def sentential_absurdity(context, formula, attribute_interpretation,
-                         variable_assignment=None):
-    """Verify that NamedState named_state can be obtained from Context context by
-    absurdity, i.e., there is some Fomrula in the Context's AssumptionBase that
-    is False for every world derivable from the Context's NamedState w.r.t. the
-    AttributeInterpretation and (optionally the VariableAssignment) provided.
-    """
-    if not hasattr(context, "_is_Context"):
-        raise TypeError("context parameter must be a Context object.")
-
-    if not hasattr(formula, "_is_Formula"):
-        raise TypeError("formula parameter must be a Formula object.")
-
-    # Create a dummy VariableAssignment if one isn't provided
-    if not variable_assignment:
-        variable_assignment = VariableAssignment(
-            context._named_state._p._vocabulary,
-            context._named_state._attribute_system, {}, dummy=True)
-
-    # For each Formula in the Context's AssumptionBase, if a Formula always
-    # evaulates to False, absurdity holds
-    for formula in context._assumption_base:
-        truth_value = formula.assign_truth_value(attribute_interpretation,
-                                                 context._named_state,
-                                                 variable_assignment)
-        if truth_value is False:
-            return True
-
-    return False
+    return context.entails_named_state(named_state, attribute_interpretation)
 
 
 def diagram_reiteration(context):
-    """Perform Diagram Reiteration to retrieve the current diagram."""
+    """
+    Perform Diagram Reiteration to retrieve the current diagram, i.e., from
+    lemma 19: :math:`(\\beta;(\sigma;\\rho)) \models (\sigma;\\rho)`.
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` from \
+    which to retrieve the current NamedState object :math:`(\sigma;\\rho)`.
+    :type  context: Context
+
+    :return: The NamedState object :math:`(\sigma;\\rho)` of the Context \
+    object :math:`(\\beta;(\sigma;\\rho))` in ``context`` parameter.
+    :rtype: NamedState
+    """
+
     return context._named_state
 
 

@@ -20,7 +20,6 @@ from vivid.classes.vocabulary import Vocabulary
 
 from vivid.classes.inference_rules import thinning, widening, observe
 from vivid.classes.inference_rules import diagrammatic_absurdity
-from vivid.classes.inference_rules import sentential_absurdity
 from vivid.classes.inference_rules import diagram_reiteration
 from vivid.classes.inference_rules import sentential_to_sentential
 from vivid.classes.inference_rules import diagrammatic_to_diagrammatic
