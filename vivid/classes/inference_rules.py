@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module intends to provide the rules of diagrammatic inference."""
+"""This module provides the rules of diagrammatic inference."""
 
 from formula import Formula
 from assumption_base import AssumptionBase
@@ -10,10 +10,47 @@ from variable_assignment import VariableAssignment
 def thinning(context, named_state, assumption_base=None,
              attribute_interpretation=None):
     """
-    Verify that named_state can be obtained by thinning from the NamedState
-    contained in Context w.r.t. the AssumptionBase formed by assumption_base.
+    Verify that NamedState object in ``named_state`` parameter can be obtained
+    by thinning from the NamedState object contained in Context object in
+    ``context`` parameter w.r.t. the AssumptionBase object given by the
+    ``assumption_base`` parameter, using the AttributeInterpretation object in
+    the ``attribute_interpretation`` parameter to interpret truth values.
 
-    By Corollary 26, is_named_entailment suffices to show thinning holds.
+    By Corollary 26, if
+    :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{n}\}} \
+    (\sigma^{\prime};\\rho^{\prime})`
+    then
+    :math:`(\{F_{1}, \ldots, F_{n}\}; (\sigma; \\rho)) \models \
+    (\sigma^{\prime};\\rho^{\prime})`.
+
+    Then, by weakening, :math:`(\\beta \cup \{F_{1}, \ldots, F_{n}\}; \
+    (\sigma; \\rho)) \models (\sigma^{\prime};\\rho^{\prime})` and thinning
+    holds, thus it suffices to show that a call to ``entails_named_state`` with
+    context :math:`(\{F_{1}, \ldots, F_{n}\};(\sigma;\\rho))` and named state
+    :math:`(\sigma^{\prime};\\rho^{\prime})`, that is
+    :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{n}\}} \
+    (\sigma^{\prime};\\rho^{\prime})`, holds.
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))`.
+    :type  context: Context
+    :param named_state: The NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})`
+    :type  named_state: NamedState
+    :param assumption_base: The set of Formula objects to thin with \
+    :math:`\{F_{1},\ldots, F_{n}\}` if thinning is to be done with any \
+    Formula (i.e., :math:`n > 0`), otherwise ``None``.
+    :type  assumption_base: AssumptionBase | ``None``
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use to interpret truth values if :math:`n > 0`, otherwise ``None``.
+    :type  attribute_interpretation: AttributeInterpretation | ``None``
+
+    :return: Whether or not thinning holds, i.e., the result of \
+    :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{n}\}} \
+    (\sigma^{\prime};\\rho^{\prime})`
+    :rtype: ``bool``
+
+    :raises TypeError: ``context`` parameter must be a Context object and \
+    ``named_state`` parameter must be a NamedState object.
     """
 
     if not hasattr(context, "_is_Context"):
@@ -29,22 +66,36 @@ def thinning(context, named_state, assumption_base=None,
     else:
         proviso = context._named_state.is_named_entailment(
             assumption_base, attribute_interpretation, named_state)
-
-        if not proviso:
-            raise ValueError("Thinning Proviso does not hold")
-
-        extended_context = Context(assumption_base, context._named_state)
-        if extended_context.entails_named_state(
-                named_state, attribute_interpretation):
-            return True
-        else:
-            return False
+        return proviso
 
 
 def widening(context, named_state, attribute_interpretation=None):
     """
-    Verify that NamedState named_state can be obtained from Context context by
-    widening.
+    Verify that NamedState object in ``named_state`` parameter can be obtained
+    from Context object in ``context`` parameter by widening, using the
+    AttributeInterpretation object in the ``attribute_interpretation``
+    parameter to interpret truth values.
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))`.
+    :type  context: Context
+    :param named_state: The NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})`
+    :type  named_state: NamedState
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use to interpret truth values if widening should consider the \
+    AssumptionBase object of the ``context`` parameter, otherwise ``None``.
+    :type  attribute_interpretation: AttributeInterpretation | ``None``
+
+    :return: Whether or not NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})` in ``named_state`` parameter can \
+    be obtained from Context object :math:`(\\beta;(\sigma;\\rho))` in \
+    ``context`` parameter can be obtained by widening, i.e., \
+    whether or not \
+    :math:`(\\beta;(\sigma;\\rho)) \models (\sigma^{\prime};\\rho^{\prime})`
+    :rtype: ``bool``
+
+    :raises TypeError: ``context`` parameter must be a Context object and \
+    ``named_state`` parameter must be a NamedState object.
     """
 
     if not hasattr(context, "_is_Context"):
@@ -138,7 +189,7 @@ def diagram_reiteration(context):
 def sentential_to_sentential(context, F1, F2, G, attribute_interpretation,
                              variable_assignment=None):
     """
-    Verify that in the case of a disjunction F1 ∨ F2 holding a Context entails
+    Verify that in the case of a disjunction :math:`F_{1} \lor F_{2}` holding a Context entails
     Formula G either way w.r.t. and AttributeInterpretation.
     """
 
@@ -175,10 +226,10 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
                                  attribute_interpretation, variable_assignment,
                                  *formulae):
     """
-    Verify that on the basis of the present diagram and some formulas F1,...,Fk
+    Verify that on the basis of the present diagram and some formulas :math:`F_{1}, \ldots, F_{k}`
     contained in formulae, k >= 0, that for each named_state
-    (σ1; ρ1),...,(σn; ρn), n > 0, contained in named_states, a named state
-    (σ'; ρ') can be derived in every one of these n cases.
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`, n > 0, contained in named_states, a named state
+    (\sigma^{\prime}; \\rho^{\prime}) can be derived in every one of these n cases.
 
     This is rule [C1].
     """
@@ -223,7 +274,7 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
                                attribute_interpretation,
                                variable_assignment=None):
     """
-    Verify that in the case of a disjunction F1 ∨ F2 holding a Context entails
+    Verify that in the case of a disjunction :math:`F_{1} \lor F_{2}` holding a Context entails
     NamedState named_state either way w.r.t. and AttributeInterpretation.
 
     This is rule [C2].
@@ -282,10 +333,10 @@ def diagrammatic_to_sentential(context, F, named_states,
                                attribute_interpretation, variable_assignment,
                                *formulae):
     """
-    Verify that on the basis of the present diagram and some formulas F1,...,Fk
+    Verify that on the basis of the present diagram and some formulas :math:`F_{1}, \ldots, F_{k}`
     contained in formulae, k >= 0, that for each named_state
-    (σ1; ρ1),...,(σn; ρn), n > 0, contained in named_states, a named state
-    (σ'; ρ') can be derived in every one of these n cases.
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`, n > 0, contained in named_states, a formula
+    F can be derived in every one of these n cases.
 
     This is rule [C3].
     """

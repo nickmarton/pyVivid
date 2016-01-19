@@ -11,6 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+
+.. automodule:: inference_rules
+    :members:
+    :exclude-members: main
+
 .. automodule:: assignment
  
 .. autoclass:: Assignment
