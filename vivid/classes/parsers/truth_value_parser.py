@@ -1,42 +1,41 @@
-"""
-This class is a simple extension of the parser designed by Paul McGuire
-for the evaluation of mathematical expressions.
+"""truth_value_parser module."""
 
-The LogicoMathematicalTruthParser is designed to parse predicate logic
-sentences that involve mathematical expressions
-e.g. '(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)'
- """
 from __future__ import division
 from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group,
                        Optional, ZeroOrMore, Forward, nums, alphas, oneOf)
 import math
 import operator
 
+# BNF:
+# expop       ::   '^'
+# multop      ::   '*' | '/'
+# addop       ::   '+' | '-'
+# relop       ::   '=' | '>' | '<' | '<=' | '>='
+# negop       ::   '!'
+# logop       ::   'and' | 'or'
+# integer     ::   ['+' | '-'] '0'..'9'+
+# atom        ::   PI | E | True | False | real | fn '(' expr ')' | '(' expr ')'
+# factor      ::   atom [ expop factor ]*
+# term        ::   factor [ multop factor ]*
+# expr        ::   term [ addop term ]*
+# relation    ::   expr [relop expr]*
+# negation    ::   [negop]* + relation
+# sentence    ::   negation [logop negation]*
+
 
 class TruthValueParser(object):
     """
-    Parsing function for entirely mathematical strings to be used
-    in assign_truth_value.
+    TruthValueParser class. TruthValueParser provides parsing functionality for
+    entirely mathematical/logical strings.
+
+    :ivar _is_Parser: An identifier to use in place of type or isinstance.
     """
 
     negations = []
 
     def __init__(self):
         """
-        expop       ::   '^'
-        multop      ::   '*' | '/'
-        addop       ::   '+' | '-'
-        relop       ::   '=' | '>' | '<' | '<=' | '>='
-        negop       ::   '!'
-        logop       ::   'and' | 'or'
-        integer     ::   ['+' | '-'] '0'..'9'+
-        atom        ::   PI | E | True | False | real | fn '(' expr ')' | '(' expr ')'
-        factor      ::   atom [ expop factor ]*
-        term        ::   factor [ multop factor ]*
-        expr        ::   term [ addop term ]*
-        relation    ::   expr [relop expr]*
-        negation    ::   [negop]* + relation
-        sentence    ::   negation [logop negation]*
+        Construct a TruthValueParser object.
         """
 
         point = Literal(".")
@@ -125,7 +124,10 @@ class TruthValueParser(object):
         self._is_Parser = True
 
     def __call__(self, *args):
-        """Implement callable for TruthValueParser object."""
+        """
+        Call TruthValueParser object (e.g., ``TruthValueParser(expression)``).
+        """
+
         return self._eval(*args)
 
     def pushFirst(self, strg, loc, toks):
@@ -184,9 +186,18 @@ class TruthValueParser(object):
         else:
             return float(op)
 
-    def _eval(self, num_string, parseAll=True):
+    def _eval(self, string):
+        """
+        Try to evaluate given string in ``string`` parameter.
+        (e.g.,"``(4 < 5 * cos(2 * PI) and 4*e^3 > 3 *(3 + 3))and!(2 < 3)``").
+
+        :param string: The expression to evaluate.
+        :type  string: ``str``
+        """
+
         self.exprStack = []
-        results = self.bnf.parseString(num_string, parseAll)
+        parseAll = True
+        results = self.bnf.parseString(string, parseAll)
         val = self.evaluate_stack(self.exprStack[:])
         return val
 
@@ -198,8 +209,9 @@ def main():
     lmtp = TruthValueParser()
     # result = lmtp(
     # '(!!(((-cos(2*pi) + 44^2) + (-cos(2*pi) + 44^2) ^ 1.5) > 1) and !!True) or 7>5^2')
-    result = lmtp(
-        '(4 < 5 * cos(2 * PI) and 4 * e^3 > 3 * 3 * (3 + 3)) and !!(2 < 3)')
+    expression = '(4<5 * cos(2 * PI) and 4*e^3 > 3 * 3 *(3+3))and!!(2 < 3)'
+    print expression
+    result = lmtp(expression)
     print result
 
     end_time = time.time()

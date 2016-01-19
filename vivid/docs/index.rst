@@ -62,6 +62,13 @@ Contents:
     :inherited-members:
     :show-inheritance:
 
+.. automodule:: context
+ 
+.. autoclass:: Context
+    :members:
+    :private-members:
+    :special-members: __init__, __eq__, __ne__, __str__, __repr__, __deepcopy__, entails_formula, entails_named_state
+
 .. automodule:: formula
  
 .. autoclass:: Formula
@@ -133,6 +140,28 @@ Contents:
     :members:
     :private-members:
     :special-members: __init__, __eq__, __ne__, __deepcopy__, __contains__, add_constant, add_variable, __str__, __repr__, __hash__
+
+.. automodule:: parser_set
+
+.. autoclass:: ParserSet
+    :members:
+    :private-members:
+    :special-members: __init__, __len__, __getitem__, __iter__
+
+.. automodule:: point_parser
+
+.. autoclass:: PointParser
+    :members:
+    :private-members:
+    :special-members: __init__, __call__, _eval
+
+.. automodule:: truth_value_parser
+
+.. autoclass:: TruthValueParser
+    :members:
+    :exclude-members: evaluate_stack, pushFirst, pushNeg, pushRel, pushUMinus
+    :private-members: _eval
+    :special-members: __init__, __call__
 
 Indices and tables
 ==================
