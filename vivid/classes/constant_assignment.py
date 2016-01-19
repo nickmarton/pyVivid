@@ -154,7 +154,7 @@ class ConstantAssignment(Assignment):
     def __deepcopy__(self, memo):
         """
         Deepcopy a ConstantAssignment object via the ``copy.deepcopy`` method.
-        This does not break the reference to ``vocabulary`` member.
+        This does not break the reference to the underlying Vocabulary object.
         """
 
         from copy import deepcopy

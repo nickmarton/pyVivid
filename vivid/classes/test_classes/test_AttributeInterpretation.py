@@ -294,7 +294,7 @@ def test___deepcopy__():
     ai_copy = deepcopy(ai)
     assert ai == ai_copy
     assert ai is not ai_copy
-    assert ai._vocabulary is not ai_copy._vocabulary
+    assert ai._vocabulary is ai_copy._vocabulary
     assert ai._attribute_structure is not ai_copy._attribute_structure
     assert ai._mapping is not ai_copy._mapping
     assert ai._profiles is not ai_copy._profiles

@@ -1,18 +1,37 @@
-"""AssumptionBase class."""
+"""assumption_base module."""
 
 from formula import Formula
 
 
 class AssumptionBase(object):
     """
-    Assumption base object.
+    AssumptionBase class.
 
-    Essentially this class is a container for a finite set of Formulae
-    over the same Vocabulary.
+    This class functions as a container for a finite set of Formulae over a
+    single Vocabulary, i.e., :math:`\\beta`.
+
+    :ivar formulae: The set of Formula objects contained in the \
+    AssumptionBase object.
+    :ivar vocabulary: The underlying Vocabulary object the AssumptionBase is \
+    defined over.
+    :ivar _is_AssumptionBase: An identifier to use in place of type or \
+    isinstance.
     """
 
     def __init__(self, *formulae):
-        """Construct an AssumptionBase object."""
+        """
+        Construct an AssumptionBase object.
+
+        :param formulae: Any amount of Formula objects or a single Vocabulary \
+        object if AssumptionBase no Formula objects are provided.
+        :type  formulae: Formula|Vocabulary
+
+        :raises TypeError: All optional positional arguments provided must be \
+        Formula objects or only a single Vocabulary object may be provided.
+        :raises ValueError: All Formula objects provided as optional \
+        positional arguments must share the same Vocabulary.
+        """
+
         self._formulae = []
 
         if formulae:
@@ -47,14 +66,18 @@ class AssumptionBase(object):
                 self._vocabulary = vocabulary
 
         else:
-            raise ValueError(
+            raise TypeError(
                 "AssumptionBase require either a Vocabulary or at least 1 "
                 "Formula")
 
         self._is_AssumptionBase = True
 
     def __eq__(self, other):
-        """Implement != operator for AssumptionBase objects."""
+        """
+        Determine if two AssumptionBase objects are equal via the ``==``
+        operator.
+        """
+
         if not hasattr(other, "_is_AssumptionBase"):
             raise TypeError(
                 "Can only compare an AssumptionBase object with "
@@ -73,11 +96,24 @@ class AssumptionBase(object):
         return intersection == union
 
     def __ne__(self, other):
-        """Implement != operator for AssumptionBase objects."""
+        """
+        Determine if two AssumptionBase objects are not equal via the ``!=``
+        operator.
+        """
+
         return not self.__eq__(other)
 
     def __add__(self, other):
-        """Implement + operator for AssumptionBase."""
+        """
+        Add all Formula objects in another AssumptionBase or a single Formula
+        object to an AssumptionBase object via the ``+`` operator.
+
+        :raises TypeError: Only Formula or AssumptionBase objects can be \
+        added to an AssumptionBase object.
+        :raises ValueError: Cannot add objects with different underlying \
+        Vocabulary objects and duplicate Formula objects are not permitted.
+        """
+
         from copy import deepcopy
         self_copy = deepcopy(self)
 
@@ -136,36 +172,69 @@ class AssumptionBase(object):
             "AssumptionBase")
 
     def __iadd__(self, other):
-        """Implement += for AssumptionBase object."""
+        """
+        Add all Formula objects in another AssumptionBase or a single Formula
+        object to this AssumptionBase object via the ``+`` operator.
+
+        :raises TypeError: Only Formula or AssumptionBase objects can be \
+        added to an AssumptionBase object.
+        :raises ValueError: Cannot add objects with different underlying \
+        Vocabulary objects and duplicate Formula objects are not permitted.
+        """
+
         return self + other
 
     def __str__(self):
-        """Implement str(AssumptionBase)."""
+        """
+        Return a readable string representation of the AssumptionBase object.
+        """
+
         return 'AB(' + ', '.join([str(f) for f in self._formulae]) + ')'
 
     def __repr__(self):
-        """Implement str(AssumptionBase)."""
+        """
+        Return a string representation of the AssumptionBase object.
+        """
+
         return self.__str__()
 
     def __len__(self):
-        """Implement len(AssumptionBase)."""
+        """
+        Determine the length of an AssumptionBase object via the ``len``
+        built-in function e.g.(``len(AssumptionBase)``).
+        """
+
         return len(self._formulae)
 
     def __getitem__(self, key):
-        """Implement indexing for AssumptionBase object."""
+        """
+        Retrive the Formula correspond to key given by ``key`` parameter via
+        indexing (e.g. ``AssumptionBase[key]``).
+
+        :param key: The key to use for indexing a Formula in the \
+        AssumptionBase.
+        :type  key: ``int`` | ``str`` | Formula
+
+        :raises IndexError: ``int`` key is out of range.
+        :raises KeyError: ``key`` parameter does not correspond to any \
+        Formula object in the AssumptionBase.
+        :raises TypeError: ``key`` parameter must be an ``int``, ``str``, or \
+        Formula object.
+        """
+
         if hasattr(key, "_is_Formula"):
             for i, formula in enumerate(self._formulae):
                 if key == formula:
                     return self._formulae[i]
             raise KeyError("Formula not found")
 
-        if type(key) == str:
+        if isinstance(key, str):
             for i, name in enumerate([f._name for f in self._formulae]):
                 if key == name:
                     return self._formulae[i]
             raise KeyError("Formula not found")
 
-        if type(key) == int:
+        if isinstance(key, int):
             try:
                 return self._formulae[key]
             except IndexError:
@@ -175,12 +244,24 @@ class AssumptionBase(object):
         raise TypeError("Invalid key type")
 
     def __iter__(self):
-        """Add an interator to the class for easy formula access."""
+        """
+        Provides an iterator for AssumptionBase
+        (e.g. \"``for formula in AssumptionBase:``\").
+        """
+
         for formula in self._formulae:
             yield formula
 
     def __contains__(self, item):
-        """Implement 'in' and 'not in' operator for AssumptionBase."""
+        """
+        Overloaded ``in`` operator for AssumptionBase. Determine if a formula
+        is contained in this AssumptionBase object.
+
+        :param key: The Formula object or name of Formula object to test for \
+        membership in this AssumptionBase.
+        :type  key: Formula | ``str``
+        """
+
         # Handle if item provided is a string; assume it's a Formula name
         if type(item) == str:
             names = [f._name for f in self._formulae]
@@ -196,7 +277,11 @@ class AssumptionBase(object):
         return False
 
     def __deepcopy__(self, memo):
-        """Implement copy.deepcopy for AssumptionBase."""
+        """
+        Deepcopy an AssumptionBase object via the ``copy.deepcopy`` method.
+        This does not break the reference to the underlying Vocabulary object.
+        """
+
         from copy import deepcopy
         # If the AssumptionBase has any formulae, copy like normal.
         # Otherwise, it's empty so we need to pass the Vocabulary

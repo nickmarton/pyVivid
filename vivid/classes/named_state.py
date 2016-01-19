@@ -84,6 +84,7 @@ class NamedState(State):
     def __deepcopy__(self, memo):
         """
         Deepcopy a NamedState object via the ``copy.deepcopy`` method.
+        This does not break the reference to the underlying Vocabulary object.
         """
 
         from copy import deepcopy

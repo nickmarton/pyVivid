@@ -269,3 +269,20 @@ def test_memory_binding():
     assert vocabulary is assumption_base._vocabulary
     assert vocabulary is context._named_state._p._vocabulary
     assert vocabulary is attribute_interpretation._vocabulary
+
+    from copy import deepcopy
+    p_copy = deepcopy(p)
+    X_copy = deepcopy(X)
+    s_copy = deepcopy(s)
+    f_copy = deepcopy(f)
+    assumption_base_copy = deepcopy(assumption_base)
+    context_copy = deepcopy(context)
+    attribute_interpretation_copy = deepcopy(attribute_interpretation)
+
+    assert vocabulary is p_copy._vocabulary
+    assert vocabulary is X_copy._vocabulary
+    assert vocabulary is s_copy._p._vocabulary
+    assert vocabulary is f_copy._vocabulary
+    assert vocabulary is assumption_base_copy._vocabulary
+    assert vocabulary is context_copy._named_state._p._vocabulary
+    assert vocabulary is attribute_interpretation_copy._vocabulary
