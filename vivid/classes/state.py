@@ -12,20 +12,18 @@ from attribute_system import AttributeSystem
 class State(object):
     """
     State class. Each State object is a state of an AttributeSystem; that is a
-    set of functions :math:`\sigma = \{\delta`\ :sub:`1`,
-    :math:`\ldots, \delta`\ :sub:`k`} where each :math:`\delta`\ :sub:`i` is a
-    function from {*s*\ :sub:`1`, :math:`\ldots`, *s*\ :sub:`n`} to the set of
-    all non-empty finite subsets of *A*\ :sub:`i`, i.e.,
+    set of functions :math:`\sigma = \{\delta_{1}`,
+    :math:`\ldots, \delta_{k}`} where each :math:`\delta_{i}` is a
+    function from :math:`\{s_{1}, \ldots, s_{n}\}` to the set of
+    all non-empty finite subsets of :math:`A_{i}`, i.e.,
 
-    .. centered:: :math:`\delta`\ :sub:`i` : \
-    {*s*\ :sub:`1`, :math:`\ldots`, *s*\ :sub:`n`} \
-    :math:`\\rightarrow \mathcal{P}`\ :sub:`fin`\(*A*\ :sub:`i`) \
-    :math:`\\textbackslash  \emptyset`.
+    .. centered:: :math:`\delta_{i} : \{s_{1}, \ldots, s_{n}\}` \
+    :math:`\\rightarrow \mathcal{P}_{fin} (A_{i}) \\textbackslash  \emptyset`.
 
     The State class uses the ``total_ordering`` decorator so
-    proper extensions and contravariant extensions and proper extensions
-    are also available via the ``<``, ``>=``, and ``>`` operators respectively,
-    despite the lack of magic functions for them.
+    proper extensions, contravariant extensions and contravariant proper
+    extensions are also available via the ``<``, ``>=``, and ``>`` operators
+    respectively, despite the lack of magic functions for them.
 
     :ivar attribute_system: A copy of the AttributeSytem object that the \
     State object comes from.
@@ -143,6 +141,14 @@ class State(object):
         Set an ascription, given by ``ao_pair`` parameter, of this State object
         to the ValueSet object provided in ``new_valueset`` parameter.
 
+        :param ao_pair: The attribute-object pair to use as a key for the \
+        ascription ``dict`` member.
+        :type  ao_pair: ``tuple``
+        :param new_valueset: The new ValueSet object to assign to the \
+        corresponding attribute-object pair given by the ``ao_pair`` \
+        paramater in the ascription member
+        :type  new_valueset: ValueSet
+
         :raise TypeError: ``ao_pair`` parameter must be a ``tuple`` and \
         ``new_valueset`` parameter must be a ``list``, ``set``, or ValueSet \
         object.
@@ -240,6 +246,12 @@ class State(object):
         Add an object to this State's AttributeSystem and optionally update any
         ascriptions provided.
 
+        :param obj: The new object to add to the State.
+        :type  obj: ``str``
+        :param ascriptions: The optional ValueSets to assign to \
+        attribute-object pairs corresponding to the new object.
+        :type  ascriptions: ``dict``
+
         :raises TypeError: ``obj`` parameter must be a non-empty ``str`` and \
         if ``ascriptions`` parameter is provided, it must be a ``dict``.
         :raises ValueError: Duplicate objects cannot be added and all \
@@ -291,10 +303,14 @@ class State(object):
 
     def is_valuation(self, label):
         """
-        Determine if ascription :math:`\delta`\ :sub:`i` corresponding to
-        ``label`` parameter is a valuation; that is \
-        :math:`\lvert \delta`\ :sub:`i`\ (*s*\ :sub:`j`)\ :math:`\lvert = 1` \
-        for every :math:`j = 1, \ldots, n`.
+        Determine if ascription :math:`\delta_{i}` corresponding to
+        ``label`` parameter is a valuation; that is
+        :math:`\lvert \delta_{i}(s_{j}) \lvert = 1` for every
+        :math:`j = 1, \ldots, n`.
+
+        :param label: The label corresponding to the :math:`\delta`\ :sub:`i` \
+        to check for valuation.
+        :type  label: ``str``
 
         :return: whether or not ascription corresponding to ``label`` is a \
         valuation.
@@ -316,7 +332,8 @@ class State(object):
 
     def is_world(self):
         """
-        Determine if this State is a world.
+        Determine if this State is a world; that is every ascription of this
+        :math:`\sigma` is a valuation.
 
         :return: Whether or not the State is a world.
         :rtype: ``bool``
@@ -396,12 +413,20 @@ class State(object):
         Determine if ``s_prime`` parameter is an alternate extension of this
         State object w.r.t. states provided by optional positional arguments
         of ``states`` parameter, i.e., evaluate
-        *Alt*\ (:math:`\sigma`, {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \
-        \sigma`\ :sub:`m`}, :math:`\sigma^{\prime}`).
+        *Alt*\ (:math:`\sigma, \{\sigma_{1}, \ldots, \
+        \sigma_{m}\}, \sigma^{\prime}`).
 
-        :return: the result of the evaluate of *Alt*\ (:math:`\sigma`, \
-        {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \sigma`\ :sub:`m`}, \
-        :math:`\sigma^{\prime}`).
+        :param s_prime: The State object to verify as the alternate \
+        extension, :math:`\sigma^{\prime}`
+        :type  s_prime: State
+        :param states: The states {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \
+        \sigma`\ :sub:`m`} to use for the derivation of the alternate \
+        extensions of this State.
+        :type  states: State
+
+        :return: the result of the evaluate of \
+        *Alt*\ (:math:`\sigma, \{\sigma_{1}, \ldots, \
+        \sigma_{m}\}, \sigma^{\prime}`).
         :rtype: ``bool``
 
         :raises TypeError: ``s_prime`` parameter must be a State object.
@@ -424,11 +449,16 @@ class State(object):
         """
         Return all alternate extensions of this State object with
         respect to states provided by optional positional arguments
-        of ``states`` parameter, i.e., generate **AE**\ ({:math:`\sigma`\ \
-        :sub:`1`, :math:`\ldots, \sigma`\ :sub:`m`}, :math:`\sigma^{\prime}`).
+        of ``states`` parameter, i.e., generate **AE**\ :math:`(\{\sigma_{1}, \
+        \ldots, \sigma_{m}\}, \sigma^{\prime})`.
 
-        :return: **AE**\ ({:math:`\sigma`\ :sub:`1`, :math:`\ldots, \sigma`\ \
-        :sub:`m`}, :math:`\sigma^{\prime}`).
+        :param states: The states {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \
+        \sigma`\ :sub:`m`} to use for the derivation of the alternate \
+        extensions of this State.
+        :type  states: State
+
+        :return: **AE**\ :math:`(\{\sigma_{1}, \
+        \ldots, \sigma_{m}\}, \sigma^{\prime})`.
         :rtype: ``list``
 
         :raises TypeError: all optional positional arguments must be State \
@@ -573,6 +603,11 @@ class State(object):
     def join(s1, s2):
         """
         Join two states if possible.
+
+        :param s1: The left operand to use for the union operation.
+        :type  s1: State
+        :param s2: The right operand to use for the union operation.
+        :type  s2: State
 
         :raises ValueError: ``s1`` and ``s2`` parameters must share the same \
         underlying AttributeSystem.

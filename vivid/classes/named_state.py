@@ -1,4 +1,4 @@
-"""Named State class."""
+"""named_state module."""
 
 from functools import total_ordering
 from state import State
@@ -9,21 +9,40 @@ from variable_assignment import VariableAssignment
 @total_ordering
 class NamedState(State):
     """
-    Class for named state;
+    NamedState class. Each state is a pair (:math:`\sigma;\\rho`) consisting
+    of a state :math:`\sigma` and a constant assignment :math:`\\rho`.
 
-    subclasses State and adds p (ConstantAssignment).
+    The NamedState class uses the ``total_ordering`` decorator so
+    proper extensions, contravariant extensions and contravariant proper
+    extensions are also available via the ``<``, ``>=``, and ``>`` operators
+    respectively, despite the lack of magic functions for them.
+
+    :ivar attribute_system: A copy of the AttributeSytem object that the \
+    NamedState object comes from.
+    :ivar ascriptions: The ascriptions of the named state, i.e., (the set of \
+    attribute-object pairs and their corresponding ValueSet objects)
+    :ivar p: The ConstantAssignment object of the named state.
+    :ivar _is_NamedState: An identifier to use in place of type or isinstance.
     """
 
     def __init__(self, attribute_system, p, ascriptions={}):
         """
-        Initialize a NamedState object with AttributeSystem attribute_system
-        and constant assignment p.
+        Construct a NamedState object.
 
-        Raise TypeError if attribute_system parameter is not of type
-        AttributeSystem or p parameter is not of type
-        ConstantAssignment.
-        Raise ValueError if AttributeSystem of p doesn't match
-        AttributeSystem object provided in attribute_system.
+        :param attribute_system: The AttributeSystem object from which the \
+        NamedState comes from.
+        :type  attribute_system: AttributeSystem
+        :param p: The ConstantAssignment object of the named state.
+        :type  p: ConstantAssignment
+        :param ascriptions: An optional dictionary of attribute-object pairs \
+        to use as ascriptions; if some attribute-object pair is not provided, \
+        the full ValueSet of the Attribute object corresponding to the \
+        attribute label in the attribute-object pair is used.
+        :type  ascriptions: ``dict``
+
+        :raises TypeError: ``p`` parameter must be a ConstantAssignment object.
+        :raises ValueError: The AttributeSystem object provided and the \
+        ConstantAssignment ``p`` parameter's AttributeSystem must match.
         """
 
         if not hasattr(p, "_is_ConstantAssignment"):
@@ -42,7 +61,10 @@ class NamedState(State):
         self._is_NamedState = True
 
     def __eq__(self, other):
-        """Implement == operator for NamedState object."""
+        """
+        Determine if two NamedState objects are equal via the ``==`` operator.
+        """
+
         if not hasattr(other, "_is_NamedState"):
             raise TypeError("Can only compare two NamedState objects")
 
@@ -52,11 +74,18 @@ class NamedState(State):
             return False
 
     def __ne__(self, other):
-        """Implement != operator for NamedState object."""
+        """
+        Determine if two NamedState objects are not equal via the ``!=``
+        operator.
+        """
+
         return not self.__eq__(other)
 
     def __deepcopy__(self, memo):
-        """Return a deep copy of this NamedState."""
+        """
+        Deepcopy a NamedState object via the ``copy.deepcopy`` method.
+        """
+
         from copy import deepcopy
 
         return NamedState(
@@ -65,7 +94,13 @@ class NamedState(State):
             deepcopy(self._ascriptions))
 
     def __le__(self, other):
-        """Implement overloaded <= operator for NamedState extension."""
+        """
+        Overloaded ``<=`` operator for NamedState; Determine if this State is
+        an extension of NamedState object in ``other`` parameter.
+
+        :raises TypeError: ``other`` parameter must be a NamedState object.
+        """
+
         if not hasattr(other, "_is_NamedState"):
             raise TypeError('other parameter must be of type NamedState')
 
@@ -89,8 +124,29 @@ class NamedState(State):
 
     def add_object(self, obj, ascriptions=None, constant_symbol=None):
         """
-        Add an object to the NamedState with option to bind it to a Constant in
-        ConstantAssignment.
+        Add an object to this NamedState's AttributeSystem, optionally update
+        any ascriptions provided and optionally bind it to a constant given by
+        ``constant_symbol`` (if the constant does not exist in the underlying
+        Vocabulary object, it will be added to the Vocabulary object and
+        furthermore all objects holding a reference to the Vocabulary will
+        receive the update).
+
+        :param obj: The new object to add to the NamedState.
+        :type  obj: ``str``
+        :param ascriptions: The optional ValueSets to assign to \
+        attribute-object pairs corresponding to the new object.
+        :type  ascriptions: ``dict``
+        :param constant_symbol: The optional constant to bind to the new \
+        object.
+        :type  constant_symbol: ``str``
+
+        :raises TypeError: ``obj`` parameter must be a non-empty ``str``, \
+        if ``ascriptions`` parameter is provided, it must be a ``dict`` and \
+        ``constant_symbol`` parameter must be a ``str``.
+        :raises ValueError: Duplicate objects cannot be added, constant \
+        corresponding to ``constant_symbol`` cannot be bound already and all \
+        ascriptions provided must be from an existing Attribute to ``obj`` \
+        parameter.
         """
 
         if constant_symbol:
@@ -119,14 +175,26 @@ class NamedState(State):
                 self._p._attribute_system._objects + [obj])
 
     def is_world(self):
-        """Determine if this NamedState is a world."""
+        """
+        Determine if this NamedState object is a world; that is :math:`\sigma`
+        is a world (every ascription of :math:`\sigma` is a valuation) and
+        :math:`\\rho` is total.
+
+        :return: Whether or not the NamedState is a world.
+        :rtype: ``bool``
+        """
+
         # if state is a world and p is total, this NamedState is a world
         return State.is_world(self) and self._p.is_total()
 
     def get_worlds(self):
         """
-        Return a list of all possible VariableAssignments that can
-        be created from this NamedState object.
+        Return a generator for the generation of all possible worlds
+        derivable from this NamedState object.
+
+        :return: A generator for the generation of all possible worlds \
+        derivable from this NamedState object.
+        :rtype: ``generator``
         """
 
         if self.is_world():
@@ -172,19 +240,26 @@ class NamedState(State):
 
     def is_named_alternate_extension(self, ns_prime, *named_states):
         """
-        Return True if ns_prime is an alternate extension of this
-        NamedState w.r.t. named_states provided in named_states
-        parameter.
+        Determine if ``ns_prime`` parameter is an alternate extension of this
+        NamedState w.r.t. NamedState objects provided in ``named_states``
+        parameter, i.e., evaluate *Alt*\ ((:math:`\sigma;\\rho`),\
+        {(:math:`\sigma_{1}`\;\ :math:`\\rho_{1}`), :math:`\ldots, \
+        (\sigma_{m}`;\ :math:`\\rho_{m}`)}, (:math:`\sigma^{\prime}`; \
+        :math:`\\rho^{\prime}`)).
 
-        Raise TypeError if ns_prime parameter is not of type NamedState.
-        Raise ValueError if ns_prime is not a proper extension of this
-        NamedState object.
-        Raise ValueError if named_states parameter is empty.
-        Raise TypeError if any item in named_states parameter is not of type
-        NamedState.
-        Raise ValueError if any of the NamedStates ns1,...,nsm is not a proper
-        extension of this NamedState object (This checks for mistmatched
-        Vocabulary's and AttributeSystem's).
+        :return: The result of the evaluation of *Alt*\ ((:math:`\sigma;\\rho`),\
+        {(:math:`\sigma_{1}`\;\ :math:`\\rho_{1}`), :math:`\ldots, \
+        (\sigma_{m}`;\ :math:`\\rho_{m}`)}, (:math:`\sigma^{\prime}`; \
+        :math:`\\rho^{\prime}`)).
+        :rtype: ``bool``
+
+        :raises TypeError: ``ns_prime`` and all arguments provided to \
+        optional positional arguments ``named_states`` must be NamedState \
+        objects.
+        :raises ValueError: At least one NamedState object must be provided \
+        in ``named_states`` parameter and all NamedState objects in \
+        ``ns_prime`` and ``named_states`` parameters must be proper \
+        extensions of this NamedState.
         """
 
         if not named_states:
@@ -208,16 +283,25 @@ class NamedState(State):
 
     def get_named_alternate_extensions(self, *named_states):
         """
-        Return all alternate extensions of this NamedState object with
-        respect to NamedStates ns1,...,nsm within the named_states
-        parameter.
+        Obtain all alternate extensions of this NamedState w.r.t. NamedState
+        objects provided in ``named_states`` parameter, i.e., compute
+        **AE**\ (:math:`\Sigma_{i}`, :math:`\sigma`) for the various
+        applicable *i* according to algorithm.
 
-        Raise ValueError if named_states parameter is empty.
-        Raise TypeError if any item in named_states parameter is not of
-        type NamedState.
-        Raise ValueError if any of the NamedStates ns1,...,nsm is not a
-        proper extension of this NamedState object (this checks for matching
-        Vocabulary's and AttributeSystem's.
+        :return: all alternative extensions of this NamedState object \
+        (:math:`\sigma; \\rho`) w.r.t. \
+        (:math:`\sigma_{1}`\;\ :math:`\\rho_{1}`), \
+        :math:`\ldots, (\sigma_{m}`;\ :math:`\\rho_{m}`) provided as optional \
+        positional arguments in ``named_states`` parameter.
+        :rtype: ``list``
+
+        :raises TypeError: ``ns_prime`` and all arguments provided to \
+        optional positional arguments ``named_states`` must be NamedState \
+        objects.
+        :raises ValueError: At least one NamedState object must be provided \
+        in ``named_states`` parameter and all NamedState objects in \
+        ``ns_prime`` and ``named_states`` parameters must be proper \
+        extensions of this NamedState.
         """
 
         def get_supersets():
@@ -339,17 +423,41 @@ class NamedState(State):
 
     def satisfies_formula(self, formula, X, attribute_interpretation):
         """
-        Determine if NamedState object (which must be a world) satisfies given
-        formula with respect to VariableAssignment X.
+        Determine if this NamedState object :math:`(w;\widehat{\\rho})`
+        (which must be a world) satisfies given formula :math:`F` w.r.t.
+        VariableAssignment :math:`\chi` and given AttributeInterpretation,
+        i.e., :math:`(w;\widehat{\\rho})\models_{\chi}F`.
+
+        :param formula: The formula :math:`F` to check for satisfaction.
+        :type  formula: Formula
+        :param X: The variable assignment :math:`\chi`
+        :type  X: VariableAssignment
+        :param attribute_interpretation: The fixed attribute interpretation \
+        to use for interpreting which constants and variables get substituted \
+        into the formula for evaluation.
+        :type  attribute_interpretation: AttributeInterpretation
+
+        :return: whether or not :math:`(w;\widehat{\\rho})\models_{\chi}F`.
+        :rtype: ``bool``
+
+        :raises TypeError: ``formula`` parameter must be a Formula object, \
+        ``X`` parameter must be a VariableAssignment object and \
+        ``attribute_interpretation`` must be an AttributeInterpretation object.
+        :raises ValueError: this NamedState object must be a world.
         """
 
         if not hasattr(formula, "_is_Formula"):
             raise TypeError(
-                'f parameter must be of type Formula')
+                'formula parameter must be of type Formula')
 
         if not hasattr(X, "_is_VariableAssignment"):
             raise TypeError(
                 'X parameter must be a VariableAssignment object')
+
+        if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
+            raise TypeError(
+                "attribute_interpretation parameter must be of type "
+                "AttributeInterpretation")
 
         if not self.is_world():
             raise ValueError('this NamedState object must be a world')
@@ -364,17 +472,23 @@ class NamedState(State):
 
     def satisfies_named_state(self, named_state):
         """
-        Determine if this NamedState (which is a world) satisfies NamedState
-        object named_state.
+        Determine if this NamedState object :math:`(w;\widehat{\\rho})`
+        (which must be a world) satisfies given NamedState object
+        :math:`(\sigma;\\rho)` \
+        i.e., :math:`(w;\widehat{\\rho}) \models (\sigma;\\rho)`.
 
-        Raise TypeError if named_state parameter is not a NamedState object.
-        Raise ValueError if this NamedState object is not a world.
+        :param named_state: The named state :math:`(\sigma;\\rho)` \
+        to check for satisfaction.
+        :type  named_state: NamedState
+
+        :return: Whether or not :math:`(w;\widehat{\\rho}) \models \
+        (\sigma;\\rho)`.
+        :rtype: ``bool``
+
+        :raises TypeError: ``named_state`` parameter must be a NamedState \
+        object.
+        :raises ValueError: this NamedState object must be a world.
         """
-
-        # check for exceptions first.
-        if not isinstance(named_state, NamedState):
-            raise TypeError(
-                "named_state parameter must be of type NamedState")
 
         if not hasattr(named_state, "_is_NamedState"):
             raise TypeError(
@@ -389,21 +503,49 @@ class NamedState(State):
 
     def satisfies_context(self, context, X, attribute_interpretation):
         """
-        Determine if this NamedState object (which is a world) satisfies a
-        given context w.r.t. some VariableAssignment X.
+        Determine if this NamedState object :math:`(w;\widehat{\\rho})`
+        (which must be a world) satisfies given context
+        :math:`\gamma = (\\beta;(\sigma;\\rho))` w.r.t. a given
+        VariableAssignment :math:`\chi` and given AttributeInterpretation,
+        i.e., :math:`(w;\widehat{\\rho})\models_{\chi}\gamma`
+        (this NamedState object satisfies every Formula object in the
+        AssumptionBase object of the Context object and this NamedState object
+        satisfies the NamedState object of the Context object).
+
+        :param context: The context :math:`\gamma` to check for satisfaction.
+        :type  context: Context
+        :param X: The variable assignment :math:`\chi`
+        :type  X: VariableAssignment
+        :param attribute_interpretation: The fixed attribute interpretation \
+        to use for interpreting which constants and variables get substituted \
+        into the formula for evaluation.
+        :type  attribute_interpretation: AttributeInterpretation
+
+        :return: whether or not :math:`(w;\widehat{\\rho})\models_{\chi}\gamma`.
+        :rtype: ``bool``
+
+        :raises TypeError: ``context`` parameter must be a Context object, \
+        ``X`` parameter must be a VariableAssignment object and \
+        ``attribute_interpretation`` must be an AttributeInterpretation object.
+        :raises ValueError: This NamedState object must be a world.
         """
 
         if not hasattr(context, "_is_Context"):
             raise TypeError(
-                'context parameter must be of type Context')
+                "context parameter must be of type Context")
 
-        if not isinstance(X, VariableAssignment):
+        if not hasattr(X, "_is_VariableAssignment"):
             raise TypeError(
-                'X parameter must be of type VariableAssignment')
+                "X parameter must be of type VariableAssignment")
+
+        if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
+            raise TypeError(
+                "attribute_interpretation parameter must be of type "
+                "AttributeInterpretation")
 
         if not self.is_world():
             raise ValueError(
-                'this NamedState object must be a world')
+                "this NamedState object must be a world")
 
         named_state = context._named_state
         assumption_base = context._assumption_base
@@ -426,8 +568,14 @@ class NamedState(State):
 
     def _generate_variable_assignments(self):
         """
-        Return a list of all possible VariableAssignments that can
-        be created from this NamedState object.
+        Generate all possible VariableAssignment objects derivable from this
+        NamedState i.e., find all combinations of unbound objects and variables
+        in the underlying Vocabulary object (a reference to it is held by the
+        NamedState's ConstantAssignment). If no VariableAssignments can be
+        created, a dummy VariableAssignment is returned.
+
+        :return: A generator for all derivable VariableAssignment objects.
+        :rtype: generator
         """
 
         if not self._p._vocabulary._V:
@@ -461,8 +609,40 @@ class NamedState(State):
     def is_named_entailment(self, assumption_base, attribute_interpretation,
                             *named_states):
         """
-        Determine if this NamedState entails NamedStates contained in
-        named_states parameter w.r.t. AssumptionBase assumption_base.
+        Determine if this NamedState object entails NamedState objects provided
+        as optional positional arguments to ``named_states`` parameter w.r.t.
+        the AssumptionBase object in the ``assumption_base`` parameter, using
+        the AttributeInterpretation object provided in the
+        ``attribute_interpretation`` parameter to resolve truth values of the
+        Formula objects contained therein, i.e.,
+        :math:`(\sigma;\\rho) \\Vvdash_{\\beta} \{(\sigma_{1};\\rho_{1}), \
+        \ldots, (\sigma_{m};\\rho_{m})\}`.
+
+        :param assumption_base: The AssumptionBase object to use when evaluating \
+        :math:`I_{(\sigma^{\prime};\\rho^{\prime})/\chi}\\bigg(\\raisebox{3pt}{$\underset{F~\in~\\beta}{\\bigwedge} F$}\\bigg) =` \
+        **false** for all :math:`\chi`.
+        :type  assumption_base: AssumptionBase
+        :param attribute_interpretation: The AttributeInterpretation object \
+        to use to resolve the truth values of Formula objects in the \
+        AssumptionBase object in ``assumption_base`` parameter.
+        :type  attribute_interpretation: AttributeInterpretation
+        :param named_states: Any amount of NamedState objects \
+        :math:`(\sigma_{1};\\rho_{1}), \ldots, (\sigma_{m};\\rho_{m})` to \
+        check for entailment.
+        :type  named_states: NamedState
+
+        :return: Whether or not :math:`(\sigma;\\rho) \\Vvdash_{\\beta} \
+        \{(\sigma_{1};\\rho_{1}), \ldots, (\sigma_{m};\\rho_{m})\}`
+        :rtype: ``bool``
+
+        :raises TypeError: ``assumption_base`` parameter must be an \
+        AssumptionBase, ``attribute_interpretation`` parameter must be an \
+        AttributeInterpretation object, and all optional positional arguments \
+        in ``named_states`` parameter must be NamedState objects.
+        :raises ValueError: all NamedState objects provided as optional \
+        positional arguments to ``named_states`` parameter must share the \
+        same Vocabulary object, AttributeSystem object and be proper \
+        extensions of this NamedState object.
         """
 
         if not hasattr(assumption_base, "_is_AssumptionBase"):
@@ -517,6 +697,20 @@ class NamedState(State):
         """
         Determine if on some basis, a set of NamedState objects is exhaustive
         w.r.t this NamedState.
+
+        :param basis: A list of attribute-object pairs \
+        (``str``, ``str`` 2-tuples).
+        :type  basis: ``list``
+        :param named_states: Any positive amount of NamedState objects.
+        :type  named_states: NamedState
+
+        :return: Whether or not the NamedState objects provided as optional \
+        positional arguments are exhaustive w.r.t. this NamedState object on \
+        the basis provided in ``basis`` parameter.
+        :rtype: ``bool``
+
+        :raises ValueError: ``basis`` parameter cannot be empty and at least \
+        one NamedState object must be provided.
         """
 
         if not basis:
@@ -542,11 +736,11 @@ class NamedState(State):
         return True
 
     def __str__(self):
-        """Implement str(NamedState)."""
+        """Return a readable string representation of the NamedState object."""
         return State.__str__(self) + '\n' + str(self._p)
 
     def __repr__(self):
-        """Implement repr(NamedState)."""
+        """Return a string representation of the State object."""
         return self.__str__()
 
 
