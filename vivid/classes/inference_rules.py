@@ -300,8 +300,9 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
 
     This function works as follows:
 
-    1. If :math:`k > 0`, compute the basis
-    :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
+    1. If :math:`k > 0` (i.e., if at least one Formula object is provided as an
+    optional positional argument to the ``formulae`` parameter), compute the
+    basis :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
     \mathcal{B}(F_{k}, \\rho, \chi)` of :math:`F_{1}, \ldots, F_{k}` and
     determine if the NamedState objects
     :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`
@@ -540,8 +541,9 @@ def diagrammatic_to_sentential(context, F, named_states,
 
     This function works as follows:
 
-    1. If :math:`k > 0`, compute the basis
-    :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
+    1. If :math:`k > 0` (i.e., if at least one Formula object is provided as an
+    optional positional argument to the ``formulae`` parameter),  compute the
+    basis :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
     \mathcal{B}(F_{k}, \\rho, \chi)` of :math:`F_{1}, \ldots, F_{k}` and
     determine if the NamedState objects
     :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`

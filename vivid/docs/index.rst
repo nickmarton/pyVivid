@@ -6,30 +6,44 @@
 Welcome to vivid's documentation!
 =================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
+Basic Components
+================
 
-.. automodule:: inference_rules
-    :members:
-    :exclude-members: main
-
-.. automodule:: assignment
+The Interval object
+-------------------
+.. automodule:: interval
  
-.. autoclass:: Assignment
+.. autoclass:: Interval
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __ne__
+    :special-members: __init__, __lt__, __le__, __eq__, __ge__, __gt__, __ne__, __or__, __and__, __contains__, __getitem__, __deepcopy__, __hash__, discretize, __str__, __repr__, collapse_intervals
 
-.. automodule:: assumption_base
+The Point object
+----------------
+.. automodule:: point
  
-.. autoclass:: AssumptionBase
+.. autoclass:: Point
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __ne__, __add__, __iadd__, __str__, __repr__, __len__, __getitem__, __iter__, __contains__, __deepcopy__
+    :special-members: __init__, __eq__, __ne__, __deepcopy__, __getitem__, __hash__, __str__, __repr__, is_on, not_same_point, clocks_unequal, can_observe, meets, unstringify
 
+The ValueSet object
+-------------------
+.. automodule:: valueset
+ 
+.. autoclass:: ValueSet
+    :members:
+    :private-members:
+    :special-members: add_object_type, __init__, __eq__, __le__, __ne__, __add__, __iadd__, __sub__, __getitem__, __contains__, __len__, __iter__, __setitem__, __nonzero__, __deepcopy__, __str__, __repr__, _split_by_types, _parse
+
+Attributes and Relations
+========================
+
+The Attribute object
+--------------------
 .. automodule:: attribute
  
 .. autoclass:: Attribute
@@ -37,20 +51,32 @@ Contents:
     :private-members:
     :special-members: __init__, __eq__, __ne__, __add__, __deepcopy__, __str__, __repr__, __hash__
 
-.. automodule:: attribute_interpretation
+The Relation object
+--------------------
+.. automodule:: relation
  
-.. autoclass:: AttributeInterpretation
+.. autoclass:: Relation
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __ne__, __deepcopy__, __iter__, __str__, __repr__
+    :special-members: __init__, __eq__, __ne__, __add__, __iadd__, __deepcopy__, __str__, __repr__, set_definition, get_DR, set_DR, get_arity, is_valid_definition
 
+Attribute Structures
+====================
+
+The AttributeStructure object
+-----------------------------
 .. automodule:: attribute_structure
- 
+
 .. autoclass:: AttributeStructure
     :members:
     :private-members:
     :special-members: __init__, __eq__, __le__, __ne__, __add__, __sub__, __iadd__, __isub__, __getitem__, __contains__, __deepcopy__, get_labels, get_subscripts, get_cardinality, __str__, __repr__
 
+Attribute Systems
+=================
+
+The AttributeSystem object
+--------------------------
 .. automodule:: attribute_system
  
 .. autoclass:: AttributeSystem
@@ -58,6 +84,53 @@ Contents:
     :private-members:
     :special-members: __init__, __eq__, __le__, __ne__, __add__, __sub__, __iadd__, __isub__, __getitem__, __contains__, __deepcopy__, get_power, __str__, __repr__, is_automorphic
 
+States
+======
+
+The State object
+----------------
+.. automodule:: state
+ 
+.. autoclass:: State
+    :members:
+    :private-members:
+    :special-members: __init__, __eq__, __le__, __ne__, __deepcopy__, set_ascription, __getitem__, add_object, is_valuation, is_world, get_worlds, is_disjoint, is_alternate_extension, get_alternate_extensions, join, __str__, __repr__
+
+Vocabularies
+============
+
+The RelationSymbol object
+-------------------------
+.. automodule:: relation_symbol
+ 
+.. autoclass:: RelationSymbol
+    :members:
+    :private-members:
+    :special-members: __init__, __eq__, __ne__, __deepcopy__, __hash__, __str__, __repr__
+
+The Vocabulary object
+---------------------
+.. automodule:: vocabulary
+ 
+.. autoclass:: Vocabulary
+    :members:
+    :private-members:
+    :special-members: __init__, __eq__, __ne__, __deepcopy__, __contains__, add_constant, add_variable, __str__, __repr__, __hash__
+
+Constant and Variable Assignments
+=================================
+
+The Assignment base class
+-------------------------
+.. automodule:: assignment
+
+.. autoclass:: Assignment
+    :members:
+    :private-members:
+    :special-members: __init__, __eq__, __ne__
+
+The ConstantAssignment object
+-----------------------------
 .. automodule:: constant_assignment
  
 .. autoclass:: ConstantAssignment
@@ -67,27 +140,20 @@ Contents:
     :inherited-members:
     :show-inheritance:
 
-.. automodule:: context
+The VariableAssignment object
+-----------------------------
+.. automodule:: variable_assignment
  
-.. autoclass:: Context
+.. autoclass:: VariableAssignment
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __ne__, __str__, __repr__, __deepcopy__, entails_formula, entails_named_state
+    :special-members: __init__, __eq__, __ne__, __getitem__, __deepcopy__, __str__, __repr__
 
-.. automodule:: formula
- 
-.. autoclass:: Formula
-    :members:
-    :private-members:
-    :special-members: __init__, __eq__, __ne__, __add__, __str__, __repr__, __hash__, __deepcopy__, assign_truth_value
+Named States
+============
 
-.. automodule:: interval
- 
-.. autoclass:: Interval
-    :members:
-    :private-members:
-    :special-members: __init__, __lt__, __le__, __eq__, __ge__, __gt__, __ne__, __or__, __and__, __contains__, __getitem__, __deepcopy__, __hash__, discretize, __str__, __repr__, collapse_intervals
-
+The NamedState object
+---------------------
 .. automodule:: named_state
  
 .. autoclass:: NamedState
@@ -97,54 +163,97 @@ Contents:
     :inherited-members:
     :show-inheritance:
 
-.. automodule:: point
- 
-.. autoclass:: Point
-    :members:
-    :private-members:
-    :special-members: __init__, __eq__, __ne__, __deepcopy__, __getitem__, __hash__, __str__, __repr__, is_on, not_same_point, clocks_unequal, can_observe, meets, unstringify
+Attribute Interpretations
+=========================
 
-.. automodule:: relation
+The AttributeInterpretation object
+----------------------------------
+.. automodule:: attribute_interpretation
  
-.. autoclass:: Relation
+.. autoclass:: AttributeInterpretation
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __ne__, __add__, __iadd__, __deepcopy__, __str__, __repr__, set_definition, get_DR, set_DR, get_arity, is_valid_definition
+    :special-members: __init__, __eq__, __ne__, __deepcopy__, __iter__, __str__, __repr__
 
-.. automodule:: relation_symbol
- 
-.. autoclass:: RelationSymbol
-    :members:
-    :private-members:
-    :special-members: __init__, __eq__, __ne__, __deepcopy__, __hash__, __str__, __repr__
+Formulae and Assumption Bases
+=============================
 
-.. automodule:: state
+The Formula object
+------------------
+.. automodule:: formula
  
-.. autoclass:: State
+.. autoclass:: Formula
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __le__, __ne__, __deepcopy__, set_ascription, __getitem__, add_object, is_valuation, is_world, get_worlds, is_disjoint, is_alternate_extension, get_alternate_extensions, join, __str__, __repr__
+    :special-members: __init__, __eq__, __ne__, __add__, __str__, __repr__, __hash__, __deepcopy__, assign_truth_value
 
-.. automodule:: valueset
+The AssumptionBase object
+-------------------------
+.. automodule:: assumption_base
  
-.. autoclass:: ValueSet
+.. autoclass:: AssumptionBase
     :members:
     :private-members:
-    :special-members: add_object_type, __init__, __eq__, __le__, __ne__, __add__, __iadd__, __sub__, __getitem__, __contains__, __len__, __iter__, __setitem__, __nonzero__, __deepcopy__, __str__, __repr__, _split_by_types, _parse
+    :special-members: __init__, __eq__, __ne__, __add__, __iadd__, __str__, __repr__, __len__, __getitem__, __iter__, __contains__, __deepcopy__
 
-.. automodule:: variable_assignment
- 
-.. autoclass:: VariableAssignment
-    :members:
-    :private-members:
-    :special-members: __init__, __eq__, __ne__, __getitem__, __deepcopy__, __str__, __repr__
+Contexts
+========
 
-.. automodule:: vocabulary
+The Context object
+------------------
+.. automodule:: context
  
-.. autoclass:: Vocabulary
+.. autoclass:: Context
     :members:
     :private-members:
-    :special-members: __init__, __eq__, __ne__, __deepcopy__, __contains__, add_constant, add_variable, __str__, __repr__, __hash__
+    :special-members: __init__, __eq__, __ne__, __str__, __repr__, __deepcopy__, entails_formula, entails_named_state
+
+Rules of Inference for Diagrammatic Deductions
+==============================================
+
+.. currentmodule:: inference_rules
+
+The [Thinning] rule
+-------------------
+.. autofunction:: thinning
+
+The [Widening] rule
+-------------------
+.. autofunction:: widening
+
+The Observe rule
+----------------
+.. autofunction:: observe
+
+The [Absurdity] rule
+--------------------
+.. autofunction:: diagrammatic_absurdity
+
+The [Diagram-Reiteration] rule
+------------------------------
+.. autofunction:: diagram_reiteration
+
+The Sentential-to-Sentential rule
+---------------------------------
+.. autofunction:: sentential_to_sentential
+
+The [C1] rule
+-------------
+.. autofunction:: diagrammatic_to_diagrammatic
+
+The [C2] rule
+-------------
+.. autofunction:: sentential_to_diagrammatic
+
+The [C3] rule
+-------------
+.. autofunction:: diagrammatic_to_sentential
+
+Parsers
+=======
+
+The ParserSet object
+--------------------
 
 .. automodule:: parser_set
 
@@ -153,12 +262,18 @@ Contents:
     :private-members:
     :special-members: __init__, __len__, __getitem__, __iter__
 
+The PointParser object
+----------------------
+
 .. automodule:: point_parser
 
 .. autoclass:: PointParser
     :members:
     :private-members:
     :special-members: __init__, __call__, _eval
+
+The TruthValueParser object
+---------------------------
 
 .. automodule:: truth_value_parser
 
@@ -167,11 +282,3 @@ Contents:
     :exclude-members: evaluate_stack, pushFirst, pushNeg, pushRel, pushUMinus
     :private-members: _eval
     :special-members: __init__, __call__
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
