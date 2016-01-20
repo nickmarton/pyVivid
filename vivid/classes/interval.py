@@ -5,12 +5,13 @@ from copy import deepcopy
 
 class Interval(object):
     """
-    Class to represent an interval of natural or real values.
+    Interval class. Intervals are over natural or real values.
 
     :ivar infimum: The infimum of the interval.
     :ivar supremum: The supremum of the interval.
     :ivar type: The type of the Interval object (int, float, or long).
-    :ivar _is_Interval: An identifier to use in place of type or isinstance.
+    :ivar _is_Interval: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, inf, sup):
@@ -22,9 +23,10 @@ class Interval(object):
         :param sup: The value to use as the supremum of the Interval.
         :type  sup: int|float|long
 
-        :raises ValueError: infimum must be strictly less than the supremum.
-        :raises TypeError: infimum and supremum provided must be ints, floats, \
-        or longs and their types must match.
+        :raises ValueError: The infimum must be strictly less than the \
+        supremum.
+        :raises TypeError: The infimum and supremum provided must be ints, \
+        floats, or longs and their types must match.
         """
 
         # handle int Interval construction
@@ -49,22 +51,24 @@ class Interval(object):
 
     def __lt__(self, other):
         """
-        Overloaded ``<`` operator for Interval. Determine if an Interval is
-        strictly less than another interval; that is the supremum of this
-        Interval is strictly less than the infimum of the Interval in ``other``
-        parameter: (s\ :sub:`inf`, s\ :sub:`sup`)(o\ :sub:`inf`, o\ :sub:`sup`).
+        Overloaded ``<`` operator for Interval. Determine if the calling
+        Interval is strictly less than another interval; that is, the supremum
+        of the calling Interval is strictly less than the infimum of the
+        Interval in ``other`` parameter:
+        :math:`{(s_{inf}, s_{sup}) (o_{inf}, o_{sup})}`.
         """
 
         return self._supremum < other._infimum
 
     def __le__(self, other):
         """
-        Overloaded ``<=`` operator for Interval. Determine if an Interval is
-        less than another Interval; that is the supremum of this Interval is
-        greater than the Interval in ``other``'s infimum, less than the
-        Interval in ``other``'s supremum and the infimum of this Interval is
-        strictly less than the infimum of the Interval in ``other`` parameter:
-        (s\ :sub:`inf`, (o\ :sub:`inf`, s\ :sub:`sup`), o\ :sub:`sup`).
+        Overloaded ``<=`` operator for Interval. Determine if the calling
+        Interval is less than another Interval; that is, the supremum of the
+        calling Interval is greater than the Interval in ``other``'s infimum,
+        less than the Interval in ``other``'s supremum and the infimum of the
+        calling Interval is strictly less than the infimum of the Interval in
+        ``other`` parameter:
+        :math:`{(s_{inf}, (o_{inf}, s_{sup}), o_{sup})}`.
         """
 
         c_inf = self._infimum < other._infimum
@@ -83,12 +87,12 @@ class Interval(object):
 
     def __ge__(self, other):
         """
-        Overloaded ``>=`` operator for Interval. Determine if an Interval is
-        greater than another Interval; that is the infimum of the Interval in
-        ``other`` parameter is strictly less than this Interval's infimum, and
-        the supremum of the interval in ``other`` parameter is less than this
-        Interval's supremum:
-        (o\ :sub:`inf`, (s\ :sub:`inf`, o\ :sub:`sup`), s\ :sub:`sup`).
+        Overloaded ``>=`` operator for Interval. Determine if the calling
+        Interval is greater than another Interval; that is, the infimum of the
+        Interval in ``other`` parameter is strictly less than the calling
+        Interval's infimum, and the supremum of the interval in ``other``
+        parameter is less than the calling Interval's supremum:
+        :math:`{(o_{inf}, (s_{inf}, o_{sup}), s_{sup})}`.
         """
 
         c_inf = other._infimum < self._infimum
@@ -97,11 +101,11 @@ class Interval(object):
 
     def __gt__(self, other):
         """
-        Overloaded ``>`` operator for Interval. Determine if an Interval is
-        strictly greater than another interval; that is the infimum of this
-        Interval is strictly greater than the supremum of the Interval in
-        ``other`` parameter:
-        (o\ :sub:`inf`, o\ :sub:`sup`)(s\ :sub:`inf`, s\ :sub:`sup`).
+        Overloaded ``>`` operator for Interval. Determine if the calling
+        Interval is strictly greater than another interval; that is, the
+        infimum of the calling Interval is strictly greater than the supremum
+        of the Interval in ``other`` parameter:
+        :math:`{(o_{inf}, o_{sup}) (s_{inf}, s_{sup})}`.
         """
 
         return other._supremum < self._infimum
@@ -167,10 +171,10 @@ class Interval(object):
 
     def __contains__(self, key):
         """
-        Determine if this Interval contains an int, float, long, or another
-        Interval.
+        Determine if the calling Interval contains an int, float, long, or
+        another Interval.
 
-        :param key: The value to check for membership in this Interval.
+        :param key: The value to check for membership in the calling Interval.
         :type  key: int|float|long|Interval
         """
 
@@ -193,11 +197,11 @@ class Interval(object):
 
     def __getitem__(self, index):
         """
-        Retrieve the infimum or supremum of the Interval via indexing
+        Retrieve the infimum or supremum of the calling Interval via indexing
         (e.g. ``Interval[0]``).
 
-        :raises IndexError: Index must be either ``0`` or ``1``.
-        :raises TypeError: Index must be an int.
+        :raises IndexError: Index must be either "``0``" or "``1``".
+        :raises TypeError: Index must be an ``int``.
         """
         if type(index) != int:
             raise TypeError("Index must be 0 or 1.")
@@ -219,7 +223,7 @@ class Interval(object):
         """
         Private key function for hashing.
 
-        :return: 2-tuple consisting of (infimum, supremum)
+        :return: 2-tuple consisting of (infimum, supremum).
         :rtype: ``tuple``
         """
 
@@ -231,18 +235,18 @@ class Interval(object):
 
     def discretize(self, jump=None):
         """
-        Return all values within the range of this interval.
+        Return all values within the range of the calling interval.
 
         :param jump: The jump to use after each value. Defaults to ``1``, \
         ``1.0`` and ``1`` for int, float, and long Intervals respectively.
         :type  jump: None|int|float|long
 
-        :return: list of discrete values contained in this Interval with a \
-        step size of ``jump``\.
+        :return: A list of discrete values contained in the calling Interval \
+        with a step size of ``jump``\.
         :rtype: ``list``
 
-        :raises TypeError: if a jump is provided, it must be an int, float, \
-        or long and match the type of this Interval.
+        :raises TypeError: If a jump is provided, it must be an ``int``, \
+        ``float``, or ``long`` and match the type of the calling Interval.
         """
 
         def frange(x, y, jump):
@@ -251,7 +255,7 @@ class Interval(object):
                     yield x
                     x += jump
 
-        # if jump is provided, check if it's compatible with this Interval
+        # if jump is provided, check if it's compatible with the calling Interval
         if jump:
             if type(jump) != int and type(jump) != float and type(jump) != long:
                 raise TypeError(
@@ -273,16 +277,14 @@ class Interval(object):
 
     def __str__(self):
         """
-        Return a readable string representation of an Interval object with the
-        following form: \"I(*infimum*, *supremum*)\"
+        Return a readable string representation of the Interval object.
         """
 
         return "I(" + str(self._infimum) + ", " + str(self._supremum) + ")"
 
     def __repr__(self):
         """
-        Return a string representation of an Interval object with the
-        following form: \"I(*infimum*, *supremum*)\"
+        Return a string representation of the Interval object.
         """
 
         return self.__str__()
@@ -290,13 +292,16 @@ class Interval(object):
     @staticmethod
     def collapse_intervals(intervals):
         """
-        Collapse a set of overlapping intervals.
+        Collapse a list of overlapping intervals.
 
         :param intervals: A list of intervals to collapse.
         :type  intervals: list
 
-        :return: A new list totally disjoint collapsed Intervals.
+        :return: A new list of totally disjoint, collapsed Intervals.
         :rtype: ``list``
+
+        :raises TypeError: ``interval`` parameter must be a ``list`` \
+        containing only Interval objects.
         """
 
         def can_collapse(lis):

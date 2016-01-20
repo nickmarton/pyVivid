@@ -525,6 +525,7 @@ def test___setitem__():
     # test duplicate value catching
     test_ValueError(v, 1, 1)
     test_IndexError(v, 11, -37)
+    test_TypeError(v, 1, object)
 
 
 def test___nonzero__():
