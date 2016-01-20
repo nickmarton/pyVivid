@@ -176,8 +176,10 @@ def diagrammatic_absurdity(context, named_state, attribute_interpretation):
     \models (\sigma^{\prime};\\rho^{\prime})` holds.
     :rtype: ``bool``
 
-    :raises TypeError: ``context`` parameter must be a Context object and \
-    ``named_state`` parameter must be a NamedState object.
+    :raises TypeError: ``context`` parameter must be a Context object, \
+    ``named_state`` parameter must be a NamedState object and \
+    ``attribute_interpretation`` parameter must be an AttributeInterpretation \
+    object.
     """
 
     if not hasattr(context, "_is_Context"):
@@ -185,6 +187,11 @@ def diagrammatic_absurdity(context, named_state, attribute_interpretation):
 
     if not hasattr(named_state, "_is_NamedState"):
         raise TypeError("named_state parameter must be a NamedState object.")
+
+    if not hasattr(attribute_interpretation, "_is_AttributeInterpretation"):
+        raise TypeError(
+            "attribute_interpretation parameter must be a "
+            "AttributeInterpretation object.")
 
     return context.entails_named_state(named_state, attribute_interpretation)
 
@@ -209,8 +216,40 @@ def diagram_reiteration(context):
 def sentential_to_sentential(context, F1, F2, G, attribute_interpretation,
                              variable_assignment=None):
     """
-    Verify that in the case of a disjunction :math:`F_{1} \lor F_{2}` holding a Context entails
-    Formula G either way w.r.t. and AttributeInterpretation.
+    Verify that a disjunction :math:`F_{1} \lor F_{2}` holds in the Context
+    object in the ``context`` parameter and that a formula *G* follows in
+    either case, using the AttributeInterpretation object in the
+    ``attribute_interpretation`` parameter to interpret truth values.
+
+    To perform the **sentential-to-sentential** inference, first the
+    disjunction :math:`F_{1} \lor F_{2}` is verified. Then the truth values of
+    :math:`F_{1} \Rightarrow G` and :math:`F_{1} \Rightarrow G` are determined.
+    If either :math:`F_{1} \Rightarrow G` or :math:`F_{1} \Rightarrow G` do not
+    hold, then **sentential-to-sentential** does not hold, otherwise,
+    **sentential-to-sentential** holds.
+
+    :param context: The Context in which the the Formula objects in the \
+    parameters ``F1``, ``F2`` apply and in which the Formula object ``G`` \
+    would follow.
+    :type  context: Context
+    :param F1: The left operand of the disjunction :math:`F_{1}`.
+    :type  F1: Formula
+    :param F2: The right operand of the disjunction :math:`F_{2}`.
+    :type  F2: Formula
+    :param G: The Formula object potentially following the disjunction in \
+    either case.
+    :type  G: Formula
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use for interpeting truth values.
+    :type  attribute_interpretation: AttributeInterpretation
+    :param variable_assignment: The optional VariableAssignment object \
+    :math:`\chi` to consider in the interpretation of truth values.
+    :type  variable_assignment: VariableAssignment | ``None``
+
+    :return: Whether or not **sentential-to-sentential** holds.
+    :rtype: ``bool``
+
+    :raises ValueError: The disjunction :math:`F_{1} \lor F_{2}` does not hold.
     """
 
     if not variable_assignment:
@@ -246,12 +285,82 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
                                  attribute_interpretation, variable_assignment,
                                  *formulae):
     """
-    Verify that on the basis of the present diagram and some formulas :math:`F_{1}, \ldots, F_{k}`
-    contained in formulae, k >= 0, that for each named_state
-    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`, n > 0, contained in named_states, a named state
-    (\sigma^{\prime}; \\rho^{\prime}) can be derived in every one of these n cases.
+    Verify that on the basis of the present diagram :math:`(\sigma;\\rho)` of
+    the Context object :math:`(\\beta;(\sigma;\\rho))` in the ``context``
+    parameter and some set of Formula objects
+    :math:`F_{1}, \ldots, F_{k}, k \ge 0` provided as optional positional
+    arguments in the ``formulae`` parameter, that for each NamedState object
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0`,
+    contained in the ``named_states`` parameter, a NamedState object
+    :math:`(\sigma^{\prime};\\rho^{\prime})` provided in the
+    ``inferred_named_state`` parameter can be derived in every one of these
+    :math:`n` cases.
 
     This is rule [C1].
+
+    This function works as follows:
+
+    1. If :math:`k > 0`, compute the basis
+    :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
+    \mathcal{B}(F_{k}, \\rho, \chi)` of :math:`F_{1}, \ldots, F_{k}` and
+    determine if the NamedState objects
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`
+    provided in the ``named_states`` parameter form an exhuastive set of
+    possibilities on this basis.
+
+    2. Determine if the proviso
+    :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{k}\}} \
+    \{(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})\}` (where
+    :math:`k \ge 0`) holds.
+
+    3. Return the evaluation of
+    :math:`(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models \
+    (\sigma^{\prime};\\rho^{\prime})`.
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` from \
+    which the present diagram :math:`(\sigma;\\rho)` comes from.
+    :type  context: Context
+    :param inferred_named_state: The NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})` derivable in the :math:`n > 0` \
+    cases provided by the NamedState objects \
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})` in the \
+    ``named_state`` parameter.
+    :type  inferred_named_state: NamedState
+    :param named_states: The NamedState objects \
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0` \
+    functioning as the set of :math:`n` exhaustive cases from which :math:`F` \
+    can be derived.
+    :type  named_states: ``list``
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use for the interpretation of truth values and the computation of the \
+    basis of :math:`F_{1}, \ldots, F_{k}`.
+    :type  attribute_interpretation: AttributeInterpretation
+    :param variable_assignment: The VariableAssignment object :math:`\chi` to \
+    consider when computing the basis \
+    :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
+    \mathcal{B}(F_{k}, \\rho, \chi)` of :math:`F_{1}, \ldots, F_{k}` or \
+    ``None`` if all terms of the :math:`F_{1}, \ldots, F_{k}` are in \
+    :math:`\\rho`.
+    :type  variable_assignment: VariableAssignment | ``None``
+    :param formulae: The :math:`k \ge 0` Formula objects \
+    :math:`F_{1}, \ldots, F_{k}` to use in the computation of the basis, \
+    computation of the proviso and the evaluation of \
+    :math:`{(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models \
+    (\sigma^{\prime};\\rho^{\prime})}`.
+    :type  formulae: Formula
+
+    :return: The result of the evaluation of \
+    :math:`(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models \
+    (\sigma^{\prime};\\rho^{\prime})`.
+    :rtype: ``bool``
+
+    :raises ValueError: If :math:`k > 0`, the NamedState objects \
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0` \
+    are not exhaustive on the basis of the Formula objects \
+    :math:`F_{1}, \ldots, F_{k}` or the proviso \
+    :math:`{(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{k}\}} \
+    \{(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})\}}` (where \
+    :math:`k \ge 0`) does not hold.
     """
 
     if formulae:
@@ -294,10 +403,74 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
                                attribute_interpretation,
                                variable_assignment=None):
     """
-    Verify that in the case of a disjunction :math:`F_{1} \lor F_{2}` holding a Context entails
-    NamedState named_state either way w.r.t. and AttributeInterpretation.
+    Verify that in the case of a disjunction :math:`F_{1} \lor F_{2}` holding,
+    a NamedState object in the ``named_state`` parameter follows either way,
+    using the AttributeInterpretation object in the
+    ``attribute_interpretation`` parameter to interpet truth values.
 
     This is rule [C2].
+
+    This function works as follows:
+
+    1. Verify the disjunction :math:`F_{1} \cup F_{2}` given by ``F1`` and
+    ``F2`` parameters holds in the Context object
+    :math:`(\\beta;(\sigma;\\rho))` given by ``context`` parameter.
+
+    2. Generate two new Context objects
+    :math:`\gamma_{1} = (\\beta_{1};(\sigma;\\rho))` where
+    :math:`\\beta_{1} = \\beta \cup F_{1}` and
+    :math:`\gamma_{2} = (\\beta_{2};(\sigma;\\rho))` where
+    :math:`\\beta_{2} = \\beta \cup F_{2}`.
+
+    3. For all possible worlds
+    :math:`\Big(w^{\prime};\widehat{\\rho^{\prime}}\Big)` and variable
+    assignments :math:`\chi` of the NamedState object
+    :math:`(\sigma^{\prime};\\rho^{\prime})`, determine if the world
+    :math:`\Big(w^{\prime};\widehat{\\rho^{\prime}}\Big)` satisfies both
+    Context objects :math:`\gamma_{1}` and :math:`\gamma_{2}`, that is
+    :math:`\Big(w^{\prime};\widehat{\\rho^{\prime}}\Big) \models \gamma_{1} \
+    ~ \\bigwedge ~`
+    :math:`\Big(w^{\prime};\widehat{\\rho^{\prime}}\Big) \models \gamma_{2}`.
+
+    4. If any world :math:`\Big(w^{\prime};\widehat{\\rho^{\prime}}\Big)` and
+    variable assignments :math:`\chi` of the NamedState object
+    :math:`(\sigma^{\prime};\\rho^{\prime})` does not satisify both
+    :math:`\gamma_{1}` and :math:`\gamma_{2}`, then
+    **sentential-to-diagrammatic** does not hold, otherwise,
+    **sentential-to-diagrammatic** holds.
+
+    In this way, we capture the idea that any world
+    :math:`\Big(w^{\prime};\widehat{\\rho^{\prime}}\Big)` and variable
+    assignments :math:`\chi` of the NamedState object
+    :math:`(\sigma^{\prime};\\rho^{\prime})` (and thus the NamedState object
+    :math:`(\sigma^{\prime};\\rho^{\prime})` itself) follows from the context
+    :math:`(\\beta \cup \{F_{1} \lor F_{2}\};(\sigma;\\rho))` in either case of
+    the disjunction :math:`F_{1} \lor F_{2}`.
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` in \
+    which the Formula objects in the parameters ``F1`` and ``F2`` apply and \
+    in which the NamedState object :math:`(\sigma^{\prime};\\rho^{\prime})` \
+    in ``named_state`` parameter would follow.
+    :type  context: Context
+    :param F1: The left operand of the disjunction :math:`F_{1}`.
+    :type  F1: Formula
+    :param F2: The right operand of the disjunction :math:`F_{2}`.
+    :type  F2: Formula
+    :param named_state: The NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})` that potentially follows in \
+    either case of the disjunction.
+    :type  named_state: NamedState
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use for the interpretation of truth values.
+    :type  attribute_interpretation: AttributeInterpretation
+    :param variable_assignment: The optional VariableAssignment object \
+    :math:`\chi` to consider in the interpretation of truth values.
+    :type  variable_assignment: VariableAssignment | ``None``
+
+    :return: Whether or not **sentential-to-diagrammatic** holds.
+    :rtype: ``bool``
+
+    :raises ValueError: The disjunction :math:`F_{1} \lor F_{2}` does not hold.
     """
 
     if not variable_assignment:
@@ -353,12 +526,77 @@ def diagrammatic_to_sentential(context, F, named_states,
                                attribute_interpretation, variable_assignment,
                                *formulae):
     """
-    Verify that on the basis of the present diagram and some formulas :math:`F_{1}, \ldots, F_{k}`
-    contained in formulae, k >= 0, that for each named_state
-    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`, n > 0, contained in named_states, a formula
-    F can be derived in every one of these n cases.
+    Verify that on the basis of the present diagram :math:`(\sigma;\\rho)` of
+    the Context object :math:`(\\beta;(\sigma;\\rho))` in the ``context``
+    parameter and some set of Formula objects
+    :math:`F_{1}, \ldots, F_{k}, k \ge 0` provided as optional positional
+    arguments in the ``formulae`` parameter, that for each NamedState object
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0`,
+    contained in the ``named_states`` parameter, a Formula object :math:`F`
+    provided in the ``F`` parameter can be derived in every one of these
+    :math:`n` cases.
 
     This is rule [C3].
+
+    This function works as follows:
+
+    1. If :math:`k > 0`, compute the basis
+    :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
+    \mathcal{B}(F_{k}, \\rho, \chi)` of :math:`F_{1}, \ldots, F_{k}` and
+    determine if the NamedState objects
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})`
+    provided in the ``named_states`` parameter form an exhuastive set of
+    possibilities on this basis.
+
+    2. Determine if the proviso
+    :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{k}\}} \
+    \{(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})\}` (where
+    :math:`k \ge 0`) holds.
+
+    3. Return the evaluation of
+    :math:`(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models F`.
+
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` from \
+    which the present diagram :math:`(\sigma;\\rho)` comes from.
+    :type  context: Context
+    :param F: The Formula object :math:`F` derivable in the :math:`n > 0` \
+    cases provided by the NamedState objects \
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})` in the \
+    ``named_state`` parameter.
+    :type  F: Formula
+    :param named_states: The NamedState objects \
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0` \
+    functioning as the set of :math:`n` exhaustive cases from which :math:`F` \
+    can be derived.
+    :type  named_states: ``list``
+    :param attribute_interpretation: The AttributeInterpretation object to \
+    use for the interpretation of truth values and the computation of the \
+    basis of :math:`F_{1}, \ldots, F_{k}`.
+    :type  attribute_interpretation: AttributeInterpretation
+    :param variable_assignment: The VariableAssignment object :math:`\chi` to \
+    consider when computing the basis \
+    :math:`\mathcal{B}(F_{1}, \\rho, \chi) ~ \cup ~ \cdots ~ \cup ~ \
+    \mathcal{B}(F_{k}, \\rho, \chi)` of :math:`F_{1}, \ldots, F_{k}` or \
+    ``None`` if all terms of the :math:`F_{1}, \ldots, F_{k}` are in \
+    :math:`\\rho`.
+    :type  variable_assignment: VariableAssignment | ``None``
+    :param formulae: The :math:`{k \ge 0}` Formula objects \
+    :math:`F_{1}, \ldots, F_{k}` to use in the computation of the basis, \
+    computation of the proviso and the evaluation of \
+    :math:`{(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models F}`.
+    :type  formulae: Formula
+
+    :return: The result of the evaluation of \
+    :math:`(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models F`.
+    :rtype: ``bool``
+
+    :raises ValueError: If :math:`k > 0`, the NamedState objects \
+    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0` \
+    are not exhaustive on the basis of the Formula objects \
+    :math:`F_{1}, \ldots, F_{k}` or the proviso \
+    :math:`{(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{k}\}} \
+    \{(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n})\}}` (where \
+    :math:`k \ge 0`) does not hold.
     """
 
     if formulae:

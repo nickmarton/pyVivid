@@ -1,5 +1,7 @@
 """formula module."""
 
+from variable_assignment import VariableAssignment
+
 
 class Formula(object):
     """
@@ -424,8 +426,8 @@ class Formula(object):
         :type  constant_assignment: ConstantAssignment
         :param variable_assignment: The VariableAssignment object to use to \
         compile the profile corresponding to each Formula object into \
-        attribute-object pairs to consider for the basis.
-        :type  variable_assignment: VariableAssignment
+        attribute-object pairs to consider for the basis or ``None``.
+        :type  variable_assignment: VariableAssignment | ``None``
         :param attribute_interpretation: The AttributeInterpretation object \
         to use to determine the profiles corresponding to the Formula objects \
         provided (the profile is extracted from the interpretation table when \
@@ -456,6 +458,13 @@ class Formula(object):
                 "object")
 
         basis = set([])
+
+        # Load a dummy VariableAssignment object if one is not provided
+        if not variable_assignment:
+            variable_assignment = VariableAssignment(
+                constant_assignment._vocabulary,
+                constant_assignment._attribute_system,
+                {}, dummy=True)
 
         for formula in formulae:
 
