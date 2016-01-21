@@ -11,7 +11,8 @@ class PointParser(object):
     PointParser class. The PointParser class is used for parsing Point object
     related expressions.
 
-    :ivar _is_Parser: An identifier to use in place of type or isinstance.
+    :ivar _is_Parser: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self):

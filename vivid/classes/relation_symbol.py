@@ -3,10 +3,13 @@
 
 class RelationSymbol(object):
     """
-    Relation Symbols class for Vocabularies.
+    Relation Symbols class.
+    The RelationSymbol class is used entirely in the Vocabulary class.
 
-    :ivar name: a ``str`` designating the name of the RelationSymbol object.
-    :ivar arity: an ``int`` designating the arity of the RelationSymbol object.
+    :ivar name: A ``str`` designating the name of the RelationSymbol object.
+    :ivar arity: An ``int`` designating the arity of the RelationSymbol object.
+    :ivar _is_RelationSymbol: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, name, arity):
@@ -19,7 +22,7 @@ class RelationSymbol(object):
         :type  arity: ``int``
 
         :raises TypeError: ``name`` parameter must be a ``str`` and ``arity`` \
-        parameter must be an ``int``\.
+        parameter must be an ``int``.
         :raises ValueError: ``arity`` must be positive.
         """
 
@@ -72,7 +75,7 @@ class RelationSymbol(object):
         Private key function for hashing.
 
         :return: 2-tuple consisting of (``name``, ``arity``)
-        :rtype: tuple
+        :rtype: ``tuple``
         """
 
         return (self._name, self._arity)
@@ -86,12 +89,12 @@ class RelationSymbol(object):
 
     def __str__(self):
         """
-        Return a readable string representation of a RelationSymbol object.
+        Return a readable string representation of the RelationSymbol object.
         """
 
         name_str = self._name
         return name_str
 
     def __repr__(self):
-        """Return a string representation of a RelationSymbol object."""
+        """Return a string representation of the RelationSymbol object."""
         return self.__str__()

@@ -181,7 +181,7 @@ def test___sub__():
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
     # Test invalid subtraction error catching
-    test_ValueError(astr_empty, a)
+    test_KeyError(astr_empty, a)
     test_KeyError(astr_empty, R1)
     test_TypeError(astr_empty, None)
     test_TypeError(astr_empty, "")
@@ -255,7 +255,7 @@ def test___isub__():
     astr_a_b_R1_R2 = AttributeStructure(a, b, R1, R2)
 
     # Test invalid subtraction error catching
-    test_ValueError(astr_empty, a)
+    test_KeyError(astr_empty, a)
     test_KeyError(astr_empty, R1)
     test_TypeError(astr_empty, None)
     test_TypeError(astr_empty, "")
@@ -285,13 +285,15 @@ def test___getitem__():
         with pytest.raises(TypeError) as excinfo:
             astr[index]
 
-    def test_ValueError(astr, index):
+    def test_KeyError(astr, index):
         """Test indexing for ValueErrors with given params."""
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(KeyError) as excinfo:
             astr[index]
 
     a = Attribute("a", [])
+    b = Attribute("b", [])
     R1 = Relation("R1(a) <=> ", ["a"], 1)
+    R2 = Relation("R2(b) <=> ", ["b"], 2)
 
     astr = AttributeStructure(a, R1)
     assert astr[a] == a
@@ -303,7 +305,10 @@ def test___getitem__():
     test_TypeError(astr, 1.0)
     test_TypeError(astr, [])
     test_TypeError(astr, object)
-    test_ValueError(astr, "")
+    test_KeyError(astr, "")
+    test_KeyError(astr, 3)
+    test_KeyError(astr, b)
+    test_KeyError(astr, R2)
 
 
 def test___contains__():

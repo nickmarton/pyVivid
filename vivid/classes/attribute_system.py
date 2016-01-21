@@ -10,11 +10,14 @@ from attribute_structure import AttributeStructure
 @total_ordering
 class AttributeSystem(object):
     """
-    AttributeSystem class composed of an AttributeStructure and set of objects,
-    i.e.,
+    AttributeSystem class. An AttributeSystem object, based on the
+    AttributeStructure object :math:`\mathcal{A}` is a pair
 
-    .. centered:: :math:`\mathcal{S} =` \
-    ({*s*\ :sub:`1`, :math:`\ldots`, *s*\ :sub:`n`}; :math:`\mathcal{A}`)
+    .. centered:: :math:`\mathcal{S} = (\{s_{1}, \ldots, s_{n}\}; \mathcal{A})`
+
+    consisting of a finite number :math:`n > 0` of objects
+    :math:`s_{1}, \ldots, s_{n}` (represented as ``str``\s) and
+    :math:`\mathcal{A}`.
 
     The AttributeSystem class uses the ``total_ordering`` decorator so
     strict subsets, supersets and strict supersets are also available via the
@@ -24,23 +27,24 @@ class AttributeSystem(object):
     :ivar attribute_structure: The AttributeStructure of the AttributeSystem.
     :ivar objects: The objects of the AttributeSystem; held as a list of \
     ``str``\s.
-    :ivar _is_AttributeSystem: An identifier to use in place of type or \
-    isinstance.
+    :ivar _is_AttributeSystem: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
-    def __init__(self, A, objects):
+    def __init__(self, attribute_structure, objects):
         """
         Construct AttributeSystem object.
 
-        :param A: an AttributeStructure object to use as the attribute \
-        structure of the AttributeSystem object.
-        :type  A: AttributeStructure
+        :param attribute_structure: an AttributeStructure object to use as \
+        the attribute structure :math:`\mathcal{A}` of the AttributeSystem \
+        object.
+        :type  attribute_structure: AttributeStructure
         :param objects: A list of ``str``\s denoting the objects of the \
         AttributeSystem.
         :type  objects: list
 
-        :raises TypeError: ``objects`` parameter must be a ``list`` and ``A`` \
-        parameter must be an AttributeStructure object.
+        :raises TypeError: ``objects`` parameter must be a ``list`` and \
+        ``attribute_structure`` parameter must be an AttributeStructure object.
         :raises ValueError: all objects provided in ``objects`` parameter \
         must be unique non-empty ``str``\s.
         """
@@ -56,8 +60,10 @@ class AttributeSystem(object):
                 raise ValueError("Cannot add an empty string as object")
 
         # Enforce AttributeStructure type
-        if not hasattr(A, "_is_AttributeStructure"):
-            raise TypeError("A parameter must be of type AttributeStructure")
+        if not hasattr(attribute_structure, "_is_AttributeStructure"):
+            raise TypeError(
+                "attribute_structure parameter must be of type "
+                "AttributeStructure")
 
         # enforce no duplicate objects
         if len(objects) != len(set(objects)):
@@ -66,7 +72,7 @@ class AttributeSystem(object):
 
         # sort objects before setting them
         self._objects = sorted(objects)
-        self._attribute_structure = deepcopy(A)
+        self._attribute_structure = deepcopy(attribute_structure)
         self._is_AttributeSystem = True
 
     def __eq__(self, other):
@@ -83,8 +89,9 @@ class AttributeSystem(object):
 
     def __le__(self, other):
         """
-        Determine if this AttributeSystem is a subset of the AttributeSystem
-        contained in ``other`` parameter via ``<=`` operator.
+        Determine if the calling AttributeSystem object is a subset of the
+        AttributeSystem object contained in the ``other`` parameter via ``<=``
+        operator.
         """
 
         c_astr = self._attribute_structure <= other._attribute_structure
@@ -108,8 +115,8 @@ class AttributeSystem(object):
         object via the ``+`` operator.
 
         :param other: The object to combine with the AttributeSystem. \
-        An AttributeSystem is always returned regardless of the type of \
-        ``other`` parameter.
+        An AttributeSystem object is always returned regardless of the type \
+        of ``other`` parameter.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
         :raises TypeError: ``other`` parameter must be an Attribute, \
@@ -152,12 +159,12 @@ class AttributeSystem(object):
         """
         Remove an Attribute, Relation, AttributeStructure, or AttributeSystem
         object via the ``-`` operator. In the case of AttributeStructure and
-        AttributeSystem objects, remove all of their consituent parts from this
-        AttributeSystem.
+        AttributeSystem objects being provided to ``other`` parameter, remove
+        all of their consituent parts from the calling AttributeSystem.
 
         :param other: The object to remove from the AttributeSystem. \
-        An AttributeSystem is always returned regardless of the type of \
-        ``other`` parameter.
+        An AttributeSystem object is always returned regardless of the type \
+        of ``other`` parameter.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
         :raises TypeError: ``other`` parameter must be an Attribute, \
@@ -204,8 +211,8 @@ class AttributeSystem(object):
         object via the ``+=`` operator.
 
         :param other: The object to combine with the AttributeSystem. \
-        An AttributeSystem is always returned regardless of the type of \
-        ``other`` parameter.
+        An AttributeSystem object is always returned regardless of the type \
+        of ``other`` parameter.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
         :raises TypeError: ``other`` parameter must be an Attribute, \
@@ -220,12 +227,12 @@ class AttributeSystem(object):
         """
         Remove an Attribute, Relation, AttributeStructure, or AttributeSystem
         object via the ``-=`` operator. In the case of AttributeStructure and
-        AttributeSystem objects, remove all of their consituent parts from this
-        AttributeSystem.
+        AttributeSystem objects being provided to ``other`` parameter, remove
+        all of their consituent parts from the calling AttributeSystem.
 
         :param other: The object to remove from the AttributeSystem. \
-        An AttributeSystem is always returned regardless of the type of \
-        ``other`` parameter.
+        An AttributeSystem object is always returned regardless of the type \
+        of ``other`` parameter.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
         :raises TypeError: ``other`` parameter must be an Attribute, \
@@ -239,14 +246,15 @@ class AttributeSystem(object):
     def __getitem__(self, key):
         """
         Retrieve a reference to the Attribute, Relation, or object in the
-        AttributeSystem via the key provided.
+        AttributeSystem by indexing with the key provided in ``key`` parameter
+        (e.g., ``"AttributeSystem[key]"``).
 
         :param key: The Attribute, Relation or name of the object to get the \
-        reference of from this AttributeSystem.
+        reference of from the calling AttributeSystem object.
         :type  key: Attribute|Relation|str
 
         :raises TypeError: ``str`` in ``key`` does not match any object \
-        contained in this AttributeSystem.
+        contained in the calling AttributeSystem object.
         """
 
         # Handle removing an Attribute
@@ -267,14 +275,14 @@ class AttributeSystem(object):
 
     def __contains__(self, key):
         """
-        Determine if Attribute, Relation, AttributeStructure, or ``str`` in \
-        ``key`` parameter is contained by this AttributeSystem via ``in`` \
-        operator.
+        Determine if the Attribute object, Relation object, AttributeStructure
+        object, or ``str`` in the ``key`` parameter is contained by the calling
+        AttributeSystem object via ``in`` operator.
 
         :param key: The key to use when checking for membership.
         :type  key: Attribute|Relation|AttributeStructure|str
 
-        :raises TypeError: ``key`` must be an Attribute object, \
+        :raises TypeError: ``key`` parameter must be an Attribute object, \
         Relation object, AttributeStructure object, or ``str``.
         """
 
@@ -305,18 +313,6 @@ class AttributeSystem(object):
         attribute_structure_copy = deepcopy(self._attribute_structure)
         return AttributeSystem(attribute_structure_copy, objects_copy)
 
-    def get_power(self):
-        """
-        Get power of this AttributeSystem, i.e.,
-        *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`.
-
-        :return: power of the AttributeSystem: \
-        *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`
-        :rtype: ``int``
-        """
-
-        return len(self._objects) * self._attribute_structure.get_cardinality()
-
     def __str__(self):
         """
         Return a readable string representation of the AttributeSystem object.
@@ -333,12 +329,27 @@ class AttributeSystem(object):
 
         return self.__str__()
 
+    def get_power(self):
+        """
+        Get the power of the calling AttributeSystem object, i.e.,
+        *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`.
+
+        :return: The power of the calling AttributeSystem object: \
+        *n* :math:`\cdot` :math:`\lvert`\ :math:`\mathcal{A}`\ :math:`\lvert`
+        :rtype: ``int``
+        """
+
+        return len(self._objects) * self._attribute_structure.get_cardinality()
+
     def is_automorphic(self):
         """
-        Determine if this Attribute System is automorphic.
+        Determine if the calling AttributeSystem object is automorphic.
 
-        :return: Whether or not this AttributeSystem is automorphic; i.e., \
-        some object is contained by one of the ValueSets of the Attributes.
+        :return: Whether or not the calling AttributeSystem object is \
+        automorphic; i.e., some (perhaps all) of the objects \
+        :math:`s_{1}, \ldots, s_{n}` are contained by at least one of the \
+        ValueSets of the Attribute objects of the underlying \
+        AttributeStructure object :math:`\mathcal{A}`.
         :rtype: ``bool``
         """
 

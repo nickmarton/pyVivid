@@ -6,12 +6,14 @@ from valueset import ValueSet
 
 class Attribute(object):
     """
-    Attribute Class, i.e., a finite set *A* with an associated label *l*.
+    Attribute Class.
+    An Attribute is a finite set :math:`A` with an associated label :math:`l`.
 
-    :ivar label: the associated label *l* of the Attribute *A*.
-    :ivar value_set: the set of values that the attribute can take on \
-    (e.g {small,large}).
-    :ivar _is_Attribute: An identifier to use in place of type or isinstance.
+    :ivar label: The associated label :math:`l` of the Attribute :math:`A`.
+    :ivar value_set: A ValueSet object functioning as the set of values that \
+    the attribute can take on (e.g {small,large}).
+    :ivar _is_Attribute: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, label, value_set):
@@ -21,7 +23,7 @@ class Attribute(object):
         :param label: The label *l* to associate with the Attribute object.
         :type  label: str
 
-        :param value_set: The set of values the Attribute can take on.
+        :param value_set: The set of values the Attribute object can take on.
         :type  value_set: list|ValueSet
 
         :raises TypeError: ``label`` parameter must be a string and \
@@ -58,7 +60,8 @@ class Attribute(object):
 
     def __ne__(self, other):
         """
-        Determine if two Attribute objects are not equal via the ``!=`` operator.
+        Determine if two Attribute objects are not equal via the ``!=``
+        operator.
         """
 
         return not self.__eq__(other)
@@ -72,11 +75,11 @@ class Attribute(object):
         :param other: The object to combine with the Attribute. \
         If an Attribute, Relation, or AttributeStructure object is provided, \
         an AttributeStructure object is returned; if an AttributeSystem \
-        object is provided, an AttributeSystem is returned.
+        object is provided, an AttributeSystem object is returned.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
-        :raises TypeError: other parameter must be an Attribute, Relation, \
-        AttributeStructure, or AttributeSystem object.
+        :raises TypeError: ``other`` parameter must be an Attribute, \
+        Relation, AttributeStructure, or AttributeSystem object.
         """
 
         from attribute_structure import AttributeStructure
@@ -110,16 +113,12 @@ class Attribute(object):
         return Attribute(deepcopy(self._label), deepcopy(self._value_set))
 
     def __str__(self):
-        "Return a readable string representation of the Attribute object with the \
-        following form: \
-        \"*label:* {v\ :sub:`1`\ , :math:`\ldots` ,v\ :sub:`n`\ }.\""
+        "Return a readable string representation of the Attribute object."""
         return self._label + ': ' + '{' + ''.join(
             [str(i) + ',' for i in self._value_set])[:-1] + '}'
 
     def __repr__(self):
-        "Return a string representation of the Attribute object with the \
-        following form: \
-        \"*label:* {v\ :sub:`1`\ , :math:`\ldots` ,v\ :sub:`n`\ }.\""
+        "Return a string representation of the Attribute object."""
         return "\"" + self.__str__() + "\""
 
     def _key(self):

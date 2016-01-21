@@ -5,15 +5,19 @@ from copy import deepcopy
 
 class Relation(object):
     """
-    Class to represent logical relations used in AttributeStructure objects.
+    Relation class. Relation objects represent logical relations used in
+    AttributeStructure objects.
 
-    :ivar definition: string representation of definition with form \
-    ``Rn(a,...) <=> ...`` where n is a positive integer; whitespace is ignored.
-    :ivar DR: DR represents *D*\(*R*\) :math:`\subseteq` \
-    {A\ :sub:`1`, :math:`\ldots`, A\ :sub:`n`}; held as a list of strings \
-    corresponding to labels of some set of Attributes objects; no assumptions \
-    are made on the labels of the attributes.
-    :ivar subscript: subscript of relation.
+    :ivar definition: A string representation of the Relation object's \
+    definition with form ``Rn(a,...)<=>...`` where n is a positive integer; \
+    whitespace is ignored.
+    :ivar DR: DR represents :math:`D(R) \subseteq \{A_{1}, \ldots, A_{n}\}`; \
+    held as a list of strings corresponding to the labels of some set of \
+    Attributes objects; no assumptions are made on the labels of the \
+    attributes.
+    :ivar subscript: The subscript of the relation.
+    :ivar _is_Relation: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, definition, D_of_r, subscript):
@@ -21,21 +25,23 @@ class Relation(object):
         Construct a Relation object.
 
         :param definition: The definition of the logical relation; valid \
-        definitions have the form: ``Rn(a,...) <=> ...``.
+        definitions have the form: ``Rn(a,...) <=> ...`` where all whitespace \
+        is ignored.
         :type  definition: str
-        :param D_of_r: *D*\(*R*\) :math:`\subseteq` \
-        {A\ :sub:`1`, :math:`\ldots`, A\ :sub:`n`}; a list of strings.
+        :param D_of_r: A list of strings representing \
+        :math:`D(R) \subseteq \{A_{1}, \ldots, A_{n}\}`.
         :type  D_of_r: list
         :param subscript: The subscript of the relation; must match subscript \
         in definition.
         :type  subscript: int
 
-        :raises TypeError: definition must be a ``str``\, D_of_r must be a \
-        ``list`` of containing only ``str``\s and subscript must be an ``int``\.
-        :raises ValueError: definition must be in correct form, number of \
-        parameter provided in ``definition`` must match the length of \
-        ``D_of_r`` and ``subscript`` must match subscript provided in \
-        ``definition``\.
+        :raises TypeError: ``definition`` parameter must be a ``str``\, \
+        ``D_of_r`` parameter must be a ``list`` containing only ``str``\s and \
+        ``subscript`` parameter must be an ``int``\.
+        :raises ValueError: ``definition`` parameter must be correctly \
+        formatted, the number of parameters provided in ``definition`` must \
+        match the length of ``D_of_r`` and ``subscript`` parameter must match \
+        subscript provided in ``definition`` parameter.
         """
 
         # type enforcement
@@ -117,7 +123,7 @@ class Relation(object):
         object is provided, an AttributeSystem is returned.
         :type  other: Attribute|AttributeStructure|AttributeSystem
 
-        :raises TypeError: other parameter must be an Attribute, \
+        :raises TypeError: ``other`` parameter must be an Attribute, \
         AttributeStructure, or AttributeSystem object.
         """
 
@@ -152,17 +158,18 @@ class Relation(object):
             int(self._subscript))
 
     def __str__(self):
-        """Return a readable string representation of a Relation object."""
+        """Return a readable string representation of the Relation object."""
         return 'R' + str(self._subscript) + ' is a subset of ' + \
             self.get_DR(True) + ', defined as follows: ' + self._definition
 
     def __repr__(self):
-        """"Return a string representation of a Relation object."""
+        """Return a string representation of the Relation object."""
         return 'R' + str(self._subscript)
 
     def set_definition(self, definition):
         """
-        Set definition; ensure that it conforms to required format.
+        Set the definition of the Relation object to ``definition`` parameter
+        after ensuring that it conforms to required format.
 
         :param definition: The new definition of the Relation object.
         :type  definition: str
@@ -184,15 +191,16 @@ class Relation(object):
 
     def get_DR(self, string=False):
         """
-        Return *D*\(*R*\) of relation. If string is set to True, return string
-        representation of *D*\(*R*\).
+        Return :math:`D(R)` of the calling Relation object. If ``string``
+        parameter is set to True, return a ``str`` representation of
+        :math:`D(R)`.
 
-        :param string: boolean for whether or not to return string \
-        representation of *D*\(*R*\)
+        :param string: A boolean value for whether or not to return a string \
+        representation of :math:`D(R)`.
         :type  string: boolean
 
-        :return: A representation of *D*\(*R*\)
-        :rtype: ``str`` or ``list``
+        :return: A representation of :math:`D(R)`.
+        :rtype: ``str`` | ``list``
         """
 
         if string:
@@ -202,15 +210,15 @@ class Relation(object):
 
     def set_DR(self, DR):
         """
-        Set *D*\(*R*\).
+        Set :math:`D(R)` to ``DR`` parameter.
 
-        :param DR: The list of strings to set this Relation object's \
-        *D*\(*R*\) to.
-        :type  DR: list
+        :param DR: The list of strings to set the calling Relation object's \
+        :math:`D(R)` to.
+        :type  DR: ``list``
 
-        :raises TypeError: *D*\(*R*\) is not a ``list`` of ``str``\s.
-        :raises ValueError: *D*\(*R*\) cardinality must match \
-        argument cardinality in Relation object's definition.
+        :raises TypeError: :math:`D(R)` is not a ``list`` of ``str``\s.
+        :raises ValueError: The cardinality of :math:`D(R)` must match \
+        argument cardinality in Relation object's definition member.
         """
 
         if not isinstance(DR, list):
@@ -237,29 +245,33 @@ class Relation(object):
 
     def get_arity(self):
         """
-        Return arity of this Relation object.
+        Return the arity of the calling Relation object.
 
-        :return: length of *D*\(*R*\).
+        :return: The length of :math:`D(R)`.
         :rtype: ``int``
         """
+
         return len(self._DR)
 
     @staticmethod
     def is_valid_definition(definition):
         """
-        Determine if a given definition is valid. A definition is valid when
-        it is of the form ``Rs(x1,...,xn) <=>`` <expression>.
-        The important thing here is the left hand side and the marker '<=>'.
-        Everything on the right hand side of '<=>' is ignored as far as
-        Relation definition is concerned; whether or not it is evaluatable is
-        left to ``Formula.assign_truth_value()`` as it is only during the
-        assignment of a truth value that the expression comes into play.
-        All whitespace is trimmed immediately so arbitrary spacing is allowed.
+        Determine if a given definition in ``definition`` parameter is valid.
+        A definition is valid when it is of the form
+        ``Rs(x1,...,xn) <=>`` <expression>.
+
+        The important thing here is the left hand side and the marker
+        ``"<=>"``. Everything on the right hand side of ``"<=>"`` is ignored as
+        far as the definition's validity is concerned; whether or not it is
+        evaluatable is left to ``Formula.assign_truth_value()`` as it is only
+        during the assignment of a truth value that the expression comes into
+        play. All whitespace is trimmed immediately so arbitrary spacing is
+        allowed.
 
         :param definition: The definition to verify.
         :type  definition: str
 
-        :return: whether or not ``definition`` is valid.
+        :return: Whether or not ``definition`` is valid.
         :rtype: ``bool``
         """
 

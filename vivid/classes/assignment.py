@@ -3,20 +3,23 @@
 
 class Assignment(object):
     """
-    Assignment superclass for constant/variable assignments.
+    Assignment class. The Assignment class functions as a superclass for the
+    ConstantAssignment and VariableAssignment classes.
 
-    :ivar vocabulary: a reference to the Vocabulary object the Assignment is \
-    defined over.
-    :ivar attribute_system: a copy of the AttributeSystem the Assignment \
+    :ivar vocabulary: A reference to the Vocabulary object :math:`\Sigma` \
+    that the Assignment is defined over.
+    :ivar attribute_system: A copy of the AttributeSystem the Assignment \
     originates from.
-    :ivar _is_Assignment: An identifier to use in place of type or isinstance.
+    :ivar _is_Assignment: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, vocabulary, attribute_system):
         """
         Construct a base Assignment.
 
-        :param vocabulary: The Vocabulary the Assignment is defined over.
+        :param vocabulary: The Vocabulary :math:`\Sigma` the Assignment is \
+        defined over.
         :type  vocabulary: Vocabulary
         :param attribute_system: The AttributeSystem from which the objects \
         in the Assignment come from.

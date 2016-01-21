@@ -11,17 +11,19 @@ class Context(object):
     Context object.
     :ivar named_state: The NamedState object :math:`(\sigma;\\rho)` of the \
     Context object.
-    :ivar is_Context: An identifier to use in place of type or isinstance.
+    :ivar is_Context: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, assumption_base, named_state):
         """
         Construct a Context object.
 
-        :param assumption_base: The AssumptionBase object to use in the \
-        Context object.
+        :param assumption_base: The AssumptionBase object :math:`\\beta` to \
+        use in the Context object.
         :type  assumption_base: AssumptionBase
-        :param named_state: The NamedState object to use in the Context object.
+        :param named_state: The NamedState object :math:`(\sigma;\\rho)` to \
+        use in the Context object.
         :type  named_state: NamedState
 
         :raises TypeError: ``assumption_base`` parameter must be an \
@@ -29,7 +31,7 @@ class Context(object):
         NamedState object.
         :raises ValueError: The underlying Vocabulary objects of the \
         ``assumption_base`` and ``named_state`` parameters must be the same \
-        Vocabulary object.
+        Vocabulary object :math:`\Sigma`.
         """
 
         # Check for exceptions first.
@@ -81,13 +83,14 @@ class Context(object):
         return context_str
 
     def __repr__(self):
-        """Return a string representation of the NamedState object."""
+        """Return a string representation of the Context object."""
         return self.__str__()
 
     def __deepcopy__(self, memo):
         """
-        Deepcopy a Context object via the ``copy.deepcopy`` method.
-        This does not break the reference to the underlying Vocabulary object.
+        Deepcopy a Context object via the ``copy.deepcopy`` method. This does
+        not break the reference to the underlying Vocabulary object
+        :math:`\Sigma`.
         """
 
         from copy import deepcopy
@@ -96,21 +99,22 @@ class Context(object):
 
     def entails_formula(self, formula, attribute_interpretation):
         """
-        Determine if this Context object entails the Formula object provided by
-        ``formula`` parameter w.r.t. all worlds and possible variable
-        assignments of this Context, using AttributeInterpretation object
-        provided in ``attribute_interpretation`` to interpret truth values,
-        i.e., determine if :math:`\gamma \models F`.
+        Determine if the calling Context object
+        :math:`{\gamma = (\\beta; (\sigma; \\rho))}` entails the Formula object
+        :math:`F` provided in the ``formula`` parameter, using the
+        AttributeInterpretation object :math:`I` provided in the
+        ``attribute_interpretation`` parameter to interpret truth values, i.e.,
+        determine if :math:`\gamma \models F`.
 
-        :param formula: The Formula object to check for entailment.
+        :param formula: The Formula object :math:`F` to check for entailment.
         :type  formula: Formula
-        :param attribute_interpretation: The AttributeInterpretation to use \
-        for the interpretation of truth values during the evauation of the \
-        entailment.
+        :param attribute_interpretation: The AttributeInterpretation object \
+        :math:`I` to use for the interpretation of truth values during the \
+        evauation of :math:`\gamma \models F`.
         :type  attribute_interpretation: AttributeInterpretation
 
-        :return: Whether or not :math:`\gamma \models F`,that is \
-        :math:`(w;\widehat{\\rho})\models_{\chi}\gamma` implies \
+        :return: Whether or not :math:`\gamma \models F`, that is, whether or \
+        not :math:`(w;\widehat{\\rho})\models_{\chi}\gamma` implies \
         :math:`(w;\widehat{\\rho})\models_{\chi}F` for all worlds \
         :math:`(w;\widehat{\\rho})` and variable assignments :math:`\chi`.
         :rtype: ``bool``
@@ -118,9 +122,9 @@ class Context(object):
         :raises TypeError: ``formula`` parameter must be a Formula object and \
         ``attribute_interpretation`` parameter must be an \
         AttributeInterpretation object.
-        :raises ValueError: This Context and the Formula object provided in \
-        the ``formula`` parameter must share the same underlying Vocabulary \
-        object.
+        :raises ValueError: The calling Context object and the Formula object \
+        :math:`F` provided in the ``formula`` parameter must share the same \
+        underlying Vocabulary object :math:`\Sigma`.
         """
 
         # Check for exceptions first.
@@ -156,18 +160,20 @@ class Context(object):
 
     def entails_named_state(self, named_state, attribute_interpretation):
         """
-        Determine if this Context object entails the NamedState object provided
-        by ``named_state`` parameter w.r.t. all worlds and possible variable
-        assignments of this Context, using AttributeInterpretation object
-        provided in ``attribute_interpretation`` to interpret truth values,
-        i.e., determine if
+        Determine if the calling Context object
+        :math:`{\gamma = (\\beta; (\sigma; \\rho))}` entails the NamedState
+        object :math:`(\sigma^{\prime};\\rho^{\prime})` provided in the
+        ``named_state`` parameter, using the AttributeInterpretation object
+        :math:`I` provided in the ``attribute_interpretation`` parameter to
+        interpret truth values, i.e., determine if
         :math:`\gamma \models (\sigma^{\prime};\\rho^{\prime})`.
 
-        :param named_state: The NamedState object to check for entailment.
+        :param named_state: The NamedState object \
+        :math:`(\sigma^{\prime};\\rho^{\prime})` to check for entailment.
         :type  named_state: NamedState
-        :param attribute_interpretation: The AttributeInterpretation to use \
-        for the interpretation of truth values during the evauation of the \
-        entailment.
+        :param attribute_interpretation: The AttributeInterpretation object \
+        :math:`I` to use for the interpretation of truth values during the \
+        evauation of :math:`\gamma \models (\sigma^{\prime};\\rho^{\prime})`.
         :type  attribute_interpretation: AttributeInterpretation
 
         :return: Whether or not \
@@ -181,9 +187,10 @@ class Context(object):
         :raises TypeError: ``named_state`` parameter must be a NamedState \
         object and ``attribute_interpretation`` parameter must be an \
         AttributeInterpretation object.
-        :raises ValueError: This Context and the NamedState object provided \
-        in the ``formula`` parameter must share the same underlying \
-        Vocabulary object.
+        :raises ValueError: The calling Context object and the NamedState \
+        object :math:`(\sigma^{\prime};\\rho^{\prime})` provided in the \
+        ``named_state`` parameter must share the same underlying Vocabulary \
+        object :math:`\Sigma`.
         """
 
         # Check for exceptions first.

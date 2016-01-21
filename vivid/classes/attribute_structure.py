@@ -9,37 +9,41 @@ from functools import total_ordering
 @total_ordering
 class AttributeStructure(Attribute):
     """
-    AttributeStructure class composed of Attribute and Relation objects,
+    AttributeStructure class.
+    An AttributeStructure object consists of a finite set of Attribute objects
+    :math:`A_{1}, \ldots, A_{k}`; and a countable collection
+    :math:`\mathcal{R}` of computable Relation objects with
+    :math:`D(R) \subseteq \{A_{1}, \ldots, A_{k}\}` for each
+    :math:`R \subseteq \mathcal{R}`.
     i.e.,
 
-    .. centered:: :math:`\mathcal{A}` = ({*A*\ :sub:`1`\, :math:`\ldots` , \
-    *A*\ :sub:`k`\}; :math:`\mathcal{R}`)
+    .. centered:: :math:`\mathcal{A} = (\{A_{1}, \ldots, A_{k}\}; \mathcal{R})`
 
     The AttributeStructure class uses the ``total_ordering`` decorator so
     strict subsets, supersets and strict supersets are also available via the
     ``<``, ``>=``, and ``>`` operators respectively, despite the lack of magic
     functions for them.
 
-    :ivar attributes: list of Attribute objects (i.e., {*A*\ :sub:`1`\, \
-    :math:`\ldots` , *A*\ :sub:`k`\}); always maintained as a list.
-    :ivar relations: dictionary of relations (i.e., :math:`\mathcal{R}`).
-    :ivar _is_AttributeStructure: An identifier to use in place of type or \
-    isinstance.
+    :ivar attributes: A list of Attribute objects (i.e., \
+    :math:`A_{1}, \ldots, A_{k}`); always maintained as a list.
+    :ivar relations: A dictionary of relations (i.e., :math:`\mathcal{R}`).
+    :ivar _is_AttributeStructure: An identifier to use in place of ``type`` \
+    or ``isinstance``.
     """
 
     def __init__(self, *args):
         """
         Construct an AttributeStructure object.
 
-        :param args: Attribute or Relation objects.
+        :param args: Any amount of Attribute and Relation objects.
         :type  args: Attribute|Relation
 
-        :raises TypeError: all optional positional arguments must be \
+        :raises TypeError: all optional positional arguments provided must be \
         Attribute or Relation objects.
         :raises ValueError: Duplicate Attribute labels are not permitted, \
-        Duplicate Relation subscripts are not permitted, and each Relation's \
-        *D*\(*R*\) must be a subset of the cartesian product of some \
-        combination of the labels of the Attributes provided.
+        Duplicate Relation subscripts are not permitted, and each Relation \
+        object's :math:`D(R)` must be a subset of the cartesian product of \
+        some combination of the labels of the Attributes provided.
         """
 
         self._attributes = []
@@ -128,8 +132,9 @@ class AttributeStructure(Attribute):
 
     def __le__(self, other):
         """
-        Overloaded ``<=`` operator. Determine if this AttributeStructure is a
-        subset of other.
+        Overloaded ``<=`` operator. Determine if the calling AttributeStructure
+        object is a subset of the AttributeStructure object contained in
+        ``other`` parameter.
         """
 
         c_attribute = set(self._attributes) <= set(other._attributes)
@@ -147,20 +152,20 @@ class AttributeStructure(Attribute):
 
     def __add__(self, other):
         """
-        Add an Attribute, Relation, or AttributeStructure object via the ``+``
-        operator.
+        Add an Attribute, Relation, AttributeStructure, or AttributeSystem
+        object via the ``+`` operator.
 
         :param other: The object to combine with the AttributeStructure. \
         If an Attribute, Relation, or AttributeStructure object is provided, \
         an AttributeStructure object is returned; if an AttributeSystem \
-        object is provided, an AttributeSystem is returned.
+        object is provided, an AttributeSystem object is returned.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
         :raises TypeError: ``other`` parameter must be an Attribute, \
         Relation, AttributeStructure, or AttributeSystem object.
-        :raises ValueError: Duplicate Attribute labels not permitted, \
+        :raises ValueError: Duplicate Attribute labels are not permitted, \
         duplicate subscripts are not permitted and every Relation's \
-        *D*\(*R*\) must be a subset of Attribute labels in the \
+        :math:`D(R)` must be a subset of Attribute labels in the \
         AttributeStructure.
         """
 
@@ -218,19 +223,22 @@ class AttributeStructure(Attribute):
     def __sub__(self, other):
         """
         Remove Attribute's or Relation's via ``-`` operator. If an
-        AttributeStructure is provided, all Attributes and Relations within
-        that AttributeStructure will be removed.
+        AttributeStructure object is provided, all Attribute objects and
+        Relation objects within that AttributeStructure object will be removed
+        from the calling AttributeStructure.
 
-        :param other: The Attribute, Relation, or AttributeStructure to remove.
+        :param other: The Attribute, Relation, or AttributeStructure object \
+        to remove.
         :type  other: Attribute|Relation|AttributeStructure
 
-        :raises KeyError: Invalid Relation provided.
+        :raises KeyError: Invalid Attribute or Relation object provided in \
+        ``other`` parameter.
         :raises TypeError: Only Attribute, Relation, or AttributeStructure \
         objects can be removed.
-        :raises ValueError: Invalid Attribute provided if ``other`` is \
-        Attribute, Relation or Attribute not contained in this \
-        AttributeStructure if ``other`` is AttributeStructure or some \
-        Relation's *D*\(*R*\) is invalid after Attribute removal.
+        :raises ValueError: Some Attribute or Relation object provided in \
+        AttributeStructure object in ``other`` parameter not found in calling \
+        AttributeStructure object or some Relation object's :math:`D(R)` is \
+        invalid after an Attribute object is removed.
         """
 
         # create copy before removing anything to not modify original
@@ -243,7 +251,7 @@ class AttributeStructure(Attribute):
                     del copy._attributes[i]
                     break
             else:
-                raise ValueError(
+                raise KeyError(
                     "No attribute with label " + str(other._label))
 
         # Handle removal of Relation from this AttributeStructure
@@ -296,20 +304,20 @@ class AttributeStructure(Attribute):
 
     def __iadd__(self, other):
         """
-        Add an Attribute, Relation, or AttributeStructure object via the ``+=``
-        operator.
+        AAdd an Attribute, Relation, AttributeStructure, or AttributeSystem
+        object via the ``+=`` operator.
 
         :param other: The object to combine with the AttributeStructure. \
         If an Attribute, Relation, or AttributeStructure object is provided, \
         an AttributeStructure object is returned; if an AttributeSystem \
-        object is provided, an AttributeSystem is returned.
+        object is provided, an AttributeSystem object is returned.
         :type  other: Attribute|Relation|AttributeStructure|AttributeSystem
 
-        :raises TypeError: other parameter must be an Attribute, Relation, \
-        AttributeStructure, or AttributeSystem object.
-        :raises ValueError: Duplicate Attribute labels not permitted, \
+        :raises TypeError: ``other`` parameter must be an Attribute, \
+        Relation, AttributeStructure, or AttributeSystem object.
+        :raises ValueError: Duplicate Attribute labels are not permitted, \
         duplicate subscripts are not permitted and every Relation's \
-        *D*\(*R*\) must be a subset of Attribute labels in the \
+        :math:`D(R)` must be a subset of Attribute labels in the \
         AttributeStructure.
         """
 
@@ -317,40 +325,45 @@ class AttributeStructure(Attribute):
 
     def __isub__(self, other):
         """
-        Remove Attribute's or Relation's via ``-=`` operator. If an
-        AttributeStructure is provided, all Attributes and Relations within
-        that AttributeStructure will be removed.
+        Remove Attribute's or Relation's via ``-`` operator. If an
+        AttributeStructure object is provided, all Attribute objects and
+        Relation objects within that AttributeStructure object will be removed
+        from the calling AttributeStructure.
 
-        :param other: The Attribute, Relation, or AttributeStructure to remove.
+        :param other: The Attribute, Relation, or AttributeStructure object \
+        to remove.
         :type  other: Attribute|Relation|AttributeStructure
 
-        :raises KeyError: Invalid Relation provided.
+        :raises KeyError: Invalid Attribute or Relation object provided in \
+        ``other`` parameter.
         :raises TypeError: Only Attribute, Relation, or AttributeStructure \
         objects can be removed.
-        :raises ValueError: Invalid Attribute provided if ``other`` is \
-        Attribute, Relation or Attribute not contained in this \
-        AttributeStructure if ``other`` is AttributeStructure or some \
-        Relation's *D*\(*R*\) is invalid after Attribute removal.
+        :raises ValueError: Some Attribute or Relation object provided in \
+        AttributeStructure object in ``other`` parameter not found in calling \
+        AttributeStructure object or some Relation object's :math:`D(R)` is \
+        invalid after an Attribute object is removed.
         """
 
         return self.__sub__(other)
 
     def __getitem__(self, key):
         """
-        Retrieve a reference to the Attribute or Relation in the
-        AttributeStructure via the key provided.
+        Retrieve a reference to the Attribute object or Relation object in the
+        AttributeStructure via the key provided in the ``key`` parameter
+        provided.
 
-        :param key: The Attribute, Relation, label, or subscript to use when \
-        attempting to find the cooresponding Attribute or Relation.
+        :param key: The Attribute object, Relation object, label, or \
+        subscript to use when attempting to find the corresponding Attribute \
+        object or Relation object.
         :type  key: Attribute|Relation|str|int
 
-        :raises KeyError: Attribute or Relation provided in ``key`` not found \
-        in AttributeStructure or no Relation with subscript provided in \
-        ``key`` found in AttributeStructure.
-        :raises TypeError: ``key`` is not an Attribute, Relation, ``int``, or \
-        ``str``.
-        :raises ValueError: no Attribute has label provided in ``key`` or \
-        no Relation has subscript provided in ``key``.
+        :raises KeyError: Attribute object or Relation object provided in the \
+        ``key`` parameter not found in the AttributeStructure, no Attribute \
+        object with label provided in the ``key`` parameter found in the \
+        AttributeStructure, or no Relation object with subscript provided in \
+        the ``key`` parameter found in the AttributeStructure.
+        :raises TypeError: ``key`` is not an Attribute object, Relation \
+        object, ``int``, or ``str``.
         """
 
         # Handle index attempt with Attribute object
@@ -379,7 +392,7 @@ class AttributeStructure(Attribute):
                     return self._relations[subscript]
                 except:
                     pass
-            raise ValueError(
+            raise KeyError(
                 "No Attribute(Relation) found with label(subscript): " + key)
         elif isinstance(key, int):
             try:
@@ -393,9 +406,10 @@ class AttributeStructure(Attribute):
 
     def __contains__(self, key):
         """
-        Determine if Attribute, Relation, Attribute corresponding to label in
-        ``key`` or Relation corresponding to subscript in ``key`` is contained
-        by AttributeStructure via ``in`` operator.
+        Determine if Attribute, Relation, Attribute corresponding to a label in
+        the ``key`` parameter, or Relation corresponding to a subscript in the
+        ``key`` parameter is contained by AttributeStructure via ``in``
+        operator.
 
         :param key: The key to use when checking for membership.
         :type  key: Attribute|Relation|str|int
@@ -453,10 +467,11 @@ class AttributeStructure(Attribute):
 
     def get_labels(self):
         """
-        Return labels of Attributes within this AttributeStructure.
+        Return the labels of the Attribute objects within the calling
+        AttributeStructure object.
 
-        :return: list of labels of Attribute objects in this \
-        AttributeStructure.
+        :return: A list of the labels of the Attribute objects in the calling \
+        AttributeStructure object.
         :rtype: ``list``
         """
 
@@ -464,10 +479,11 @@ class AttributeStructure(Attribute):
 
     def get_subscripts(self):
         """
-        Return subscripts of Relations within this AttributeStructure.
+        Return the subscripts of the Relation objects within the calling
+        AttributeStructure object.
 
-        :return: list of subscripts of Relation objects in this \
-        AttributeStructure.
+        :return: A list of the subscripts of the Relation objects in this \
+        AttributeStructure object.
         :rtype: ``list``
         """
 
@@ -475,10 +491,10 @@ class AttributeStructure(Attribute):
 
     def get_cardinality(self):
         """
-        Return cardinality of this AttributeStructure.
+        Return the cardinality of the calling AttributeStructure object.
 
-        :return: The cardinality of the AttributeStructure, i.e., the amount \
-        of Attribute objects.
+        :return: The cardinality of the AttributeStructure object, i.e., the \
+        amount of Attribute objects contained therein.
         :rtype: ``int``
         """
 

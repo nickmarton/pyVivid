@@ -13,36 +13,39 @@ class State(object):
     """
     State class. Each State object is a state of an AttributeSystem; that is a
     set of functions :math:`\sigma = \{\delta_{1}`,
-    :math:`\ldots, \delta_{k}`} where each :math:`\delta_{i}` is a
+    :math:`\ldots, \delta_{k}`}, where each :math:`\delta_{i}` is a
     function from :math:`\{s_{1}, \ldots, s_{n}\}` to the set of
     all non-empty finite subsets of :math:`A_{i}`, i.e.,
 
     .. centered:: :math:`\delta_{i} : \{s_{1}, \ldots, s_{n}\}` \
-    :math:`\\rightarrow \mathcal{P}_{fin} (A_{i}) \\textbackslash  \emptyset`.
+    :math:`\\rightarrow \mathcal{P}_{fin} (A_{i})~\\textbackslash~\emptyset`.
 
     The State class uses the ``total_ordering`` decorator so
     proper extensions, contravariant extensions and contravariant proper
     extensions are also available via the ``<``, ``>=``, and ``>`` operators
     respectively, despite the lack of magic functions for them.
 
-    :ivar attribute_system: A copy of the AttributeSytem object that the \
-    State object comes from.
-    :ivar ascriptions: The ascriptions of the state, i.e., (the set of \
-    attribute-object pairs and their corresponding ValueSet objects)
-    :ivar _is_State: An identifier to use in place of type or isinstance.
+    :ivar attribute_system: A copy of the AttributeSytem object \
+    :math:`\mathcal{S}` that the State object comes from.
+    :ivar ascriptions: The ascriptions of the state (i.e., the set of \
+    attribute-object pairs and their corresponding ValueSet objects) \
+    :math:`\delta_{i},~i=1, \ldots, k`.
+    :ivar _is_State: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, attribute_system, ascriptions={}):
         """
         Construct a State object.
 
-        :param attribute_system: The AttributeSystem object from which the \
-        State comes from.
+        :param attribute_system: The AttributeSystem object \
+        :math:`\mathcal{S}` from which the State comes from.
         :type  attribute_system: AttributeSystem
         :param ascriptions: An optional dictionary of attribute-object pairs \
-        to use as ascriptions; if some attribute-object pair is not provided, \
-        the full ValueSet of the Attribute object corresponding to the \
-        attribute label in the attribute-object pair is used.
+        :math:`\delta_{i}(s_{j})` to use as ascriptions; if some \
+        attribute-object pair is not provided, the full ValueSet of the \
+        Attribute object corresponding to the attribute label in the \
+        attribute-object pair is used.
         :type  ascriptions: ``dict``
 
         :raises TypeError: ``attribute_system`` parameter must be an \
@@ -94,12 +97,13 @@ class State(object):
 
     def __le__(self, other):
         """
-        Overloaded ``<=`` operator for State; Determine if this State is an
-        extension of State object in ``other`` parameter.
+        Overloaded ``<=`` operator for State; Determine if the calling State
+        object is an extension of the State object in ``other`` parameter.
 
         :raises TypeError: ``other`` parameter must be a State object.
-        :raises ValueError: State object in ``other`` parameter must share \
-        the same AttributeSystem object as this State object.
+        :raises ValueError: The state object in the ``other`` parameter must \
+        share the same underlying AttributeSystem object :math:`\mathcal{S}` \
+        as the calling State object.
         """
 
         if not hasattr(other, "_is_State"):
@@ -136,80 +140,16 @@ class State(object):
 
         return State(self._attribute_system, self._ascriptions)
 
-    def set_ascription(self, ao_pair, new_valueset):
-        """
-        Set an ascription, given by ``ao_pair`` parameter, of this State object
-        to the ValueSet object provided in ``new_valueset`` parameter.
-
-        :param ao_pair: The attribute-object pair to use as a key for the \
-        ascription ``dict`` member.
-        :type  ao_pair: ``tuple``
-        :param new_valueset: The new ValueSet object to assign to the \
-        corresponding attribute-object pair given by the ``ao_pair`` \
-        paramater in the ascription member
-        :type  new_valueset: ValueSet
-
-        :raise TypeError: ``ao_pair`` parameter must be a ``tuple`` and \
-        ``new_valueset`` parameter must be a ``list``, ``set``, or ValueSet \
-        object.
-        :raise ValueError: ``ao_pair`` parameter must be a 2-tuple \
-        (``str``,\ ``str``) and ``new_valueset`` parameter must be a \
-        non-empty subset of the ValueSet object of the Attribute object \
-        corresponding to the attribute in the ``ao_pair`` parameter.
-        :raise KeyError: ``ao_pair`` must be a key in ``ascriptions`` member \
-        of this State object.
-        """
-
-        if not isinstance(ao_pair, tuple):
-            raise TypeError("ao_pair must be of type tuple")
-        if len(ao_pair) != 2:
-            raise ValueError("ao_pair must be a 2-tuple")
-        if not isinstance(ao_pair[0], str) or not isinstance(ao_pair[1], str):
-            raise ValueError(
-                "ao_pair must be a 2-tuple of strings (label, object)")
-
-        new_values = None
-        # Enforce new_value_set as a list, set, or ValueSet
-        if isinstance(new_valueset, list) or isinstance(new_valueset, set):
-            new_values = ValueSet(new_valueset)
-        elif hasattr(new_valueset, "_is_ValueSet"):
-            new_values = deepcopy(new_valueset)
-        else:
-            raise TypeError(
-                "Ascription values must be of type list, set, or ValueSet")
-
-        # ensure non-empty Ascriptions
-        if not new_values:
-            raise ValueError("Ascriptions must be non-empty.")
-
-        # check if ao pair is a valid key for ascriptions
-        if ao_pair in self._ascriptions.keys():
-            label, obj = ao_pair
-            # Get ValueSet of Attribute with provided label in ao_pair
-            attribute = self._attribute_system._attribute_structure[label]
-            possible_values = attribute._value_set
-
-            # If new value_set provided is a subset of the possible value_set
-            # of the Attribute
-            if new_values <= possible_values:
-                self._ascriptions[ao_pair] = new_values
-            else:
-                raise ValueError(
-                    str(new_values) + ' is not a subset of ' +
-                    str(possible_values))
-        else:
-            raise KeyError(
-                str(ao_pair) + ' not in ascriptions')
-
     def __getitem__(self, key):
         """
-        Retrive the ascription or ValueSet corresponding to the
-        attribute-object pair given by ``key`` parameter via indexing
+        Retrive the ascription :math:`\delta_{i}` or ascription of a particular
+        object :math:`\delta_{i}(s_{j})` (that is, the ValueSet corresponding
+        to the attribute-object pair) given by ``key`` parameter via indexing
         (e.g. ``State[key]``).
 
         :raises KeyError: ``key`` parameter must be a valid Attribute label \
-        or valid attribute-object pair in the underlying AttributeSystem of \
-        the State object.
+        or valid attribute-object pair in the underlying AttributeSystem \
+        :math:`\mathcal{S}` of the State object.
         :raises TypeError: ``key`` parameter must be a ``str`` or ``tuple`` \
         containing only ``str``\s.
         """
@@ -241,22 +181,42 @@ class State(object):
                 "Only Attribute label strings and attribute-object "
                 "2-tuples are valid keys")
 
+    def __str__(self):
+        """Return a readable string representation of the State object."""
+        labels = self._attribute_system._attribute_structure.get_labels()
+        objects = self._attribute_system._objects
+
+        state_str = ''
+        for label in labels:
+            for obj in objects:
+                state_str += label + "(" + obj + "): {"
+                state_str += str(self._ascriptions[(label, obj)]) + "}\n"
+        return state_str[:-1]
+
+    def __repr__(self):
+        """Return a string representation of the State object."""
+        return self.__str__()
+
     def add_object(self, obj, ascriptions=None):
         """
-        Add an object to this State's AttributeSystem and optionally update any
-        ascriptions provided.
+        Add an object :math:`s^{\prime}` to the calling State object's
+        underlying AttributeSystem :math:`\mathcal{S}` and optionally update
+        any ascriptions of the new object :math:`\delta_{i}(s^{\prime})`
+        provided.
 
-        :param obj: The new object to add to the State.
+        :param obj: The new object :math:`s^{\prime}` to add to the State.
         :type  obj: ``str``
         :param ascriptions: The optional ValueSets to assign to \
-        attribute-object pairs corresponding to the new object.
+        the attribute-object pairs corresponding to the new object \
+        :math:`\delta_{i}(s^{\prime})`.
         :type  ascriptions: ``dict``
 
         :raises TypeError: ``obj`` parameter must be a non-empty ``str`` and \
         if ``ascriptions`` parameter is provided, it must be a ``dict``.
         :raises ValueError: Duplicate objects cannot be added and all \
-        ascriptions provided must be from an existing Attribute to ``obj`` \
-        parameter.
+        ascriptions provided must be from an existing label of an Attribute \
+        object in the underlying AttributeSystem object :math:`\mathcal{S}` \
+        to :math:`s^{\prime}`.
         """
 
         # If object is a fresh string, add it to AttributeSystem
@@ -301,160 +261,17 @@ class State(object):
             for Ai in attributes:
                 self._ascriptions[(Ai._label, obj)] = deepcopy(Ai._value_set)
 
-    def is_valuation(self, label):
-        """
-        Determine if ascription :math:`\delta_{i}` corresponding to
-        ``label`` parameter is a valuation; that is
-        :math:`\lvert \delta_{i}(s_{j}) \lvert = 1` for every
-        :math:`j = 1, \ldots, n`.
-
-        :param label: The label corresponding to the :math:`\delta`\ :sub:`i` \
-        to check for valuation.
-        :type  label: ``str``
-
-        :return: whether or not ascription corresponding to ``label`` is a \
-        valuation.
-        :rtype: ``bool``
-        """
-
-        # get list of li(sj) ValueSets with label provided
-        valuesets = self[label]
-        # try to look up the valueset of given ao_pair
-        for valueset in valuesets:
-            if len(valueset) == 1:
-                # if the only element in ValueSet is an Interval, ValueSet is
-                # not a valuation
-                if hasattr(valueset[0], "_is_Interval"):
-                    return False
-            else:
-                return False
-        return True
-
-    def is_world(self):
-        """
-        Determine if this State is a world; that is every ascription of this
-        :math:`\sigma` is a valuation.
-
-        :return: Whether or not the State is a world.
-        :rtype: ``bool``
-        """
-
-        for label in self._attribute_system._attribute_structure.get_labels():
-            if not self.is_valuation(label):
-                return False
-        return True
-
-    def get_worlds(self):
-        """
-        Return a list of all possible worlds derivable from this State object.
-
-        :return: all worlds derivable from this State object.
-        :rtype: ``list``
-        """
-
-        from itertools import product
-
-        # get a copy of the ascriptions
-        ascription_list = [item for item in self._ascriptions.items()]
-        new_valuesets = []
-        labels = []
-        # for each ascription
-        for (label, valueset) in ascription_list:
-            # discretize any Intervals within the valueset
-            new_valueset = []
-            for value in valueset:
-                if hasattr(value, "_is_Interval"):
-                    new_valueset.extend(value.discretize())
-                else:
-                    new_valueset.append(value)
-            # set ascription to discretized version
-            new_valuesets.append(new_valueset)
-            labels.append(label)
-
-        combos = list(product(*new_valuesets))
-
-        worlds = []
-
-        # create each possible world from this NamedState and
-        # return them in a list.
-        for values in combos:
-            world = State(self._attribute_system)
-            for i, label in enumerate(labels):
-                world.set_ascription(label, [values[i]])
-            worlds.append(world)
-
-        return worlds
-
-    def is_disjoint(self, other):
-        """
-        Determine if this State is disjoint from the State in ``other``
-        parameter.
-
-        :return: Whether or not this State object and State object contained \
-        in ``other`` parameter are disjoint.
-        :rtype: ``bool``
-        """
-
-        # get all possible worlds for both States
-        self_worlds = self.get_worlds()
-        other_worlds = other.get_worlds()
-
-        # iterate over both sets of worlds and compare
-        for self_world in self_worlds:
-            for other_world in other_worlds:
-                # if both states share some world, they're not disjoint
-                if self_world == other_world:
-                    return False
-
-        return True
-
-    def is_alternate_extension(self, s_prime, *states):
-        """
-        Determine if ``s_prime`` parameter is an alternate extension of this
-        State object w.r.t. states provided by optional positional arguments
-        of ``states`` parameter, i.e., evaluate
-        *Alt*\ (:math:`\sigma, \{\sigma_{1}, \ldots, \
-        \sigma_{m}\}, \sigma^{\prime}`).
-
-        :param s_prime: The State object to verify as the alternate \
-        extension, :math:`\sigma^{\prime}`
-        :type  s_prime: State
-        :param states: The states {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \
-        \sigma`\ :sub:`m`} to use for the derivation of the alternate \
-        extensions of this State.
-        :type  states: State
-
-        :return: the result of the evaluate of \
-        *Alt*\ (:math:`\sigma, \{\sigma_{1}, \ldots, \
-        \sigma_{m}\}, \sigma^{\prime}`).
-        :rtype: ``bool``
-
-        :raises TypeError: ``s_prime`` parameter must be a State object.
-        """
-
-        if not hasattr(s_prime, "_is_State"):
-            raise TypeError(
-                "s_prime parameter must be of type State.")
-
-        # generate all alternate extensions of this State
-        alternate_extensions = self.get_alternate_extensions(*states)
-
-        # check if s_prime is within list of all alternate extensions
-        for alternate_extension in alternate_extensions:
-            if s_prime == alternate_extension:
-                return True
-        return False
-
     def get_alternate_extensions(self, *states):
         """
-        Return all alternate extensions of this State object with
-        respect to states provided by optional positional arguments
-        of ``states`` parameter, i.e., generate **AE**\ :math:`(\{\sigma_{1}, \
+        Return all alternate extensions of the calling State object with
+        respect to State objects :math:`\sigma_{1}, \ldots, \sigma_{m}`
+        provided by optional positional arguments of ``states`` parameter,
+        i.e., generate **AE**\ :math:`(\{\sigma_{1}, \
         \ldots, \sigma_{m}\}, \sigma^{\prime})`.
 
         :param states: The states {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \
         \sigma`\ :sub:`m`} to use for the derivation of the alternate \
-        extensions of this State.
+        extensions of the calling State object.
         :type  states: State
 
         :return: **AE**\ :math:`(\{\sigma_{1}, \
@@ -465,7 +282,7 @@ class State(object):
         objects.
         :raises ValueError: at least one State object must be provided in \
         optional positional arguments and all provided State objects must be \
-        proper extensions of this State object.
+        proper extensions of the calling State object.
         """
 
         def get_properly_spanning_lists():
@@ -599,18 +416,237 @@ class State(object):
 
         return alternate_extensions
 
+    def get_worlds(self):
+        """
+        Return a list of all possible worlds :math:`(w;\widehat{\\rho})`
+        derivable from the calling State object.
+
+        :return: all worlds :math:`(w;\widehat{\\rho})` derivable from this \
+        State object.
+        :rtype: ``list``
+        """
+
+        from itertools import product
+
+        # get a copy of the ascriptions
+        ascription_list = [item for item in self._ascriptions.items()]
+        new_valuesets = []
+        labels = []
+        # for each ascription
+        for (label, valueset) in ascription_list:
+            # discretize any Intervals within the valueset
+            new_valueset = []
+            for value in valueset:
+                if hasattr(value, "_is_Interval"):
+                    new_valueset.extend(value.discretize())
+                else:
+                    new_valueset.append(value)
+            # set ascription to discretized version
+            new_valuesets.append(new_valueset)
+            labels.append(label)
+
+        combos = list(product(*new_valuesets))
+
+        worlds = []
+
+        # create each possible world from this NamedState and
+        # return them in a list.
+        for values in combos:
+            world = State(self._attribute_system)
+            for i, label in enumerate(labels):
+                world.set_ascription(label, [values[i]])
+            worlds.append(world)
+
+        return worlds
+
+    def is_alternate_extension(self, s_prime, *states):
+        """
+        Determine if the State object in ``s_prime`` parameter is an alternate
+        extension of the calling State object w.r.t. the State objects
+        :math:`\sigma_{1}, \ldots, \sigma_{m}` provided by optional positional
+        arguments of ``states`` parameter, i.e., evaluate
+        *Alt*\ (:math:`\sigma, \{\sigma_{1}, \ldots, \
+        \sigma_{m}\}, \sigma^{\prime}`).
+
+        :param s_prime: The State object to verify as the alternate \
+        extension, :math:`\sigma^{\prime}`
+        :type  s_prime: State
+        :param states: The states {:math:`\sigma`\ :sub:`1`, :math:`\ldots, \
+        \sigma`\ :sub:`m`} to use for the derivation of the alternate \
+        extensions of the calling State object.
+        :type  states: State
+
+        :return: The result of the evaluate of \
+        *Alt*\ (:math:`\sigma, \{\sigma_{1}, \ldots, \
+        \sigma_{m}\}, \sigma^{\prime}`).
+        :rtype: ``bool``
+
+        :raises TypeError: ``s_prime`` parameter must be a State object.
+        """
+
+        if not hasattr(s_prime, "_is_State"):
+            raise TypeError(
+                "s_prime parameter must be of type State.")
+
+        # generate all alternate extensions of this State
+        alternate_extensions = self.get_alternate_extensions(*states)
+
+        # check if s_prime is within list of all alternate extensions
+        for alternate_extension in alternate_extensions:
+            if s_prime == alternate_extension:
+                return True
+        return False
+
+    def is_disjoint(self, other):
+        """
+        Determine if the calling State object is disjoint from the State object
+        in the ``other`` parameter.
+
+        :return: Whether or not the calling State object and State object \
+        contained in the ``other`` parameter are disjoint.
+        :rtype: ``bool``
+        """
+
+        # get all possible worlds for both States
+        self_worlds = self.get_worlds()
+        other_worlds = other.get_worlds()
+
+        # iterate over both sets of worlds and compare
+        for self_world in self_worlds:
+            for other_world in other_worlds:
+                # if both states share some world, they're not disjoint
+                if self_world == other_world:
+                    return False
+
+        return True
+
+    def is_valuation(self, label):
+        """
+        Determine if the ascription :math:`\delta_{i}` corresponding to the
+        ``label`` parameter is a valuation in the calling State object; that is
+        :math:`\lvert \delta_{i}(s_{j}) \lvert = 1` for every
+        :math:`j = 1, \ldots, n`.
+
+        :param label: The label corresponding to the ascription \
+        :math:`\delta`\ :sub:`i` to check for valuation in the calling State \
+        object.
+        :type  label: ``str``
+
+        :return: Whether or not the ascription :math:`\delta`\ :sub:`i` \
+        corresponding to ``label`` is a valuation in the calling State object.
+        :rtype: ``bool``
+        """
+
+        # get list of li(sj) ValueSets with label provided
+        valuesets = self[label]
+        # try to look up the valueset of given ao_pair
+        for valueset in valuesets:
+            if len(valueset) == 1:
+                # if the only element in ValueSet is an Interval, ValueSet is
+                # not a valuation
+                if hasattr(valueset[0], "_is_Interval"):
+                    return False
+            else:
+                return False
+        return True
+
+    def is_world(self):
+        """
+        Determine if the calling State object :math:`\sigma` is a world;
+        that is every ascription :math:`\delta_{i}` of :math:`\sigma` is a \
+        valuation.
+
+        :return: Whether or not the calling State object is a world.
+        :rtype: ``bool``
+        """
+
+        for label in self._attribute_system._attribute_structure.get_labels():
+            if not self.is_valuation(label):
+                return False
+        return True
+
+    def set_ascription(self, ao_pair, new_valueset):
+        """
+        Set an ascription of an object (that is, :math:`\delta_{i}(s_{j})`) in
+        the calling State object, given by the ``ao_pair`` parameter, to the
+        ValueSet object provided in the ``new_valueset`` parameter.
+
+        :param ao_pair: The attribute-object pair :math:`\delta_{i}(s_{j})` \
+        to use as a key for the ascription ``dict`` member in the calling \
+        State object.
+        :type  ao_pair: ``tuple``
+        :param new_valueset: The new ValueSet object to assign to the \
+        corresponding attribute-object pair :math:`\delta_{i}(s_{j})` given \
+        by the ``ao_pair`` paramater.
+        :type  new_valueset: ValueSet
+
+        :raise TypeError: ``ao_pair`` parameter must be a ``tuple`` and \
+        ``new_valueset`` parameter must be a ``list``, ``set``, or ValueSet \
+        object.
+        :raise ValueError: ``ao_pair`` parameter must be a 2-tuple \
+        (``str``,\ ``str``) and ``new_valueset`` parameter must be a \
+        non-empty subset of the ValueSet object of the Attribute object \
+        corresponding to the attribute in the ``ao_pair`` parameter.
+        :raise KeyError: ``ao_pair`` must be a key in the ``ascriptions`` \
+        member of this State object.
+        """
+
+        if not isinstance(ao_pair, tuple):
+            raise TypeError("ao_pair must be of type tuple")
+        if len(ao_pair) != 2:
+            raise ValueError("ao_pair must be a 2-tuple")
+        if not isinstance(ao_pair[0], str) or not isinstance(ao_pair[1], str):
+            raise ValueError(
+                "ao_pair must be a 2-tuple of strings (label, object)")
+
+        new_values = None
+        # Enforce new_value_set as a list, set, or ValueSet
+        if isinstance(new_valueset, list) or isinstance(new_valueset, set):
+            new_values = ValueSet(new_valueset)
+        elif hasattr(new_valueset, "_is_ValueSet"):
+            new_values = deepcopy(new_valueset)
+        else:
+            raise TypeError(
+                "Ascription values must be of type list, set, or ValueSet")
+
+        # ensure non-empty Ascriptions
+        if not new_values:
+            raise ValueError("Ascriptions must be non-empty.")
+
+        # check if ao pair is a valid key for ascriptions
+        if ao_pair in self._ascriptions.keys():
+            label, obj = ao_pair
+            # Get ValueSet of Attribute with provided label in ao_pair
+            attribute = self._attribute_system._attribute_structure[label]
+            possible_values = attribute._value_set
+
+            # If new value_set provided is a subset of the possible value_set
+            # of the Attribute
+            if new_values <= possible_values:
+                self._ascriptions[ao_pair] = new_values
+            else:
+                raise ValueError(
+                    str(new_values) + ' is not a subset of ' +
+                    str(possible_values))
+        else:
+            raise KeyError(
+                str(ao_pair) + ' not in ascriptions')
+
     @staticmethod
     def join(s1, s2):
         """
-        Join two states if possible.
+        Join two State objects if possible, i.e.,
+        return :math:`\sigma_{1} \sqcup \sigma_{2}`.
 
-        :param s1: The left operand to use for the union operation.
+        :param s1: The left operand :math:`\sigma_{1}` to use for the join \
+        operation.
         :type  s1: State
-        :param s2: The right operand to use for the union operation.
+        :param s2: The right operand :math:`\sigma_{2}` to use for the join \
+        operation.
         :type  s2: State
 
         :raises ValueError: ``s1`` and ``s2`` parameters must share the same \
-        underlying AttributeSystem.
+        underlying AttributeSystem :math:`\mathcal{S}`.
         """
 
         if s1._attribute_system != s2._attribute_system:
@@ -627,22 +663,6 @@ class State(object):
         # set_ascriptions for optimization
         join_state._ascriptions = join_ascriptions
         return join_state
-
-    def __str__(self):
-        """Return a readable string representation of the State object."""
-        labels = self._attribute_system._attribute_structure.get_labels()
-        objects = self._attribute_system._objects
-
-        state_str = ''
-        for label in labels:
-            for obj in objects:
-                state_str += label + "(" + obj + "): {"
-                state_str += str(self._ascriptions[(label, obj)]) + "}\n"
-        return state_str[:-1]
-
-    def __repr__(self):
-        """Return a string representation of the State object."""
-        return self.__str__()
 
 
 def main():

@@ -7,29 +7,32 @@ class AssumptionBase(object):
     """
     AssumptionBase class.
 
-    This class functions as a container for a finite set of Formulae over a
-    single Vocabulary, i.e., :math:`\\beta`.
+    An AssumptionBase object functions as a container for a finite set of
+    Formula objects :math:`F_{1}, \ldots, F_{k}` over a single underlying
+    Vocabulary :math:`\Sigma`, denoted :math:`\\beta`.
 
-    :ivar formulae: The set of Formula objects contained in the \
-    AssumptionBase object.
-    :ivar vocabulary: The underlying Vocabulary object the AssumptionBase is \
-    defined over.
-    :ivar _is_AssumptionBase: An identifier to use in place of type or \
-    isinstance.
+    :ivar formulae: The set of Formula objects :math:`F_{1}, \ldots, F_{k}` \
+    contained in the AssumptionBase object :math:`\\beta`.
+    :ivar vocabulary: The underlying Vocabulary object :math:`\Sigma` the \
+    AssumptionBase object :math:`\\beta` is defined over.
+    :ivar _is_AssumptionBase: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, *formulae):
         """
         Construct an AssumptionBase object.
 
-        :param formulae: Any amount of Formula objects or a single Vocabulary \
-        object if AssumptionBase no Formula objects are provided.
+        :param formulae: Any amount of Formula objects \
+        :math:`F_{1}, \ldots, F_{k}` or a single Vocabulary object \
+        :math:`\Sigma` no Formula objects are provided.
         :type  formulae: Formula|Vocabulary
 
         :raises TypeError: All optional positional arguments provided must be \
-        Formula objects or only a single Vocabulary object may be provided.
+        Formula objects or a single Vocabulary object :math:`\Sigma`.
         :raises ValueError: All Formula objects provided as optional \
-        positional arguments must share the same Vocabulary.
+        positional arguments must share the same Vocabulary object \
+        :math:`\Sigma`.
         """
 
         self._formulae = []
@@ -105,11 +108,12 @@ class AssumptionBase(object):
 
     def __add__(self, other):
         """
-        Add all Formula objects in another AssumptionBase or a single Formula
-        object to an AssumptionBase object via the ``+`` operator.
+        Add all Formula objects in another AssumptionBase object or a single
+        Formula object to the calling AssumptionBase object via the ``+``
+        operator.
 
-        :raises TypeError: Only Formula or AssumptionBase objects can be \
-        added to an AssumptionBase object.
+        :raises TypeError: Only Formula objects or AssumptionBase objects can \
+        be added to the calling AssumptionBase object.
         :raises ValueError: Cannot add objects with different underlying \
         Vocabulary objects and duplicate Formula objects are not permitted.
         """
@@ -173,11 +177,12 @@ class AssumptionBase(object):
 
     def __iadd__(self, other):
         """
-        Add all Formula objects in another AssumptionBase or a single Formula
-        object to this AssumptionBase object via the ``+`` operator.
+        Add all Formula objects in another AssumptionBase object or a single
+        Formula object to the calling AssumptionBase object via the ``+``
+        operator.
 
-        :raises TypeError: Only Formula or AssumptionBase objects can be \
-        added to an AssumptionBase object.
+        :raises TypeError: Only Formula objects or AssumptionBase objects can \
+        be added to the calling AssumptionBase object.
         :raises ValueError: Cannot add objects with different underlying \
         Vocabulary objects and duplicate Formula objects are not permitted.
         """
@@ -200,19 +205,20 @@ class AssumptionBase(object):
 
     def __len__(self):
         """
-        Determine the length of an AssumptionBase object via the ``len``
-        built-in function e.g.(``len(AssumptionBase)``).
+        Determine the length of an AssumptionBase object :math:`\\beta` (i.e.,
+        the amount of Formula objects contained in :math:`\\beta`) via the
+        ``len`` built-in function e.g.(``len(AssumptionBase)``).
         """
 
         return len(self._formulae)
 
     def __getitem__(self, key):
         """
-        Retrive the Formula correspond to key given by ``key`` parameter via
-        indexing (e.g. ``AssumptionBase[key]``).
+        Retrive the Formula object corresponding to the key given by the
+        ``key`` parameter via indexing (e.g. ``AssumptionBase[key]``).
 
-        :param key: The key to use for indexing a Formula in the \
-        AssumptionBase.
+        :param key: The key to use for indexing in the calling \
+        AssumptionBase object.
         :type  key: ``int`` | ``str`` | Formula
 
         :raises IndexError: ``int`` key is out of range.
@@ -245,7 +251,7 @@ class AssumptionBase(object):
 
     def __iter__(self):
         """
-        Provides an iterator for AssumptionBase
+        Provide an iterator for AssumptionBase objects
         (e.g. \"``for formula in AssumptionBase:``\").
         """
 
@@ -254,11 +260,11 @@ class AssumptionBase(object):
 
     def __contains__(self, item):
         """
-        Overloaded ``in`` operator for AssumptionBase. Determine if a formula
-        is contained in this AssumptionBase object.
+        Overloaded ``in`` operator for AssumptionBase. Determine if a Formula
+        object is contained in the calling AssumptionBase object.
 
-        :param key: The Formula object or name of Formula object to test for \
-        membership in this AssumptionBase.
+        :param key: The Formula object or the name of a Formula object to \
+        test for membership in the calling AssumptionBase object.
         :type  key: Formula | ``str``
         """
 
@@ -279,7 +285,8 @@ class AssumptionBase(object):
     def __deepcopy__(self, memo):
         """
         Deepcopy an AssumptionBase object via the ``copy.deepcopy`` method.
-        This does not break the reference to the underlying Vocabulary object.
+        This does not break the reference to the underlying Vocabulary object
+        :math:`\Sigma`.
         """
 
         from copy import deepcopy

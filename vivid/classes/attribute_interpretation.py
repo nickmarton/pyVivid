@@ -11,7 +11,8 @@ class AttributeInterpretation(object):
     """
     AttributeInterpretation class.
     Build an interpretation table; that is, a mapping :math:`I` that assigns,
-    to each relation symbol :math:`R \in` R of arity *n*:
+    to each RelationSymbol object of a Vocabulary object :math:`\Sigma`,
+    :math:`R \in` R of arity :math:`n`:
 
     1. a relation :math:`R^{I} \in \mathcal{R}` of some arity *m*, called the
     **realization** of *R*:
@@ -27,32 +28,33 @@ class AttributeInterpretation(object):
     called the **profile** of *R* and denoted by :math:`Prof(R)`, with
     :math:`1 \le j_{x} \le n` for :math:`x = 1, \ldots, m`
 
-    :ivar vocabulary: The Vocabulary object of the interpretation.
+    :ivar vocabulary: The Vocabulary object :math:`\Sigma` of the \
+    interpretation.
     :ivar attribute_structure: The AttributeStructure object the \
     interpretation is into.
     :ivar mapping: The mapping R :math:`\\rightarrow \mathcal{R}`.
     :ivar profiles: A list of profiles :math:`[(l_{i_{1}}; j_{1}) \cdots \
     (l_{i_{m}}; j_{m})]`; one for each realization.
     :ivar table: The interpretation table of the attribute interpretation.
-    :ivar relation_symbols: A copy of the RelationSymbol objects from the \
-    Vocabulary (for convenient access).
-    :ivar is_AttributeInterpretation: An identifier to use in place of type \
-    or isinstance.
+    :ivar relation_symbols: A copy of the RelationSymbol objects from \
+    :math:`\Sigma` (for convenient access).
+    :ivar is_AttributeInterpretation: An identifier to use in place of \
+    ``type`` or ``isinstance``.
     """
 
     def __init__(self, vocabulary, attribute_structure, mapping, profiles):
         """
         Construct an AttributeInterpretation object.
 
-        :param vocabulary: The Vocabulary object to define the \
+        :param vocabulary: The Vocabulary object :math:`\Sigma` to define the \
         AttributeInterpretation over.
         :type  vocabulary: Vocabulary
         :param attribute_structure: The AttributeStructure object for which \
         to define the AttributeInterpretation into.
         :type  attribute_structure: AttributeStructure
         :param mapping: The mapping from the RelationSymbol objects of the \
-        Vocabulary object in the ``vocabulary`` parameter to the Relation \
-        objects of the AttributeStructure object in the \
+        Vocabulary object :math:`\Sigma` in the ``vocabulary`` parameter to \
+        the Relation objects of the AttributeStructure object in the \
         ``attribute_structure`` parameter; the keys being RelationSymbol \
         objects and values being ``int``\s corresponding to the subscripts of \
         the AttributeStructure Relation objects.
@@ -67,21 +69,21 @@ class AttributeInterpretation(object):
         object, ``attribute_structure`` parameter must be an \
         AttributeStructure object, ``mapping`` parameter myst be a ``dict`` \
         and ``profile`` parameter must be a ``list``.
-        :raises ValueError: All keys in ``mapping`` parameter must be \
+        :raises ValueError: All keys in the ``mapping`` parameter must be \
         RelationSymbol objects and all values must be unique ``int``\s, \
         duplicate profiles are not permitted (determined by repeated \
         RelationSymbol objects), the set of RelationSymbol's provided in \
-        ``mapping`` parameter and the set of RelationSymbol's in \
+        the ``mapping`` parameter and the set of RelationSymbol's in the \
         ``vocabulary`` parameter and the set of RelationSymbol's provided in \
-        ``profile`` parameter must all be equal, all subscripts provided in \
-        ``mapping`` parameter keys must be valid subscripts of Relation \
-        objects in ``attribute_structure`` parameter, all :math:`l_{i_{k}}` \
-        in :math:`(l_{i_{k}}; j_{k})` 2-tuples provided in each realization \
-        of ``profile`` parameter must be a label of some Attribute object in \
-        ``attribute_structure`` parameter, and all :math:`j_{k}` in \
-        :math:`(l_{i_{k}}; j_{k})` 2-tuples provided in each realization of \
-        ``profile`` parameter must be between 1 and the arity of the \
-        RelationSymbol object of the realization.
+        the ``profile`` parameter must all be equal, all subscripts provided \
+        in the ``mapping`` parameter keys must be valid subscripts of \
+        Relation objects in the ``attribute_structure`` parameter, all \
+        :math:`l_{i_{k}}` in :math:`(l_{i_{k}}; j_{k})` 2-tuples provided in \
+        each realization of the ``profile`` parameter must be a label of some \
+        Attribute object in the ``attribute_structure`` parameter, and all \
+        :math:`j_{k}` in :math:`(l_{i_{k}}; j_{k})` 2-tuples provided in each \
+        realization of the ``profile`` parameter must be between 1 and the \
+        arity of the RelationSymbol object of the realization.
         """
 
         if not hasattr(vocabulary, "_is_Vocabulary"):
@@ -232,8 +234,8 @@ class AttributeInterpretation(object):
     def __deepcopy__(self, memo):
         """
         Deepcopy an AttributeInterpretation object via the ``copy.deepcopy``
-        method.
-        This does not break the reference to the underlying Vocabulary object.
+        method. This does not break the reference to the underlying Vocabulary
+        object :math:`\Sigma`.
         """
 
         return AttributeInterpretation(
@@ -244,8 +246,10 @@ class AttributeInterpretation(object):
 
     def __iter__(self):
         """
-        Provide an iterator for AttributeInterpretation objects interpretation
-        table.
+        Provide an iterator for the interpretation table of
+        AttributeInterpretation objects.
+
+        (e.g. \"``for entry in attribute_interpretation:``\")
         """
 
         for entry in self._table:

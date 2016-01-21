@@ -3,11 +3,15 @@
 
 class Vocabulary(object):
     """
-    First-Order Vocabulary class.
+    Vocabulary class. The Vocabulary class represents a first-order vocabulary
+    :math:`\Sigma =(`\ C,R,V\ :math:`)` consisting of a set of constant symbols
+    C; a set of relation symbols R; and a set of variables V.
 
-    :ivar C: The constants of the vocabulary.
-    :ivar R: The relation symbols of the vocabulary.
-    :ivar V: the variables of the vocabulary.
+    :ivar C: The constants C of the vocabulary.
+    :ivar R: The relation symbols R of the vocabulary.
+    :ivar V: The variables V of the vocabulary.
+    :ivar _is_Vocabulary: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, C, R, V):
@@ -15,14 +19,14 @@ class Vocabulary(object):
         Construct a Vocabulary object. Each parameter ``C``, ``R`` and ``V``
         are sorted before being stored.
 
-        :param C: The constants of the Vocabulary object; held as a ``list`` \
-        of ``str``\s.
+        :param C: The constants C of the Vocabulary object; held as a \
+        ``list`` of ``str``\s.
         :type  C: ``list``
-        :param R: The relation symbols of the Vocabulary object; held as a  \
+        :param R: The relation symbols R of the Vocabulary object; held as a  \
         ``list`` of RelationSymbol objects.
         :type  R: ``list``
-        :param V: The variables of the Vocabulary object; held as a ``list`` \
-        of ``str``\s.
+        :param V: The variables V of the Vocabulary object; held as a \
+        ``list`` of ``str``\s.
         :type  V: ``list``
 
         :raises TypeError: ``C``, ``R``, and ``V`` parameters must all be \
@@ -107,11 +111,11 @@ class Vocabulary(object):
 
     def __contains__(self, key):
         """
-        Determine if a Vocabulary contains the ``str`` or RelationSymbol object
-        in ``key`` parameter.
+        Determine if the calling Vocabulary object contains the ``str`` or
+        RelationSymbol object in the ``key`` parameter.
 
         :param key: The ``str`` or RelationSymbol object to test for \
-        membership in this Vocabulary.
+        membership in the calling Vocabulary object.
         :type  key: RelationSymbol|str
         """
 
@@ -120,15 +124,45 @@ class Vocabulary(object):
 
         return key in self._C or key in self._V
 
+    def __str__(self):
+        """Return a readable string representation of the Vocabulary object."""
+        c_str = '[' + ''.join([c + ', ' for c in self._C])[:-2] + ']'
+        r_str = '[' + ''.join([str(r) + ', ' for r in self._R])[:-2] + ']'
+        v_str = '[' + ''.join([v + ', ' for v in self._V])[:-2] + ']'
+
+        return '(' + c_str + ', ' + r_str + ', ' + v_str + ')'
+
+    def __repr__(self):
+        """Return a string representation of the Vocabulary object."""
+        return self.__str__()
+
+    def _key(self):
+        """
+        Private key function for hashing.
+
+        :return: 3-tuple consisting of (``C``, ``R``, ``V``)
+        :rtype: ``tuple``
+        """
+
+        return (tuple(self._C), tuple(self._R), tuple(self._V))
+
+    def __hash__(self):
+        """
+        Hash implementation for set functionality of Vocabulary objects.
+        """
+
+        return hash(self._key())
+
     def add_constant(self, constant):
         """
-        Add a constant to this Vocabulary object's ``C``.
+        Add a constant to this Vocabulary object's constants ``C``.
 
-        :param constant: the new constant to add to the Vocabulary's ``C``\.
-        :type  constant: str
+        :param constant: The new constant to add to the Vocabulary's \
+        constants ``C``.
+        :type  constant: ``str``
 
-        :raises TypeError: ``constant parameter must be a ``str``\.
-        :raises ValueError: duplicate symbols are not permitted.
+        :raises TypeError: ``constant`` parameter must be a ``str``.
+        :raises ValueError: Duplicate symbols are not permitted.
         """
 
         if type(constant) != str:
@@ -143,13 +177,14 @@ class Vocabulary(object):
 
     def add_variable(self, variable):
         """
-        Add a constant to this Vocabulary object's ``V``.
+        Add a variable to this Vocabulary object's variables ``V``.
 
-        :param variable: the new variable to add to the Vocabulary's ``V``\.
-        :type  variable: str
+        :param variable: The new variable to add to the Vocabulary's \
+        variables ``V``.
+        :type  variable: ``str``
 
-        :raises TypeError: ``variable parameter must be a ``str``\.
-        :raises ValueError: duplicate symbols are not permitted.
+        :raises TypeError: ``variable`` parameter must be a ``str``.
+        :raises ValueError: Duplicate symbols are not permitted.
         """
 
         if type(variable) != str:
@@ -161,35 +196,6 @@ class Vocabulary(object):
             self._V = sorted(self._V + [variable], key=lambda v: v.lower())
         else:
             raise ValueError("duplicate symbol cannot be added")
-
-    def __str__(self):
-        """Return a readable string representation of a Vocabulary object."""
-        c_str = '[' + ''.join([c + ', ' for c in self._C])[:-2] + ']'
-        r_str = '[' + ''.join([str(r) + ', ' for r in self._R])[:-2] + ']'
-        v_str = '[' + ''.join([v + ', ' for v in self._V])[:-2] + ']'
-
-        return '(' + c_str + ', ' + r_str + ', ' + v_str + ')'
-
-    def __repr__(self):
-        """Return a string representation of a Vocabulary object."""
-        return self.__str__()
-
-    def _key(self):
-        """
-        Private key function for hashing.
-
-        :return: 3-tuple consisting of (``C``, ``R``, ``V``)
-        :rtype: tuple
-        """
-
-        return (tuple(self._C), tuple(self._R), tuple(self._V))
-
-    def __hash__(self):
-        """
-        Hash implementation for set functionality of Vocabulary objects.
-        """
-
-        return hash(self._key())
 
 
 def main():

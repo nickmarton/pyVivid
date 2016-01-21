@@ -7,10 +7,10 @@ class Point(object):
     Point objects represent a point of N\ :sub:`d` cartesian space. Point
     objects are immutable.
 
-    :ivar is_generic: whether or not the Point object is generic \
+    :ivar is_generic: Whether or not the Point object is generic \
     (i.e., the coordinates have not been defined).
-    :ivar coordinate: the coordinate of the Point object.
-    :ivar dimension: the dimension of space the Point object exists in.
+    :ivar coordinate: The coordinate of the Point object.
+    :ivar dimension: The dimension of space the Point object exists in.
     :ivar _is_Point: An identifier to use in place of ``type`` or \
     ``isinstance``.
     """
@@ -89,8 +89,8 @@ class Point(object):
         Retrieve the :math:`i`\ th cooridinate from a Point object via
         indexing (e.g., ``Point[i]``).
 
-        :raises TypeError: key parameter must be an ``int``.
-        :raises IndexError: key must be within the set \
+        :raises TypeError: ``key`` parameter must be an ``int``.
+        :raises IndexError: ``key`` parameter must be within the set \
         :math:`\{0, \ldots, d\}` where :math:`d` is the dimension of the \
         Point object.
         """
@@ -202,7 +202,7 @@ class Point(object):
         on the worldline segment determined by the Point objects in
         ``worldline_start`` and ``worldline_end`` parameters.
 
-        :return: whether or not the calling Point object can observe \
+        :return: Whether or not the calling Point object can observe \
         ``spacetime_loc`` through the worldine defined by the Point objects \
         in the ``worldline_start`` and ``worldline_end`` parameters.
         :rtype: ``bool``
@@ -229,7 +229,7 @@ class Point(object):
         ``worldline_2_start`` and ``worldline_2_end`` parameters meet at
         the calling Point object's coordinates.
 
-        :return: whether or not worldines meet at the calling Point object's \
+        :return: Whether or not worldines meet at the calling Point object's \
         coordinates.
         :rtype: ``bool``
 

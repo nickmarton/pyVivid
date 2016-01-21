@@ -8,19 +8,20 @@ class Formula(object):
     Formula class. Formula objects are defined over some Vocabulary
     :math:`\Sigma`. Formula objects are immutable.
 
-    :ivar vocabulary: The underlying Vocabulary object the Formula is defined \
-    over.
+    :ivar vocabulary: The underlying Vocabulary object :math:`\Sigma` the \
+    Formula is defined over.
     :ivar name: The name of the Formula object.
     :ivar terms: The terms of the Formula object.
-    :ivar is_Formula: An identifier to use in place of type or isinstance.
+    :ivar is_Formula: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self, vocabulary, name, *terms):
         """
         Construct a Formula object.
 
-        :param vocabulary: The underlying Vocabulary object the Formula will \
-        be defined over.
+        :param vocabulary: The underlying Vocabulary object :math:`\Sigma` \
+        the Formula is defined over.
         :type  vocabulary: Vocabulary
         :param name: The name (identifier) of the formula.
         :type  name: ``str``
@@ -30,10 +31,10 @@ class Formula(object):
 
         :raises TypeError: ``vocabulary`` parameter must be a Vocabulary \
         object.
-        :raises ValueError: ``name`` parameter must matcg some RelationSymbol \
+        :raises ValueError: ``name`` parameter must match some RelationSymbol \
         object in the ``vocabulary`` parameter, at least one term must be \
         provided and all terms provided must be in either the constants or \
-        variables of the ``vocabulary`` parameter.
+        variables of the ``vocabulary`` parameter :math:`\Sigma`.
         """
 
         if not hasattr(vocabulary, "_is_Vocabulary"):
@@ -100,14 +101,16 @@ class Formula(object):
 
     def __add__(self, other):
         """
-        Combine A formula and another Formula or AssumptionBase into an
-        AssumptionBase via the ``+`` operator.
+        Combine a Formula object and another Formula object or an
+        AssumptionBase object into an AssumptionBase object via the ``+``
+        operator.
 
         :raises TypeError: Only a Formula object or AssumptionBase object can \
         be combined with a Formula object.
         :raises ValueError: This Formula and ``other`` parameter must share \
-        the same Vocabulary object and duplicate Formula objects are not \
-        permitted (determined by name of the Formula object only).
+        the same underlying Vocabulary object :math:`\Sigma` and duplicate \
+        Formula objects are not permitted (determined by name of the Formula \
+        object only).
         """
 
         from copy import deepcopy
@@ -149,21 +152,14 @@ class Formula(object):
 
     def __str__(self):
         """
-        Return a readable string representation of the NamedState object in the
-        following form: F\ :math:`(t_{1}, \ldots, t_{n})` where *n* is the
-        number of terms in the formula.
+        Return a readable string representation of the NamedState object.
         """
 
         return self._name + '(' + ', '.join(
             [str(t) for t in self._terms]) + ')'
 
     def __repr__(self):
-        """
-        Return a string representation of the NamedState object in the
-        following form: F\ :math:`(t_{1}, \ldots, t_{n})` where *n* is the
-        number of terms in the formula.
-        """
-
+        """Return a string representation of the NamedState object."""
         return self.__str__()
 
     def _key(self):
@@ -182,8 +178,9 @@ class Formula(object):
 
     def __deepcopy__(self, memo):
         """
-        Deepcopy a Formula object via the ``copy.deepcopy`` method.
-        This does not break the reference to the underlying Vocabulary object.
+        Deepcopy a Formula object via the ``copy.deepcopy`` method. This does
+        not break the reference to the underlying Vocabulary object
+        :math:`\Sigma`.
         """
 
         from copy import deepcopy
@@ -193,10 +190,12 @@ class Formula(object):
 
     def assign_truth_value(self, attribute_interpretation, named_state, X):
         """
-        Assign a truth value in {true, false, unknown} to this Formula w.r.t.
-        an AttributeInterpretation object given an arbitrary NamedState object
-        in ``named_state`` parameter and VariableAssignment object in ``X``
-        parameter.
+        Assign a truth value in
+        :math:`\{\\textbf{true}, \\textbf{false}, \\textbf{unknown}\}`
+        to the calling Formula object :math:`F` given an arbitrary NamedState
+        object :math:`(\sigma;\\rho)` in the ``named_state`` parameter and
+        VariableAssignment object :math:`\chi` in the ``X`` parameter w.r.t.
+        an AttributeInterpretation object :math:`I`.
 
         This function makes use of the ParserSet object; the ParserSet object
         is a key part in the vivid object extension protocol.
@@ -204,14 +203,15 @@ class Formula(object):
         The assign_truth_value function works as follows:
 
         1. Find the entry in the interpretation table of the
-        AttributeInterpretation object in the ``attribute_interpretation``
-        parameter and extract the corresponding profile and Relation object
-        (the 3rd element of the corresponding row of the table is the
-        identifier for the Relation object; e.g. :math:`R_{subscript}`).
+        AttributeInterpretation object :math:`I` in the
+        ``attribute_interpretation`` parameter and extract the corresponding
+        profile and Relation object (the 3rd element of the corresponding row
+        of the table is the identifier for the Relation object; e.g.
+        :math:`R_{subscript}`).
 
-        2. Substitute the terms of the Formula into the profile
-        (the 2nd element of each pair in the profile corresponds to the index
-        of the term in the Formula to use, shifted down by 1).
+        2. Substitute the terms of the Formula object :math:`F` into the
+        profile (the 2nd element of each pair in the profile corresponds to the
+        index of the term in the :math:`F` to use, shifted down by 1).
 
         3. Using the ConstantAssignment object of the ``named_state`` parameter
         :math:`\\rho` and the VariableAssignment in the ``X`` parameter
@@ -220,33 +220,38 @@ class Formula(object):
         :math:`\chi` (if the term is in neither :math:`\\rho` nor
         :math:`\chi`, "unknown" is returned as the truth value).
 
-        4. The profile now consists of the attribute-object pairs to use in the
-        Relation object's definition when creating the evaluatable expression.
-        Now, all worlds derivable from the NamedState are generated and the
-        ValueSets of the attribute-object pairs in the profile (consisting of
-        single elements) are extracted from the ascriptions of these worlds.
+        4. The profile now consists of the attribute-object pairs
+        (:math:`\delta_{i}(s_{j})` for some set of the possible values of
+        :math:`i` and :math:`j`) to use in the Relation object's definition
+        when creating the evaluatable expression. Now, all worlds
+        :math:`(w;\widehat{\\rho})` derivable from the NamedState are generated
+        and the ValueSets of the attribute-object pairs in the profile
+        (consisting of single elements) are extracted from the ascriptions of
+        these worlds.
 
         5. The single element ValueSets are zipped together with the arguments
-        in the Relation object definition (the ith attribute-object pair of the
-        profile is zipped with the ith argument of the definition) and these
-        new argument-ValueSet pairs are used to substitute every occurance of
-        each argument in the definition with the corresponding single element
-        ValueSet creating a (hopefully) evaluatable expression (the RHS of the
-        substituted definition) for each world.
+        in the Relation object definition (the :math:`i`\ th attribute-object
+        pair of the profile is zipped with the :math:`i`\ th argument of the
+        definition) and these new argument-ValueSet pairs are used to
+        substitute every occurance of each argument in the definition with the
+        corresponding single element ValueSet creating a (hopefully)
+        evaluatable expression (the RHS of the substituted definition) for each
+        world :math:`(w;\widehat{\\rho})`.
 
         6. Each parser in the ParserSet object will then try to evaluate the
-        expression and save the truth value for each world. If some expression
-        is unevaluatable for all parsers in the ParserSet a ValueError is
-        raised.
+        expression and save the truth value for each
+        :math:`(w;\widehat{\\rho})`. If some expression is unevaluatable for
+        all parsers in the ParserSet a ValueError is raised.
 
-        7. If the expression of every world evaluates to true, the truth value
-        returned is ``true``, if the expression of every world evaluates to
-        false, the truth value returned is ``false`` and if the expressions of
-        any two worlds evaluate to different values, the truth value returned
-        is ``unknown``.
+        7. If the expression of every world :math:`(w;\widehat{\\rho})`
+        evaluates to True, the truth value returned is **true**, if the
+        expression of every world evaluates to False, the truth value returned
+        is **false** and if the expressions of any two worlds evaluate to
+        different values, the truth value returned is **unknown**.
 
-        :return: A truth value in the set {true, false, unknown}
-        :rtype: ``bool``\|\ ``str``
+        :return: A truth value in the set \
+        :math:`\{\\textbf{true}, \\textbf{false}, \\textbf{unknown}\}`
+        :rtype: ``bool`` | ``str``
 
         :raises TypeError: ``attribute_interpretation`` parameter must be an \
         AttributeInterpretation object, ``named_state`` parameter must be a \
@@ -256,11 +261,14 @@ class Formula(object):
         object in the ``attribute_interpretation`` parameter, the NamedState \
         object in the ``named_state`` parameter and the VariableAssignment \
         object in the ``X`` parameter must all share the same underlying \
-        Vocabulary object, the Formula object must match an entry in the \
-        interpretation table of the ``attribute_interpretation`` parameter, \
-        the number of attribute-object pairs in the profile corresponding to \
-        the Formula must match the arity of the corresponding Relation object \
-        found in the table (where the Relation object is found in the \
+        Vocabulary object (that is :math:`F`, :math:`I`, \
+        :math:`(\sigma;\\rho)` and :math:`\chi` must all share the same \
+        :math:`\Sigma`), the Formula object must match an entry in the \
+        interpretation table of the AttributeInterpretation :math:`I` in the
+        ``attribute_interpretation`` parameter, the number of \
+        attribute-object pairs in the profile corresponding to the Formula \
+        must match the arity of the corresponding Relation object found in \
+        the table (where the Relation object is found in the \
         AttributeStructure object in the AttributeSystem member of the \
         ``named_state`` parameter), :math:`1 \le j_{x} \le n` for each \
         :math:`j_{x}` in the profile (where *n* is the arity of the \
@@ -412,41 +420,46 @@ class Formula(object):
     def get_basis(constant_assignment, variable_assignment,
                   attribute_interpretation, *formulae):
         """
-        Get the basis of the formula objects provided in optional positional
-        arguments ``formulae`` parameter w.r.t. a the ConstantAssignment object
-        provided in ``constant_assignment`` parameter, VariableAssignment
-        object provided in ``variable_assignment`` parameter, and
-        AttributeInterpretation object provided in ``attribute_interpretation``
-        parameter, i.e., compute the union of
-        :math:`\mathcal{B}(F, \\rho, \chi)` for each Formula object.
+        Get the basis of the Formula objects :math:`F_{1}, \ldots, F_{k}`
+        provided as optional positional arguments in the ``formulae`` parameter
+        w.r.t. the ConstantAssignment object :math:`\\rho` provided in the
+        ``constant_assignment`` parameter, VariableAssignment object
+        :math:`\chi` provided in the ``variable_assignment`` parameter, and the
+        AttributeInterpretation object :math:`I` provided in the
+        ``attribute_interpretation`` parameter, i.e., compute
+        :math:`\mathcal{B}(F_{1}, \\rho, \chi) \cup \cdots \cup \mathcal{B}(F_{k}, \\rho, \chi)`.
 
-        :param constant_assignment: The ConstantAssignment object to use to \
-        compile the profile corresponding to each Formula object into \
+        :param constant_assignment: The ConstantAssignment object \
+        :math:`\\rho` to use to compile the profile corresponding to each \
+        Formula object :math:`{F_{i}, i = 1, \ldots, k}` into \
         attribute-object pairs to consider for the basis.
         :type  constant_assignment: ConstantAssignment
-        :param variable_assignment: The VariableAssignment object to use to \
-        compile the profile corresponding to each Formula object into \
+        :param variable_assignment: The VariableAssignment object \
+        :math:`\chi` to use to compile the profile corresponding to each \
+        Formula object :math:`{F_{i}, i = 1, \ldots, k}` into \
         attribute-object pairs to consider for the basis or ``None``.
         :type  variable_assignment: VariableAssignment | ``None``
         :param attribute_interpretation: The AttributeInterpretation object \
-        to use to determine the profiles corresponding to the Formula objects \
-        provided (the profile is extracted from the interpretation table when \
-        the RelationSymbol matching the Formula object's name is found).
+        :math:`I` to use to determine the profiles corresponding to the \
+        Formula objects :math:`F_{1}, \ldots, F_{k}` provided (the profile is \
+        extracted from the interpretation table when the RelationSymbol \
+        matching the Formula object's name is found).
         :type  attribute_interpretation: AttributeInterpretation
-        :param formulae: Any positive amount of Formula objects to consider \
-        in the basis.
+        :param formulae: Any positive amount of Formula objects \
+        :math:`F_{1}, \ldots, F_{k}` to consider in the basis.
         :type  formulae: Formula
 
         :return: A list of attribute-object pairs comprising the basis of the \
-        Formula objects provided w.r.t. :math:`\\rho` and :math:`\chi`.
+        Formula objects :math:`F_{1}, \ldots, F_{k}` provided w.r.t. \
+        :math:`\\rho` and :math:`\chi`.
         :rtype: ``list``
 
         :raises TypeError: ``constant_assignment`` parameter must be a \
         ConstantAssignment object, and all optional positional arguments \
-        provided in ``formulae`` parameter must be Formula objects.
+        provided in the ``formulae`` parameter must be Formula objects.
         :raises ValueError: At least one Formula object must be provided and \
         all Formula objects provided must match some entry in the \
-        interpretation table of the AttributeInterpretation object.
+        interpretation table of the AttributeInterpretation object :math:`I`.
         """
 
         if not formulae:

@@ -10,11 +10,14 @@ from variable_assignment import VariableAssignment
 def thinning(context, named_state, assumption_base=None,
              attribute_interpretation=None):
     """
-    Verify that NamedState object in ``named_state`` parameter can be obtained
-    by thinning from the NamedState object contained in Context object in
-    ``context`` parameter w.r.t. the AssumptionBase object given by the
-    ``assumption_base`` parameter, using the AttributeInterpretation object in
-    the ``attribute_interpretation`` parameter to interpret truth values.
+    Verify that the NamedState object :math:`(\sigma^{\prime};\\rho^{\prime})`
+    in the ``named_state`` parameter can be obtained by thinning from the
+    NamedState object :math:`(\sigma;\\rho)` contained in the Context object
+    :math:`(\\beta;(\sigma;\\rho))` in the ``context`` parameter w.r.t. the
+    AssumptionBase object :math:`\{F_{1}, \ldots, F_{n}\}` given by the
+    ``assumption_base`` parameter, using the AttributeInterpretation object
+    :math:`I` in the ``attribute_interpretation`` parameter to interpret truth
+    values.
 
     By Corollary 26, if
     :math:`(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{n}\}} \
@@ -40,8 +43,9 @@ def thinning(context, named_state, assumption_base=None,
     :math:`\{F_{1},\ldots, F_{n}\}` if thinning is to be done with any \
     Formula (i.e., :math:`n > 0`), otherwise ``None``.
     :type  assumption_base: AssumptionBase | ``None``
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use to interpret truth values if :math:`n > 0`, otherwise ``None``.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use to interpret truth values if :math:`n > 0`, otherwise \
+    ``None``.
     :type  attribute_interpretation: AttributeInterpretation | ``None``
 
     :return: Whether or not thinning holds, i.e., the result of \
@@ -71,26 +75,26 @@ def thinning(context, named_state, assumption_base=None,
 
 def widening(context, named_state, attribute_interpretation=None):
     """
-    Verify that NamedState object in ``named_state`` parameter can be obtained
-    from Context object in ``context`` parameter by widening, using the
-    AttributeInterpretation object in the ``attribute_interpretation``
-    parameter to interpret truth values.
+    Verify that the NamedState object :math:`(\sigma^{\prime};\\rho^{\prime})`
+    in the ``named_state`` parameter can be obtained from the Context object
+    :math:`(\\beta;(\sigma;\\rho))` in the ``context`` parameter by widening,
+    using the AttributeInterpretation object :math:`I` in the
+    ``attribute_interpretation`` parameter to interpret truth values.
 
     :param context: The Context object :math:`(\\beta;(\sigma;\\rho))`.
     :type  context: Context
     :param named_state: The NamedState object \
     :math:`(\sigma^{\prime};\\rho^{\prime})`
     :type  named_state: NamedState
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use to interpret truth values if widening should consider the \
-    AssumptionBase object of the ``context`` parameter, otherwise ``None``.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use to interpret truth values if widening should consider \
+    the AssumptionBase object of the ``context`` parameter, otherwise ``None``.
     :type  attribute_interpretation: AttributeInterpretation | ``None``
 
-    :return: Whether or not NamedState object \
-    :math:`(\sigma^{\prime};\\rho^{\prime})` in ``named_state`` parameter can \
-    be obtained from Context object :math:`(\\beta;(\sigma;\\rho))` in \
-    ``context`` parameter can be obtained by widening, i.e., \
-    whether or not \
+    :return: Whether or not the NamedState object \
+    :math:`(\sigma^{\prime};\\rho^{\prime})` in the ``named_state`` parameter \
+    can be obtained from the Context object :math:`(\\beta;(\sigma;\\rho))` \
+    in the ``context`` parameter by widening, i.e., whether or not \
     :math:`(\\beta;(\sigma;\\rho)) \models (\sigma^{\prime};\\rho^{\prime})`
     :rtype: ``bool``
 
@@ -112,19 +116,22 @@ def widening(context, named_state, attribute_interpretation=None):
 
 def observe(context, formula, attribute_interpretation):
     """
-    Determine if a Formula object *F* given by ``formula`` parameter can be
-    observed in a Context object :math:`(\\beta;(\sigma;\\rho))` given by
-    ``context`` parameter, using the AttributeInterpretation object in the
+    Determine if the Formula object :math:`F` given by the ``formula``
+    parameter can be observed in the Context object
+    :math:`(\\beta;(\sigma;\\rho))` given by the ``context`` parameter, using
+    the AttributeInterpretation object :math:`I` in the
     ``attribute_interpretation`` parameter to interpret truth values, i.e.,
-    determine if **observe** *F* holds in :math:`(\\beta;(\sigma;\\rho))`.
+    determine if **observe** :math:`F` holds in
+    :math:`(\\beta;(\sigma;\\rho))`.
 
-    :param context: The Context object in which the Formula object can \
-    potentially be observed.
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` in \
+    which the Formula object :math:`F` can potentially be observed.
     :type  context: Context
-    :param formula: The (potentially) observable Formula object.
+    :param formula: The (potentially) observable Formula object :math:`F`.
     :type  formula: Formula
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use to interpet truth values in the ``context`` and ``formula`` parameters.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use to interpet truth values in the ``context`` and \
+    ``formula`` parameters.
     :type  attribute_interpretation: AttributeInterpretation
 
     :return: Whether or not **observe** *F* holds in \
@@ -138,9 +145,10 @@ def observe(context, formula, attribute_interpretation):
 
 def diagrammatic_absurdity(context, named_state, attribute_interpretation):
     """
-    Verify that the NamedState object in the ``named_state`` parameter can be
-    obtained from the Context object in the ``context`` parameter by absurdity,
-    using the AttributeInterpretation object provided in the
+    Verify that the NamedState object :math:`(\sigma^{\prime};\\rho^{\prime})`
+    in the ``named_state`` parameter can be obtained from the Context object
+    :math:`(\\beta;(\sigma;\\rho))` in the ``context`` parameter by absurdity,
+    using the AttributeInterpretation object :math:`I` provided in the
     ``attribute_interpretation`` parameter to interpet truth values.
 
     To show :math:`(\sigma^{\prime};\\rho^{\prime})` **by absurdity**, we must
@@ -198,8 +206,10 @@ def diagrammatic_absurdity(context, named_state, attribute_interpretation):
 
 def diagram_reiteration(context):
     """
-    Perform Diagram Reiteration to retrieve the current diagram, i.e., from
-    lemma 19: :math:`(\\beta;(\sigma;\\rho)) \models (\sigma;\\rho)`.
+    Perform :math:`[Diagram-Reiteration]` to retrieve the current diagram of
+    the Context object :math:`(\\beta;(\sigma;\\rho))` provided in the
+    ``context`` parameter, i.e., from lemma 19:
+    :math:`(\\beta;(\sigma;\\rho)) \models (\sigma;\\rho)`.
 
     :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` from \
     which to retrieve the current NamedState object :math:`(\sigma;\\rho)`.
@@ -217,8 +227,9 @@ def sentential_to_sentential(context, F1, F2, G, attribute_interpretation,
                              variable_assignment=None):
     """
     Verify that a disjunction :math:`F_{1} \lor F_{2}` holds in the Context
-    object in the ``context`` parameter and that a formula *G* follows in
-    either case, using the AttributeInterpretation object in the
+    object :math:`(\\beta;(\sigma;\\rho))` in the ``context`` parameter and
+    that the Formula object :math:`G` in the ``G`` parameter follows in either
+    case, using the AttributeInterpretation object :math:`I` in the
     ``attribute_interpretation`` parameter to interpret truth values.
 
     To perform the **sentential-to-sentential** inference, first the
@@ -228,19 +239,19 @@ def sentential_to_sentential(context, F1, F2, G, attribute_interpretation,
     hold, then **sentential-to-sentential** does not hold, otherwise,
     **sentential-to-sentential** holds.
 
-    :param context: The Context in which the the Formula objects in the \
-    parameters ``F1``, ``F2`` apply and in which the Formula object ``G`` \
-    would follow.
+    :param context: The Context object :math:`(\\beta;(\sigma;\\rho))` in \
+    which the the Formula objects in the parameters ``F1``, ``F2`` apply and \
+    in which the Formula object in the ``G`` parameter would follow.
     :type  context: Context
     :param F1: The left operand of the disjunction :math:`F_{1}`.
     :type  F1: Formula
     :param F2: The right operand of the disjunction :math:`F_{2}`.
     :type  F2: Formula
-    :param G: The Formula object potentially following the disjunction in \
-    either case.
+    :param G: The Formula object :math:`G` potentially following the \
+    disjunction in either case.
     :type  G: Formula
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use for interpeting truth values.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use for interpeting truth values.
     :type  attribute_interpretation: AttributeInterpretation
     :param variable_assignment: The optional VariableAssignment object \
     :math:`\chi` to consider in the interpretation of truth values.
@@ -332,9 +343,9 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
     functioning as the set of :math:`n` exhaustive cases from which :math:`F` \
     can be derived.
     :type  named_states: ``list``
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use for the interpretation of truth values and the computation of the \
-    basis of :math:`F_{1}, \ldots, F_{k}`.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use for the interpretation of truth values and the \
+    computation of the basis of :math:`F_{1}, \ldots, F_{k}`.
     :type  attribute_interpretation: AttributeInterpretation
     :param variable_assignment: The VariableAssignment object :math:`\chi` to \
     consider when computing the basis \
@@ -343,7 +354,7 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
     ``None`` if all terms of the :math:`F_{1}, \ldots, F_{k}` are in \
     :math:`\\rho`.
     :type  variable_assignment: VariableAssignment | ``None``
-    :param formulae: The :math:`k \ge 0` Formula objects \
+    :param formulae: The :math:`{k \ge 0}` Formula objects \
     :math:`F_{1}, \ldots, F_{k}` to use in the computation of the basis, \
     computation of the proviso and the evaluation of \
     :math:`{(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models \
@@ -355,8 +366,8 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
     (\sigma^{\prime};\\rho^{\prime})`.
     :rtype: ``bool``
 
-    :raises ValueError: If :math:`k > 0`, the NamedState objects \
-    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0` \
+    :raises ValueError: If :math:`{k > 0}`, the NamedState objects \
+    :math:`{(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0}` \
     are not exhaustive on the basis of the Formula objects \
     :math:`F_{1}, \ldots, F_{k}` or the proviso \
     :math:`{(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{k}\}} \
@@ -404,16 +415,18 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
                                attribute_interpretation,
                                variable_assignment=None):
     """
-    Verify that in the case of a disjunction :math:`F_{1} \lor F_{2}` holding,
-    a NamedState object in the ``named_state`` parameter follows either way,
-    using the AttributeInterpretation object in the
+    Verify that a disjunction :math:`F_{1} \lor F_{2}` holds in the Context
+    object :math:`(\\beta;(\sigma;\\rho))` in the ``context`` parameter and
+    that the NamedState object :math:`(\sigma^{\prime};\\rho^{\prime})` in the
+    ``named_state`` parameter follows in either case, using the
+    AttributeInterpretation object :math:`I` in the
     ``attribute_interpretation`` parameter to interpet truth values.
 
     This is rule [C2].
 
     This function works as follows:
 
-    1. Verify the disjunction :math:`F_{1} \cup F_{2}` given by ``F1`` and
+    1. Verify that the disjunction :math:`F_{1} \cup F_{2}` given by ``F1`` and
     ``F2`` parameters holds in the Context object
     :math:`(\\beta;(\sigma;\\rho))` given by ``context`` parameter.
 
@@ -458,11 +471,11 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
     :param F2: The right operand of the disjunction :math:`F_{2}`.
     :type  F2: Formula
     :param named_state: The NamedState object \
-    :math:`(\sigma^{\prime};\\rho^{\prime})` that potentially follows in \
-    either case of the disjunction.
+    :math:`(\sigma^{\prime};\\rho^{\prime})` potentially following the \
+    disjunction in either case.
     :type  named_state: NamedState
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use for the interpretation of truth values.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use for the interpretation of truth values.
     :type  attribute_interpretation: AttributeInterpretation
     :param variable_assignment: The optional VariableAssignment object \
     :math:`\chi` to consider in the interpretation of truth values.
@@ -571,9 +584,9 @@ def diagrammatic_to_sentential(context, F, named_states,
     functioning as the set of :math:`n` exhaustive cases from which :math:`F` \
     can be derived.
     :type  named_states: ``list``
-    :param attribute_interpretation: The AttributeInterpretation object to \
-    use for the interpretation of truth values and the computation of the \
-    basis of :math:`F_{1}, \ldots, F_{k}`.
+    :param attribute_interpretation: The AttributeInterpretation object \
+    :math:`I` to use for the interpretation of truth values and the \
+    computation of the basis of :math:`F_{1}, \ldots, F_{k}`.
     :type  attribute_interpretation: AttributeInterpretation
     :param variable_assignment: The VariableAssignment object :math:`\chi` to \
     consider when computing the basis \
@@ -592,8 +605,8 @@ def diagrammatic_to_sentential(context, F, named_states,
     :math:`(\\beta \cup \{F_{1}, \ldots, F_{k}\};(\sigma;\\rho)) \models F`.
     :rtype: ``bool``
 
-    :raises ValueError: If :math:`k > 0`, the NamedState objects \
-    :math:`(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0` \
+    :raises ValueError: If :math:`{k > 0}`, the NamedState objects \
+    :math:`{(\sigma_{1}; \\rho_{1}), \ldots,(\sigma_{n}; \\rho_{n}), n > 0}` \
     are not exhaustive on the basis of the Formula objects \
     :math:`F_{1}, \ldots, F_{k}` or the proviso \
     :math:`{(\sigma;\\rho) \\Vvdash_{\{F_{1}, \ldots, F_{k}\}} \

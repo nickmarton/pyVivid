@@ -92,8 +92,8 @@ class ValueSet(object):
 
     def __le__(self, other):
         """
-        Overloaded ``<=`` operator for ValueSet object. Determine if this
-        ValueSet object is a subset of the ValueSet object contained in
+        Overloaded ``<=`` operator for ValueSet object. Determine if the
+        calling ValueSet object is a subset of the ValueSet object contained in
         ``other`` parameter.
         """
 
@@ -450,7 +450,7 @@ class ValueSet(object):
         Overloaded ``in`` operator for ValueSet. Determine if a value is
         contained in the calling ValueSet object.
 
-        :param key: the item to test for membership in the calling ValueSet \
+        :param key: The item to test for membership in the calling ValueSet \
         object.
         """
 
@@ -473,7 +473,7 @@ class ValueSet(object):
 
     def __iter__(self):
         """
-        Provides an iterator for ValueSet objects
+        Provide an iterator for ValueSet objects
         (e.g. \"``for value in ValueSet:``\").
         """
 

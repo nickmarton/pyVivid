@@ -160,7 +160,6 @@ The NamedState object
     :members:
     :private-members:
     :special-members: __init__, __eq__, __ne__, __deepcopy__, __le__, add_object, is_world, get_worlds, is_named_alternate_extension, get_named_alternate_extensions, satisfies_formula, satisfies_named_state, satisfies_context, _generate_variable_assignments, is_named_entailment, is_exhaustive, __str__, __repr__
-    :inherited-members:
     :show-inheritance:
 
 Attribute Interpretations

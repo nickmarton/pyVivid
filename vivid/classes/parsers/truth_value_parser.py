@@ -28,7 +28,8 @@ class TruthValueParser(object):
     TruthValueParser class. TruthValueParser provides parsing functionality for
     entirely mathematical/logical strings.
 
-    :ivar _is_Parser: An identifier to use in place of type or isinstance.
+    :ivar _is_Parser: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     negations = []

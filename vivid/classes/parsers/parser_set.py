@@ -6,11 +6,12 @@ from point_parser import PointParser
 
 class ParserSet(object):
     """
-    ParserSet class. ParserSet objects function as a sequence/collection. The
-    ParserSet class is part of the vivid object extension protocol.
+    ParserSet class. The ParserSet object functions as a sequence/collection.
+    The ParserSet class is part of the vivid object extension protocol.
 
     :ivar parsers: The parsers contained in the ParserSet object.
-    :ivar _is_ParserSet: An identifier to use in place of type or isinstance.
+    :ivar _is_ParserSet: An identifier to use in place of ``type`` or \
+    ``isinstance``.
     """
 
     def __init__(self):
