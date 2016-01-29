@@ -11,6 +11,7 @@ from vivid.classes.formula import Formula
 from vivid.classes.interval import Interval
 from vivid.classes.named_state import NamedState
 from vivid.classes.point import Point
+from vivid.classes.line_segment import LineSegment
 from vivid.classes.relation import Relation
 from vivid.classes.relation_symbol import RelationSymbol
 from vivid.classes.state import State

@@ -4,6 +4,7 @@ import pytest
 from vivid.classes.valueset import ValueSet
 from vivid.classes.interval import Interval
 from vivid.classes.point import Point
+from vivid.classes.line_segment import LineSegment
 
 
 def test_add_object_type():
@@ -41,6 +42,10 @@ def test___init__():
     test_TypeError(Point(0.0))
 
     VS1 = ValueSet([Interval(20, 100)])
+    VS = ValueSet([LineSegment(Point(1.0), Point(2.0)),
+                   LineSegment(Point(1.0), Point(2.0))])
+
+    assert VS == ValueSet([LineSegment(Point(1.0), Point(2.0))])
 
 
 def test___eq__():
@@ -63,6 +68,10 @@ def test___eq__():
     assert not VS1 == VS2
     # test type mismatch for Interval
     VS1, VS2 = ValueSet([Interval(1, 10)]), ValueSet([Interval(1.0, 10.0)])
+    assert VS1 != VS2
+    VS1, VS2 = ValueSet([LineSegment(Point(1.0), Point(2.0))]), ValueSet([LineSegment(Point(1.0), Point(2.0))])
+    assert VS1 == VS2
+    VS1, VS2 = ValueSet([LineSegment(Point(1.0), Point(2.0))]), ValueSet([LineSegment(Point(-1.0), Point(-2.0))])
     assert VS1 != VS2
 
 
@@ -118,6 +127,33 @@ def test___le__():
     assert VS5 > VS4
     assert VS5 >= VS4
 
+    VS6 = ValueSet([LineSegment(Point(1.0, 1.0), Point(2.0, 2.0))])
+    VS7 = ValueSet([LineSegment(Point(0.0, 0.0), Point(2.0, 2.0))])
+    VS8 = ValueSet([LineSegment(Point(1.0, 1.0), Point(3.0, 3.0))])
+    VS9 = ValueSet([LineSegment(Point(0.0, 0.0), Point(3.0, 3.0))])
+    VS10 = ValueSet([LineSegment(Point("x", "x"), Point("x", "x"))])
+
+    assert not VS6 < VS6
+    assert VS6 <= VS6
+    assert VS6 < VS7
+    assert VS6 <= VS7
+    assert VS6 < VS8
+    assert VS6 <= VS8
+    assert VS6 < VS9
+    assert VS6 <= VS9
+    assert VS6 < VS10
+    assert VS6 <= VS10
+    assert not VS6 > VS6
+    assert VS6 >= VS6
+    assert VS7 > VS6
+    assert VS7 >= VS6
+    assert VS8 > VS6
+    assert VS8 >= VS6
+    assert VS9 > VS6
+    assert VS9 >= VS6
+    assert VS10 > VS6
+    assert VS10 >= VS6
+
 
 def test___ne__():
     """Test != operator."""
@@ -141,6 +177,10 @@ def test___ne__():
     VS1, VS2 = ValueSet([Interval(1, 10)]), ValueSet([Interval(1.0, 10.0)])
     assert VS1 != VS2
     VS1, VS2 = ValueSet([Interval(1L, 10L)]), ValueSet([Interval(1, 10)])
+    assert VS1 != VS2
+    VS1, VS2 = ValueSet([LineSegment(Point(1.0), Point(2.0))]), ValueSet([LineSegment(Point(1.0), Point(2.0))])
+    assert not VS1 != VS2
+    VS1, VS2 = ValueSet([LineSegment(Point(1.0), Point(2.0))]), ValueSet([LineSegment(Point(-1.0), Point(-2.0))])
     assert VS1 != VS2
 
 
@@ -184,8 +224,30 @@ def test___add__():
         Interval(1, 10),
         Interval(10.0, 75.4)])
 
+    VSE = ValueSet([
+        -5, -100,
+        15L,
+        167.4,
+        'c',
+        True,
+        Interval(1, 10),
+        Interval(10.0, 75.4),
+        LineSegment(Point(1.0), Point(2.0))])
+
+    VSF = ValueSet([
+        -5, -100,
+        15L,
+        167.4,
+        'c',
+        True,
+        Interval(1, 10),
+        Interval(10.0, 75.4),
+        LineSegment(Point(1.0), Point(2.0)),
+        LineSegment(Point(2.0), Point(3.0))])
+
     assert VSD == VSA + -100
     assert VSD == VSA + [-5, -100]
+    assert VSF == VSE + [LineSegment(Point(2.0), Point(3.0))]
 
     from vivid.classes.attribute import Attribute
     test_TypeError(VSA, Attribute("l", ['s']))
@@ -236,14 +298,51 @@ def test___iadd__():
         Point(1.0, 1.0),
         Interval(2L, 5L)])
 
+    VSF = ValueSet([
+        -2, -5, -100,
+        33L,
+        555.679,
+        'e',
+        False,
+        Point(1.0, 1.0),
+        Interval(2L, 5L),
+        LineSegment(Point(0.0), Point(1.0))])
+
     VSB += -100
     assert VSD == VSB
     VSB += [-5, -100]
     assert VSE == VSB
+    VSB += LineSegment(Point(0.0), Point(1.0))
+    assert VSF == VSB
 
 
 def test___sub__():
     """Test - operator for set theoretic difference."""
+
+    VS1 = ValueSet([
+        -5,
+        32L,
+        555.678,
+        'b', 'c',
+        False,
+        Interval(20, 100), Interval(2L, 5L),
+        LineSegment(Point(0.0), Point(1.0)),
+        LineSegment(Point(0.0, 0.0), Point(1.0, 1.0))])
+
+    VS2 = ValueSet([
+        -1, -3,
+        15L, 32L,
+        167.4,
+        'a', 'c',
+        False,
+        Interval(1, 10),
+        Interval(10.0, 75.4), Interval(2L, 5L),
+        LineSegment(Point(10.0), Point(1.0)),
+        LineSegment(Point(0.0, 0.0), Point(1.0, 1.0))])
+
+    assert VS1 - VS2 == ValueSet([-5, 555.678, 'b', Interval(20, 100),
+                                  LineSegment(Point(0.0), Point(1.0))])
+
     VSA = ValueSet([
         -1, -3, -5,
         15L, 32L,
@@ -451,13 +550,15 @@ def test___contains__():
     """Test in operator for ValueSet object."""
     v = ValueSet([1, 2, 'a', 'b', False, True,
                   Interval(100, 1000),
-                  Point(1.0)])
+                  Point(1.0), LineSegment(Point(0.0), Point(1.0))])
     assert 1 in v
     assert 2 in v
     assert 'a' in v
     assert 'b' in v
     assert False in v
     assert True in v
+    assert LineSegment(Point(0.0), Point(1.0)) in v
+    assert not LineSegment(Point(10.0), Point(1.0)) in v
     assert Interval(100, 1000) in v
     assert Point(1.0) in v
     assert not Interval(400, 500) in v
@@ -615,13 +716,16 @@ def test__split_by_types():
     types = ValueSet._split_by_types(
         [1, 2, 1.0, 1.5, 1L, 2L, 'a', 'b', True, False,
          Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L),
-         Point(1.0), Point(1.0, 1.0), Point('x')])
+         Point(1.0), Point(1.0, 1.0), Point('x'),
+         LineSegment(Point(0.0), Point(1.0)),
+         LineSegment(Point("x", "x", "x"), Point("x", "x", "x"))])
 
     d = {
         int: [1, 2], float: [1.0, 1.5], long: [1L, 2L],
         str: ['a', 'b'], bool: [True, False],
         "_is_Interval": [Interval(0, 10), Interval(0.0, 10.0), Interval(0L, 10L)],
-        "_is_Point": [Point(1.0), Point(1.0, 1.0), Point('x')]}
+        "_is_Point": [Point(1.0), Point(1.0, 1.0), Point('x')],
+        "_is_LineSegment": [LineSegment(Point(0.0), Point(1.0)), LineSegment(Point("x", "x", "x"), Point("x", "x", "x"))]}
 
     empty = ValueSet._split_by_types([])
     assert empty == {}
@@ -666,3 +770,14 @@ def test__parse():
     point_duplicates = ValueSet._parse([Point(1.0), Point(1.0), Point('x')])
 
     assert point_duplicates == [Point(1.0), Point('x')]
+
+    line_segment_duplicates = ValueSet._parse(
+        [LineSegment(Point(1.0), Point(0.0)),
+         LineSegment(Point(1.0), Point(0.0)),
+         LineSegment(Point('x'), Point('x')),
+         LineSegment(Point('x', 'x'), Point('x', 'x')),
+         LineSegment(Point('x', 'x'), Point('x', 'x'))])
+
+    assert line_segment_duplicates == [LineSegment(Point(1.0), Point(0.0)),
+                                       LineSegment(Point('x'), Point('x')),
+                                       LineSegment(Point('x', 'x'), Point('x', 'x'))]

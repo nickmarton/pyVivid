@@ -30,6 +30,15 @@ The Point object
     :private-members:
     :special-members: __init__, __eq__, __ne__, __deepcopy__, __getitem__, __hash__, __str__, __repr__, is_on, not_same_point, clocks_unequal, can_observe, meets, unstringify
 
+The LineSegment object
+----------------
+.. automodule:: line_segment
+ 
+.. autoclass:: LineSegment
+    :members:
+    :private-members:
+    :special-members: __init__, __eq__, __ne__, __ge__, __gt__, __le__, __lt__, __contains__, __deepcopy__, __getitem__, __hash__, __str__, __repr__, meets, unstringify
+
 The ValueSet object
 -------------------
 .. automodule:: valueset
@@ -220,7 +229,7 @@ The [Widening] rule
 -------------------
 .. autofunction:: widening
 
-The Observe rule
+The [Observe] rule
 ----------------
 .. autofunction:: observe
 
@@ -232,19 +241,19 @@ The [Diagram-Reiteration] rule
 ------------------------------
 .. autofunction:: diagram_reiteration
 
-The Sentential-to-Sentential rule
+The [Sentential-to-Sentential] rule
 ---------------------------------
 .. autofunction:: sentential_to_sentential
 
-The [C1] rule
+The [Diagrammatic-to-Diagrammatic] rule
 -------------
 .. autofunction:: diagrammatic_to_diagrammatic
 
-The [C2] rule
+The [Sentential-to-Diagrammatic] rule
 -------------
 .. autofunction:: sentential_to_diagrammatic
 
-The [C3] rule
+The [Diagrammatic-to-Sentential] rule
 -------------
 .. autofunction:: diagrammatic_to_sentential
 

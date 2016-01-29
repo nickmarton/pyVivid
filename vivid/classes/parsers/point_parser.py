@@ -58,7 +58,7 @@ class PointParser(object):
 
         import re
         parsed_args = []
-        point_pattern = r'P\(\d\.\d+(,\d\.\d+)*\)|P\(x(,x)*\)'
+        point_pattern = r'P\(-?\d\.\d+(,-?\d\.\d+)*\)|P\(x(,x)*\)'
         match_obj_iter = re.finditer(point_pattern, fn_args)
         for match in match_obj_iter:
             parsed_args.append(Point.unstringify(match.group()))

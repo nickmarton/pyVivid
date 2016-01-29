@@ -307,7 +307,7 @@ def diagrammatic_to_diagrammatic(context, inferred_named_state, named_states,
     ``inferred_named_state`` parameter can be derived in every one of these
     :math:`n` cases.
 
-    This is rule [C1].
+    This is rule :math:`[C_{1}]`.
 
     This function works as follows:
 
@@ -422,7 +422,7 @@ def sentential_to_diagrammatic(context, F1, F2, named_state,
     AttributeInterpretation object :math:`I` in the
     ``attribute_interpretation`` parameter to interpet truth values.
 
-    This is rule [C2].
+    This is rule :math:`[C_{2}]`.
 
     This function works as follows:
 
@@ -550,7 +550,7 @@ def diagrammatic_to_sentential(context, F, named_states,
     provided in the ``F`` parameter can be derived in every one of these
     :math:`n` cases.
 
-    This is rule [C3].
+    This is rule :math:`[C_{3}]`.
 
     This function works as follows:
 

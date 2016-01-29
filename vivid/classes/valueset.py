@@ -15,7 +15,6 @@ object if the object uses a non-standard form of equality,
 from copy import deepcopy
 from functools import total_ordering
 from interval import Interval
-from point import Point
 
 
 @total_ordering
@@ -36,7 +35,7 @@ class ValueSet(object):
     """
 
     _base_types = [int, float, long, str, bool]
-    _object_types = ["_is_Interval", "_is_Point"]
+    _object_types = ["_is_Interval", "_is_Point", "_is_LineSegment"]
 
     @classmethod
     def add_object_type(cls, object_identifier):
@@ -112,7 +111,7 @@ class ValueSet(object):
                             break
                     else:
                         filtered_self_values.append(value)
-            # Handle point related stuff; speicfically handled hear for
+            # Handle point related stuff; speicfically handled here for
             # generic point support
             elif _type == "_is_Point":
                 for value in values:
@@ -120,6 +119,13 @@ class ValueSet(object):
                         if value._dimension == point._dimension:
                             if value == point or point._is_generic:
                                 break
+                    else:
+                        return False
+            elif _type == "_is_LineSegment":
+                for value in values:
+                    for line_segment in other_dict["_is_LineSegment"]:
+                        if value <= line_segment:
+                            break
                     else:
                         return False
             else:
@@ -154,10 +160,10 @@ class ValueSet(object):
         if hasattr(other, "_is_ValueSet"):
             return ValueSet(self._values + other._values)
 
-        try:
+        if hasattr(other, "__iter__"):
             other_values = [v for v in iter(other)]
             return ValueSet(self._values + other_values)
-        except:
+        else:
             new_values = self._values
             new_values.append(other)
             return ValueSet(new_values)

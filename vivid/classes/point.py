@@ -41,8 +41,6 @@ class Point(object):
 
         if not generic_flag:
 
-            longest_precision = 0
-
             for x_i in coordinates:
                 if not isinstance(x_i, float):
                     raise TypeError(
@@ -147,7 +145,7 @@ class Point(object):
                 sum([(p1[i] - p2[i]) ** 2 for i in range(self._dimension)]))
 
         def is_between(p1, p2, p3):
-            epsilon = .000000000000001
+            epsilon = .00000000000001
             delta = (distance(p1, p2) + distance(p1, p3)) - distance(p2, p3)
             return - epsilon < delta < epsilon
 
@@ -265,6 +263,6 @@ class Point(object):
             else:
                 return Point(*[float(coord) for coord in coordinates])
         except ValueError:
-            raise ValueError("String must be of form P('x') or P('x','x')")
+            raise ValueError("point_string must be of form str(Point)")
         except TypeError:
-            raise ValueError("String must be of form P('x') or P('x','x')")
+            raise ValueError("point_string must be of form str(Point)")

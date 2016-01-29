@@ -2,6 +2,7 @@
 
 from truth_value_parser import TruthValueParser
 from point_parser import PointParser
+from line_segment_parser import LineSegmentParser
 
 
 class ParserSet(object):
@@ -19,7 +20,8 @@ class ParserSet(object):
         Construct a ParserSet object.
         """
 
-        self._parsers = [TruthValueParser(), PointParser()]
+        self._parsers = [TruthValueParser(), PointParser(),
+                         LineSegmentParser()]
         self._is_ParserSet = True
 
     def __len__(self):

@@ -767,6 +767,7 @@ def test_get_named_alternate_extensions():
         assert state_4 in alternate_extensions
         assert state_5 in alternate_extensions
         assert state_6 in alternate_extensions
+        assert alternate_extensions[0]._p._vocabulary is state._p._vocabulary
 
     def test_objects_simple():
         """Do a test using Point and Interval object."""

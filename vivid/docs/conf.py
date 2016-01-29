@@ -215,9 +215,31 @@ latex_elements = {
 #'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
-'preamble': '\usepackage{amssymb}',
+# 'preamble': '\usepackage{amssymb}',
 
+'preamble': r'''
+\usepackage{amssymb}
+\usepackage{titlesec}
+\titleformat{\section}
+{\color{black}\normalfont\Large\bfseries}
+{\color{black}\thesection}{1em}{}
+\titleformat{\subsection}
+{\color{black}\normalfont\Large\bfseries}
+{\color{black}\thesubsection}{1em}{}
 
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+linkcolor=black,
+citecolor=black,
+filecolor=black,
+menucolor=black,
+urlcolor=black,
+bookmarksnumbered=true
+}
+''',
+
+'classoptions': ',oneside',
+'babel': '\\usepackage[english]{babel}'
 # Latex figure (float) alignment
 #'figure_align': 'htbp',
 }

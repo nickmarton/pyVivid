@@ -382,6 +382,7 @@ class Formula(object):
         for world in worlds:
             # break reference from Relation
             definition = str(relation._definition)
+
             # zip arguments in Relation and valuations together
             valuations = [
                 world._ascriptions[ao_pair] for ao_pair in profile]

@@ -16,8 +16,8 @@ def test___call__():
 def test__eval():
     """Test _eval function."""
     # Test eval of is_on function contained in Point class
-    eval_string_1 = "is_on(P(2.0,2.0),P(1.0,1.0),P(3.0,3.0))"
-    eval_string_2 = "is_on(P(2.0,2.0,2.0),P(1.0,1.0,1.0),P(3.0,3.0,3.0))"
+    eval_string_1 = "is_on(P(2.0,2.0),P(-1.0,-1.0),P(3.0,3.0))"
+    eval_string_2 = "is_on(P(2.0,2.0,-2.0),P(1.0,1.0,-1.0),P(3.0,3.0,-3.0))"
     eval_string_3 = "is_on(P(2.0,2.0,2.0,2.0),P(1.0,1.0,1.0,1.0),P(3.0,3.0,3.0,3.0))"
     eval_string_4 = "is_on(P(2.0,2.0),P(6.0,1.0),P(3.0,2.0))"
     parser = PointParser()

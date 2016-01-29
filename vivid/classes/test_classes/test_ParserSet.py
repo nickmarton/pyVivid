@@ -7,7 +7,7 @@ from vivid.classes.parsers.parser_set import ParserSet
 def test___len__():
     """Test len(ParserSet)."""
     parset_set = ParserSet()
-    assert len(parset_set) == 2
+    assert len(parset_set) == 3
 
 
 def test___getitem__():
@@ -26,7 +26,7 @@ def test___getitem__():
     test_TypeError(parser_set, '')
     test_TypeError(parser_set, None)
     test_TypeError(parser_set, object)
-    test_IndexError(parser_set, -3)
+    test_IndexError(parser_set, -4)
     test_IndexError(parser_set, 3)
 
 
