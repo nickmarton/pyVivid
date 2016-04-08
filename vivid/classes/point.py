@@ -1,4 +1,4 @@
-"""point module."""
+"""This section introduces the Point class."""
 
 
 class Point(object):

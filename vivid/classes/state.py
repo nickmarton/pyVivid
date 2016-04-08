@@ -1,4 +1,4 @@
-"""state module."""
+"""This section introduces the State class."""
 
 from copy import deepcopy
 from functools import total_ordering

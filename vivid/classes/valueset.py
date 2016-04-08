@@ -1,7 +1,7 @@
 """
-valueset module.
+This section introduces to the ValueSet class.
 
-Supports any object provided they implement
+The ValueSet class supports any object provided they implement
 ``__deepcopy__``, ``__eq__``, ``__str__``, ``__hash__``,
 and provide a parser for truth value evaluation.
 Additionally, ``__le__`` in ValueSet class must be extended to support the

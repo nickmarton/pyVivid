@@ -1,4 +1,4 @@
-"""formula module."""
+"""This section introduces the Formula class."""
 
 from variable_assignment import VariableAssignment
 

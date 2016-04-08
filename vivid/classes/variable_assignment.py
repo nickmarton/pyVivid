@@ -1,4 +1,4 @@
-"""variable_assignment module."""
+"""This section introduces the VariableAssignment class."""
 
 from assignment import Assignment
 

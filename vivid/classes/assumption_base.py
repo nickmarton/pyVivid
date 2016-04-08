@@ -1,4 +1,4 @@
-"""assumption_base module."""
+"""This section introduces the AssumptionBase class."""
 
 from formula import Formula
 

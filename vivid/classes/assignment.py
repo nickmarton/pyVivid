@@ -1,4 +1,4 @@
-"""assignment module."""
+"""This section introduces the Assignment class."""
 
 
 class Assignment(object):

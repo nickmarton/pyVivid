@@ -1,4 +1,4 @@
-"""attribute_interpretation module."""
+"""This section introduces the AttributeInterpretation class."""
 
 from vocabulary import Vocabulary
 from relation_symbol import RelationSymbol

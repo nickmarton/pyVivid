@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*
 #
 # vivid documentation build configuration file, created by
 # sphinx-quickstart on Sun Jan 17 01:43:43 2016.
@@ -249,7 +249,7 @@ bookmarksnumbered=true
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'vivid.tex', u'vivid Documentation',
-     u'Nicholas Marton', 'manual'),
+     u'Nicholas Marton', 'howto'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

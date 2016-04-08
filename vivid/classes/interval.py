@@ -1,4 +1,4 @@
-"""interval module."""
+"""This section introduces the Interval class."""
 
 from copy import deepcopy
 

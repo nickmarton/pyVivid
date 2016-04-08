@@ -1,4 +1,4 @@
-"""context module."""
+"""This section introduces the Context class."""
 
 
 class Context(object):

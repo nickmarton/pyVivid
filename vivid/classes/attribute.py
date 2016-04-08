@@ -1,4 +1,4 @@
-"""attribute module."""
+"""This section introduces the Attribute class."""
 
 from copy import deepcopy
 from valueset import ValueSet

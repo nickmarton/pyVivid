@@ -1,4 +1,4 @@
-"""relation module."""
+"""This section introduces the Relation class."""
 
 from copy import deepcopy
 

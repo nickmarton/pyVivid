@@ -1,5 +1,4 @@
-"""vocabulary module."""
-
+"""This section introduces the Vocabulary class."""
 
 class Vocabulary(object):
     """

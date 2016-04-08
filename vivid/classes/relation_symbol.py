@@ -1,4 +1,4 @@
-"""relation_symbol module."""
+"""This section introduces the RelationSymbol class."""
 
 
 class RelationSymbol(object):

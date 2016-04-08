@@ -1,4 +1,4 @@
-"""truth_value_parser module."""
+"""This section introduces the TruthValueParser class."""
 
 from __future__ import division
 from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group,
@@ -210,7 +210,7 @@ def main():
     lmtp = TruthValueParser()
     # result = lmtp(
     # '(!!(((-cos(2*pi) + 44^2) + (-cos(2*pi) + 44^2) ^ 1.5) > 1) and !!True) or 7>5^2')
-    expression = '(4<5 * cos(2 * PI) and 4*e^3 > 3 * 3 *(3+3))and!!(2 < 3)'
+    expression = 'sgn(9)'
     print expression
     result = lmtp(expression)
     print result

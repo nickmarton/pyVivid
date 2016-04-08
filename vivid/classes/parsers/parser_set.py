@@ -1,4 +1,4 @@
-"""parser_set module."""
+"""This section introduces the ParserSet class."""
 
 from truth_value_parser import TruthValueParser
 from point_parser import PointParser

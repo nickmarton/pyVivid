@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module provides the rules of diagrammatic inference."""
+"""This section introduces the rules of diagrammatic inference."""
 
 from formula import Formula
 from assumption_base import AssumptionBase

@@ -129,7 +129,7 @@ The Vocabulary object
 Constant and Variable Assignments
 =================================
 
-The Assignment base class
+The Assignment Base Class
 -------------------------
 .. automodule:: assignment
 
@@ -221,46 +221,46 @@ Rules of Inference for Diagrammatic Deductions
 
 .. currentmodule:: inference_rules
 
-The [Thinning] rule
+The [Thinning] Rule
 -------------------
 .. autofunction:: thinning
 
-The [Widening] rule
+The [Widening] Rule
 -------------------
 .. autofunction:: widening
 
-The [Observe] rule
-----------------
+The [Observe] Rule
+------------------
 .. autofunction:: observe
 
-The [Absurdity] rule
+The [Absurdity] Rule
 --------------------
 .. autofunction:: diagrammatic_absurdity
 
-The [Diagram-Reiteration] rule
+The [Diagram-Reiteration] Rule
 ------------------------------
 .. autofunction:: diagram_reiteration
 
-The [Sentential-to-Sentential] rule
----------------------------------
+The [Sentential-to-Sentential] Rule
+-----------------------------------
 .. autofunction:: sentential_to_sentential
 
-The [Diagrammatic-to-Diagrammatic] rule
--------------
+The [Diagrammatic-to-Diagrammatic] Rule
+---------------------------------------
 .. autofunction:: diagrammatic_to_diagrammatic
 
-The [Sentential-to-Diagrammatic] rule
--------------
+The [Sentential-to-Diagrammatic] Rule
+-------------------------------------
 .. autofunction:: sentential_to_diagrammatic
 
-The [Diagrammatic-to-Sentential] rule
--------------
+The [Diagrammatic-to-Sentential] Rule
+-------------------------------------
 .. autofunction:: diagrammatic_to_sentential
 
 Parsers
 =======
 
-The ParserSet object
+The ParserSet Object
 --------------------
 
 .. automodule:: parser_set
@@ -270,17 +270,17 @@ The ParserSet object
     :private-members:
     :special-members: __init__, __len__, __getitem__, __iter__
 
-The PointParser object
+The PointParser Object
 ----------------------
 
 .. automodule:: point_parser
 
 .. autoclass:: PointParser
     :members:
-    :private-members:
-    :special-members: __init__, __call__, _eval
+    :private-members: _eval
+    :special-members: __init__, __call__
 
-The TruthValueParser object
+The TruthValueParser Object
 ---------------------------
 
 .. automodule:: truth_value_parser
@@ -288,5 +288,15 @@ The TruthValueParser object
 .. autoclass:: TruthValueParser
     :members:
     :exclude-members: evaluate_stack, pushFirst, pushNeg, pushRel, pushUMinus
+    :private-members: _eval
+    :special-members: __init__, __call__
+
+The LineSegmentParser Object
+----------------------------
+
+.. automodule:: line_segment_parser
+
+.. autoclass:: LineSegmentParser
+    :members:
     :private-members: _eval
     :special-members: __init__, __call__

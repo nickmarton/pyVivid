@@ -1,4 +1,4 @@
-"""constant_assignemnt module."""
+"""This section introduces the ConstantAssignment class."""
 
 from functools import total_ordering
 from assignment import Assignment

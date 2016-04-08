@@ -1,4 +1,4 @@
-"""point_parser module."""
+"""This section introduces the PointParser class."""
 
 import os
 import sys

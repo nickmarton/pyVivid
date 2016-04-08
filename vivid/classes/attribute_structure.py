@@ -1,4 +1,4 @@
-"""attribute_structure module."""
+"""This section introduces the AttributeStructure class."""
 
 from attribute import Attribute
 from relation import Relation

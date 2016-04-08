@@ -1,4 +1,4 @@
-"""attribute_system module."""
+"""This section introduces the AttributeSystem class."""
 
 from copy import deepcopy
 from functools import total_ordering

@@ -1,4 +1,4 @@
-"""point_parser module."""
+"""This section introduces the LineSegmentParser class."""
 
 import os
 import sys

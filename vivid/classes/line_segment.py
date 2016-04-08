@@ -1,4 +1,4 @@
-"""line module."""
+"""This section introduces the LineSegment class."""
 
 from point import Point
 

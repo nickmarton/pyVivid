@@ -1,4 +1,4 @@
-"""named_state module."""
+"""This section introduces the NamedState class."""
 
 from functools import total_ordering
 from state import State
