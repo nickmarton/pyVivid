@@ -52,8 +52,8 @@ class AssumptionBase(object):
                 vocabulary = formulae[0]._vocabulary
                 names = [f._name for f in formulae]
 
-                if len(names) != len(set(names)):
-                    raise ValueError("Duplicate Formula names not permitted")
+                #if len(names) != len(set(names)):
+                #    raise ValueError("Duplicate Formula names not permitted")
 
                 for f in formulae:
                     if vocabulary is not f._vocabulary:
