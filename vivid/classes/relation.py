@@ -253,6 +253,10 @@ class Relation(object):
 
         return len(self._DR)
 
+    def export(self):
+        """Export definition of Relation object."""
+        return self._definition.split("<=>")[1]
+
     @staticmethod
     def is_valid_definition(definition):
         """

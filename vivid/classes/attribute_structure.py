@@ -500,6 +500,10 @@ class AttributeStructure(Attribute):
 
         return len(self._attributes)
 
+    def export(self):
+        """Export definitions of internal Relation objects for ATP usage."""
+        return [relation.export() for subscript, relation in self._relations.iteritems()]
+
     def __str__(self):
         """
         Return a readable string representation of the AttributeStructure
